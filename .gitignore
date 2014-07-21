@@ -25,6 +25,6 @@ _testmain.go
 .idea
 .DS_Store
 bin
-github.com
+github.com/gorilla
 labix.org
 access.log
