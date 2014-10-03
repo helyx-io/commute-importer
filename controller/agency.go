@@ -14,7 +14,7 @@ type AgencyController struct { }
 
 func (agencyController *AgencyController) Init(r *mux.Router) {
 	r.HandleFunc("/", agencyController.Agencies)
-	r.HandleFunc("/", agencyController.Agencies)
+	r.HandleFunc("/{id:[0-9]+}", agencyController.AgenciesByKey)
 }
 
 
@@ -87,6 +87,7 @@ func (ac *AgencyController) Agencies(w http.ResponseWriter, r *http.Request) {
 func (ac *AgencyController) AgenciesByKey(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	agencyKey := params["agencyKey"]
+
 	log.Printf("Agency Key: %s", agencyKey)
 	w.Write([]byte("Agency Key: " + agencyKey))
 }

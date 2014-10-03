@@ -41,6 +41,7 @@ func initRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
+	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
 	new(controller.AgencyController).Init(r.PathPrefix("/agencies").Subrouter())
 
 	// Add handler for static files
