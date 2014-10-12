@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gorilla/mux"
-	"labix.org/v2/mgo"
-	"labix.org/v2/mgo/bson"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"log"
 	"fmt"
 	"net/http"
@@ -16,7 +16,6 @@ func (agencyController *AgencyController) Init(r *mux.Router) {
 	r.HandleFunc("/", agencyController.Agencies)
 	r.HandleFunc("/{id:[0-9]+}", agencyController.AgenciesByKey)
 }
-
 
 type Agency struct {
 	Id bson.ObjectId `bson:"_id" json:"id"`
@@ -35,7 +34,8 @@ var (
 func getSession() *mgo.Session {
 	if mgoSession == nil {
 		var err error
-		mgoSession, err = mgo.Dial("localhost")
+		//	mgoSession, err := mgo.Dial("localhost:27017,localhost:27018,localhost:27019,localhost:27020")
+		mgoSession, err = mgo.Dial("localhost:27017?maxPoolSize=500")
 		if err != nil {
 			panic(err)
 		}
@@ -54,6 +54,7 @@ func withCollection(databaseName string, collectionName string, fn func(*mgo.Col
 		panic(err)
 	}
 }
+
 func findAll(databaseName string, collectionName string) (results[]interface{}) {
 	session := getSession()
 	defer session.Close()

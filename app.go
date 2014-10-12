@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 )
 
 func check(e error) {
@@ -17,6 +18,9 @@ func check(e error) {
 }
 
 func main() {
+
+	runtime.GOMAXPROCS(runtime.NumCPU())
+
 	logWriter, err := os.Create("./access.log")
 	check(err)
 	defer logWriter.Close()
