@@ -16,7 +16,10 @@ import (
 	"github.com/fatih/stopwatch"
 	"github.com/akinsella/go-playground/models"
 	"github.com/goinggo/workpool"
-	"gopkg.in/mgo.v2"
+//	"gopkg.in/mgo.v2"
+	"strings"
+	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type ImportController struct { }
@@ -182,7 +185,7 @@ func (it *ImportTask) DoWork(workRoutine int) {
 		panic(err)
 	}
 
-	_, err = BulkInsertRecords(lines)
+	err = BulkInsertRecordsMySQL(lines)
 
 	if err != nil {
 		log.Println("Could not insert records in database:", err)
@@ -233,23 +236,45 @@ func ParseCsv(b []byte) ([][]string, error) {
 	return records, err
 }
 
-func BulkInsertRecords(records [][]string) (*mgo.BulkResult, error)  {
+//func BulkInsertRecordsMongo(records [][]string) (error)  {
+//
+//	mSession := getSession()
+//
+//	defer mSession.Close()
+//
+//	c := mSession.DB("gtfs").C("stop_times")
+//
+//	bulk := c.Bulk()
+//
+//	for _, record := range _map(records) {
+//		bulk.Insert(record)
+//	}
+//
+//	err := bulk.Run()
+//
+//	return err
+//}
 
-	mSession := getSession()
+func BulkInsertRecordsMySQL(records [][]string) (error)  {
 
-	defer mSession.Close()
+	db, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
 
-	c := mSession.DB("gtfs").C("stop_times")
-
-	bulk := c.Bulk()
-
-	for _, record := range _map(records) {
-		bulk.Insert(record)
+	if err != nil {
+		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
 	}
 
-	bulkResult, err := bulk.Run()
+	defer db.Close()
 
-	return bulkResult, err
+	valueStrings := make([]string, 0, len(records))
+	valueArgs := make([]interface{}, 0, len(records) * 9)
+
+	for _, record := range records {
+		valueStrings = append(valueStrings, "('RATP', ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueArgs = append(valueArgs, record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7])
+	}
+	stmt := fmt.Sprintf("INSERT INTO stop_times (agency_key, trip_id, arrival_time, departure_time, stop_id, stop_sequence, stop_head_sign, pickup_type, drop_off_type) VALUES %s", strings.Join(valueStrings, ","))
+	_, err = db.Exec(stmt, valueArgs...)
+	return err
 }
 
 func LinesIterator(src string) <- chan []byte {
