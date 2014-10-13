@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"net/http"
 	"path/filepath"
 	"github.com/gorilla/mux"
@@ -200,7 +201,21 @@ func _map(records [][]string) []models.StopTime {
 
 	for i, record := range records {
 //		fmt.Println("Index:", i, "Record:", record)
-		stopTimes[i] = models.StopTime{ "RATP", record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7] }
+
+		stopSequence, _ := strconv.Atoi(record[4])
+		pickup_type, _ := strconv.Atoi(record[6])
+		drop_off_type, _ := strconv.Atoi(record[7])
+		stopTimes[i] = models.StopTime{
+			"RATP",
+			record[0],
+			record[1],
+			record[2],
+			record[3],
+			stopSequence,
+			record[5],
+			pickup_type,
+			drop_off_type,
+		}
 	}
 
 	return stopTimes
@@ -313,12 +328,14 @@ func ReadFile(src string, channel chan []byte) {
 			break;
 		}
 
-		b = append(b, l...)
-		b = append(b, '\n')
+		if (chunk != 0 || i != 0) {
+			b = append(b, l...)
+			b = append(b, '\n')
+		}
 
 		i++
 
-		if len(b) >= 128000 {
+		if len(b) >= 512000 {
 			chunk++
 //			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 			channel <- b

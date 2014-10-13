@@ -37,10 +37,10 @@ type StopTime struct {
 	ArrivalTime string `bson:"stop_code" json:"arrivalTime"`
 	DepartureTime string `bson:"departure_time" json:"departureTime"`
 	StopId string `bson:"stop_id" json:"stopId"`
-	StopSequence string `bson:"stop_sequence" json:"stopSequence"`
+	StopSequence int `bson:"stop_sequence" json:"stopSequence"`
 	StopHeadSign string `bson:"stop_head_sign" json:"stopHeadSign"`
-	PickupType string `bson:"pickup_type" json:"pickupType"`
-	DropOffType string `bson:"drop_off_type" json:"dropOffType"`
+	PickupType int `bson:"pickup_type" json:"pickupType"`
+	DropOffType int `bson:"drop_off_type" json:"dropOffType"`
 //	ShapeDistTraveled string `bson:"shape_dist_traveled" json:"shapeDistTraveled"`
 }
 
