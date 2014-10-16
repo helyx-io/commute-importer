@@ -9,9 +9,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type MySQL struct {}
-
-
 type MySQLStopTimesImportTask struct {
 	tasks.ImportTask
 }
