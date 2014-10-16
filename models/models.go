@@ -1,9 +1,9 @@
 package models
 
 import (
+	"strconv"
 	"gopkg.in/mgo.v2/bson"
 )
-
 
 type Agency struct {
 	Id bson.ObjectId `bson:"_id" json:"id"`
@@ -44,38 +44,37 @@ type StopTime struct {
 //	ShapeDistTraveled string `bson:"shape_dist_traveled" json:"shapeDistTraveled"`
 }
 
+type Records struct {
+	Records [][]string
+}
 
+type StopTimes struct {
+	Records []StopTime
+}
 
+type RecordsInserter interface {
+	InsertStopTimes(sts *StopTimes) (err error)
+}
 
+func (rs *Records) MapToStopTimes() StopTimes {
+	var st = StopTimes{ make([]StopTime, len(rs.Records)) }
 
+	for i, record := range rs.Records {
+		stopSequence, _ := strconv.Atoi(record[4])
+		pickup_type, _ := strconv.Atoi(record[6])
+		drop_off_type, _ := strconv.Atoi(record[7])
+		st.Records[i] = StopTime{
+			"RATP",
+			record[0],
+			record[1],
+			record[2],
+			record[3],
+			stopSequence,
+			record[5],
+			pickup_type,
+			drop_off_type,
+		}
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return st
+}
