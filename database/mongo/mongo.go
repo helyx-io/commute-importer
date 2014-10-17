@@ -13,10 +13,10 @@ type MongoStopTimesImportTask struct {
 }
 
 func (m *MongoStopTimesImportTask) DoWork(workRoutine int) {
-	m.InsertStopTimes(insertStopTimes);
+	m.InsertStopTimes(stopTimesInserter);
 }
 
-func insertStopTimes(sts *models.StopTimes) (error)  {
+func stopTimesInserter(sts *models.StopTimes) (error)  {
 
 	mSession := GetSession()
 

@@ -42,20 +42,22 @@ func ParseCsv(b []byte) (models.Records, error) {
 	return models.Records{ records }, err
 }
 
-
-
 func ReadCsvFile(src string, channel chan []byte) {
 
 	file, err := os.Open(src)
+
 	if err != nil {
 		panic(err)
 	}
+
 	defer file.Close()
+
 	r := bufio.NewReader(file)
 
 	b := []byte{}
 	chunk := 0
 	i := 0
+
 	for {
 		l, err := r.ReadBytes('\n')
 
@@ -87,9 +89,11 @@ func ReadCsvFile(src string, channel chan []byte) {
 		}
 
 	}
+
 	if len(b) > 0 {
 		chunk++
 		//		fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 		channel <- b
 	}
+
 }

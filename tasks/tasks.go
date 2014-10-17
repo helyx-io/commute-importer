@@ -13,7 +13,9 @@ type ImportTask struct {
 	WP *workpool.WorkPool
 }
 
-func (it *ImportTask) InsertStopTimes(insertStopTimes func(sts *models.StopTimes) error) {
+type StopTimesInserter func(sts *models.StopTimes) error
+
+func (it *ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
 	records, err := utils.ParseCsv(it.Lines)
 
@@ -23,7 +25,7 @@ func (it *ImportTask) InsertStopTimes(insertStopTimes func(sts *models.StopTimes
 	}
 
 	stopTimes := records.MapToStopTimes()
-	err = insertStopTimes(&stopTimes)
+	err = stopTimesInserter(&stopTimes)
 
 	if err != nil {
 		log.Println("Could not insert records in database:", err)

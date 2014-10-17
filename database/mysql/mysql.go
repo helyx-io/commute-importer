@@ -14,10 +14,10 @@ type MySQLStopTimesImportTask struct {
 }
 
 func (m *MySQLStopTimesImportTask) DoWork(workRoutine int) {
-	m.InsertStopTimes(insertStopTimes);
+	m.InsertStopTimes(stopTimesInserter);
 }
 
-func insertStopTimes(sts *models.StopTimes) (error)  {
+func stopTimesInserter(sts *models.StopTimes) (error)  {
 
 	db, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
 
