@@ -9,9 +9,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
 	"github.com/akinsella/go-playground/database/mysql"
-	"github.com/akinsella/go-playground/tasks"
 	"github.com/akinsella/go-playground/utils"
 	"github.com/goinggo/workpool"
+
 )
 
 type ImportController struct { }
@@ -89,17 +89,19 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	offset := 0
 
+	db, err := mysql.InitDb(2, 100);
+	failOnError(err, "Could not open database")
+	defer db.Close()
+
+	gtfs := mysql.CreateMySQLGTFSRepository(db)
+	stopTimes := gtfs.StopTimes()
+	stopTimes.RemoveAllByAgencyKey("RATP")
+
 	for lines := range LinesIterator(stopsFilename) {
 
 		offset++
-
-		task := mysql.MySQLStopTimesImportTask {
-			tasks.ImportTask {
-				Name: fmt.Sprintf("ChunkImport-%d", offset),
-				Lines: lines,
-				WP: workPool,
-			},
-		}
+		taskName := fmt.Sprintf("ChunkImport-%d", offset)
+		task := stopTimes.CreateImportTask(taskName, lines, workPool)
 
 		err := workPool.PostWork("import", &task)
 
