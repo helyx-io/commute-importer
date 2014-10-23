@@ -63,9 +63,10 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf(" - Unzipped file: '%v' to directory: '%v' - ElapsedTime: %v - Duration: %v", zipFilename, folderFilename, sw.ElapsedTime(), swZip.ElapsedTime())))
 	w.Write([]byte("<br/>"))
 
-	stopsFilename := fmt.Sprintf("%v/stop_times.txt", folderFilename)
+	stopTimesFilename := fmt.Sprintf("%v/stop_times.txt", folderFilename)
+	stopsFilename := fmt.Sprintf("%v/stops.txt", folderFilename)
 
-	w.Write([]byte(fmt.Sprintf(" - Reading file: '%v'", stopsFilename)))
+	w.Write([]byte(fmt.Sprintf(" - Reading file: '%v'", stopTimesFilename)))
 	w.Write([]byte("<br/>"))
 
 	swReadFile := stopwatch.Start(0)
@@ -82,7 +83,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	stopTimes := gtfs.StopTimes()
 	stopTimes.RemoveAllByAgencyKey("RATP")
 
-	gtfsFile := models.GTFSFile{stopsFilename}
+	gtfsFile := models.GTFSFile{stopTimesFilename}
 
 	for lines := range gtfsFile.LinesIterator() {
 
@@ -94,6 +95,25 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
 	}
+
+
+	stops := gtfs.Stops()
+	stops.RemoveAllByAgencyKey("RATP")
+
+	gtfsFile = models.GTFSFile{stopsFilename}
+
+	for lines := range gtfsFile.LinesIterator() {
+
+		offset++
+		taskName := fmt.Sprintf("ChunkImport-%d", offset)
+		task := stops.CreateImportTask(taskName, lines, workPool)
+
+		err := workPool.PostWork("import", &task)
+
+		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
+	}
+
+
 
 	w.Write([]byte(fmt.Sprintf(" - 	Read file: '%v' - ElapsedTime: %v - Duration: %v", stopsFilename, sw.ElapsedTime(), swReadFile.ElapsedTime())))
 	w.Write([]byte("<br/>"))
