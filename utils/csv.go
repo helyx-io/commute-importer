@@ -3,44 +3,8 @@ package utils
 import (
 	"io"
 	"os"
-	"fmt"
-	"log"
-	"bytes"
 	"bufio"
-	"encoding/csv"
-	"github.com/akinsella/go-playground/models"
 )
-
-
-func ParseCsv(b []byte) (models.Records, error) {
-	r := bytes.NewReader(b)
-	reader := csv.NewReader(r)
-	records := make([][]string, 0)
-
-	var err error
-
-	for {
-		record, err := reader.Read()
-
-		if err == io.EOF {
-			break
-		} else if err, ok := err.(*csv.ParseError); ok {
-			if err.Err != csv.ErrFieldCount {
-				fmt.Println(fmt.Sprintf("%#v", err))
-				log.Println("2 - Error on line read:", err, "line:", record)
-				panic(err)
-			}
-		} else if err != nil {
-			fmt.Println(fmt.Sprintf("%#v", err))
-			log.Println("3 - Error on line read:", err, "line:", record)
-			break;
-		}
-
-		records = append(records, record)
-	}
-
-	return models.Records{ records }, err
-}
 
 func ReadCsvFile(src string, channel chan []byte) {
 

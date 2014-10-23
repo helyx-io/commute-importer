@@ -4,7 +4,6 @@ import (
 	"log"
 	"github.com/goinggo/workpool"
 	"github.com/akinsella/go-playground/models"
-	"github.com/akinsella/go-playground/utils"
 )
 
 type ImportTask struct {
@@ -17,7 +16,7 @@ type StopTimesInserter func(sts *models.StopTimes) error
 
 func (it *ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
-	records, err := utils.ParseCsv(it.Lines)
+	records, err := models.ParseCsv(it.Lines)
 
 	if err != nil {
 		log.Println("Could parse CSV File:", err)

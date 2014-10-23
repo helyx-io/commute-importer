@@ -1,8 +1,14 @@
 package models
 
 import (
+	"io"
+	"fmt"
+	"log"
+	"bytes"
+	"encoding/csv"
 	"strconv"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/akinsella/go-playground/utils"
 )
 
 type Agency struct {
@@ -77,4 +83,48 @@ func (rs *Records) MapToStopTimes() StopTimes {
 	}
 
 	return st
+}
+
+type GTFSFile struct {
+	Filename string
+}
+
+func (gf GTFSFile) LinesIterator() <- chan []byte {
+	channel := make(chan []byte)
+	go func() {
+		utils.ReadCsvFile(gf.Filename, channel)
+		defer close(channel)
+	}()
+	return channel
+}
+
+
+func ParseCsv(b []byte) (Records, error) {
+	r := bytes.NewReader(b)
+	reader := csv.NewReader(r)
+	records := make([][]string, 0)
+
+	var err error
+
+	for {
+		record, err := reader.Read()
+
+		if err == io.EOF {
+			break
+		} else if err, ok := err.(*csv.ParseError); ok {
+			if err.Err != csv.ErrFieldCount {
+				fmt.Println(fmt.Sprintf("%#v", err))
+				log.Println("2 - Error on line read:", err, "line:", record)
+				panic(err)
+			}
+		} else if err != nil {
+			fmt.Println(fmt.Sprintf("%#v", err))
+			log.Println("3 - Error on line read:", err, "line:", record)
+			break;
+		}
+
+		records = append(records, record)
+	}
+
+	return Records{ records }, err
 }
