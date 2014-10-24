@@ -12,7 +12,7 @@ type MongoStopTimesImportTask struct {
 	tasks.ImportTask
 }
 
-func (m *MongoStopTimesImportTask) DoWork(workRoutine int) {
+func (m MongoStopTimesImportTask) DoWork(workRoutine int) {
 	m.InsertStopTimes(stopTimesInserter);
 }
 

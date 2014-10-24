@@ -8,6 +8,7 @@ import (
 	"github.com/akinsella/go-playground/database/mysql"
 	"github.com/akinsella/go-playground/utils"
 	"github.com/akinsella/go-playground/models"
+	"github.com/akinsella/go-playground/database"
 	"github.com/goinggo/workpool"
 
 )
@@ -24,7 +25,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 	r.HandleFunc("/", importController.Import)
 }
 
-func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
+func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	var err error
 
@@ -73,48 +74,36 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	workPool := workpool.New(32, 10000)
 
-	offset := 0
-
 	db, err := mysql.InitDb(2, 100);
 	utils.FailOnError(err, "Could not open database")
 	defer db.Close()
 
 	gtfs := mysql.CreateMySQLGTFSRepository(db)
-	stopTimes := gtfs.StopTimes()
-	stopTimes.RemoveAllByAgencyKey("RATP")
 
-	gtfsFile := models.GTFSFile{stopTimesFilename}
-
-	for lines := range gtfsFile.LinesIterator() {
-
-		offset++
-		taskName := fmt.Sprintf("ChunkImport-%d", offset)
-		task := stopTimes.CreateImportTask(taskName, lines, workPool)
-
-		err := workPool.PostWork("import", &task)
-
-		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
-	}
-
-
-	stops := gtfs.Stops()
-	stops.RemoveAllByAgencyKey("RATP")
-
-	gtfsFile = models.GTFSFile{stopsFilename}
-
-	for lines := range gtfsFile.LinesIterator() {
-
-		offset++
-		taskName := fmt.Sprintf("ChunkImport-%d", offset)
-		task := stops.CreateImportTask(taskName, lines, workPool)
-
-		err := workPool.PostWork("import", &task)
-
-		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
-	}
-
-
+	insertModels(gtfs.Stops(), stopsFilename, workPool)
+	insertModels(gtfs.StopTimes(), stopTimesFilename, workPool)
 
 	w.Write([]byte(fmt.Sprintf(" - 	Read file: '%v' - ElapsedTime: %v - Duration: %v", stopsFilename, sw.ElapsedTime(), swReadFile.ElapsedTime())))
 	w.Write([]byte("<br/>"))
+}
+
+func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string, workPool *workpool.WorkPool) {
+
+	offset := 0
+
+	gtfsModel.RemoveAllByAgencyKey("RATP")
+
+	gtfsFile := models.GTFSFile{modelsFilename}
+
+	for lines := range gtfsFile.LinesIterator() {
+
+		offset++
+		taskName := fmt.Sprintf("ChunkImport-%d", offset)
+		task := gtfsModel.CreateImportTask(taskName, lines, workPool)
+
+		err := workPool.PostWork("import", task)
+
+		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
+	}
+
 }
