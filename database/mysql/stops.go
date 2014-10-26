@@ -16,7 +16,7 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Stops() database.StopRepository {
+func (r MySQLGTFSRepository) Stops() database.GTFSModelRepository {
 	return MySQLStopRepository{
 		MySQLGTFSModelRepository{r.db},
 	}

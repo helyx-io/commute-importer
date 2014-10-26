@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"os"
 	"fmt"
+	"log"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
@@ -64,13 +66,15 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte(fmt.Sprintf(" - Unzipped file: '%v' to directory: '%v' - ElapsedTime: %v - Duration: %v", zipFilename, folderFilename, sw.ElapsedTime(), swZip.ElapsedTime())))
 	w.Write([]byte("<br/>"))
 
-	stopTimesFilename := fmt.Sprintf("%v/stop_times.txt", folderFilename)
-	stopsFilename := fmt.Sprintf("%v/stops.txt", folderFilename)
 
-	w.Write([]byte(fmt.Sprintf(" - Reading file: '%v'", stopTimesFilename)))
-	w.Write([]byte("<br/>"))
+	dirname := "." + string(folderFilename)
+	d, err := os.Open(dirname)
+	utils.FailOnError(err, fmt.Sprintf("Could not open directory '%v' for read", folderFilename))
+	defer d.Close()
 
-	swReadFile := stopwatch.Start(0)
+	fi, err := d.Readdir(-1)
+	utils.FailOnError(err, fmt.Sprintf("Could not read directory '%v' content", folderFilename))
+
 
 	workPool := workpool.New(32, 10000)
 
@@ -79,12 +83,31 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 	defer db.Close()
 
 	gtfs := mysql.CreateMySQLGTFSRepository(db)
+	repositoryByFilenameMap := make(map[string]database.GTFSModelRepository)
 
-	insertModels(gtfs.Stops(), stopsFilename, workPool)
-	insertModels(gtfs.StopTimes(), stopTimesFilename, workPool)
+	repositoryByFilenameMap["stop_times.txt"] = gtfs.StopTimes()
+	repositoryByFilenameMap["stops.txt"] = gtfs.StopTimes()
 
-	w.Write([]byte(fmt.Sprintf(" - 	Read file: '%v' - ElapsedTime: %v - Duration: %v", stopsFilename, sw.ElapsedTime(), swReadFile.ElapsedTime())))
-	w.Write([]byte("<br/>"))
+	for _, fi := range fi {
+		if fi.Mode().IsRegular() {
+			if (repositoryByFilenameMap[fi.Name()] == nil) {
+				log.Println("Filename '%v' is not available in map", fi.Name())
+				continue;
+			}
+
+			fmt.Println(fi.Name(), fi.Size(), "bytes")
+
+			w.Write([]byte(fmt.Sprintf(" - Reading file: '%v'", fi.Name())))
+			w.Write([]byte("<br/>"))
+
+			swReadFile := stopwatch.Start(0)
+
+			insertModels(repositoryByFilenameMap[fi.Name()], fi.Name(), workPool)
+
+			w.Write([]byte(fmt.Sprintf(" - 	Read file: '%v' - ElapsedTime: %v - Duration: %v", fi.Name(), sw.ElapsedTime(), swReadFile.ElapsedTime())))
+			w.Write([]byte("<br/>"))
+		}
+	}
 }
 
 func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string, workPool *workpool.WorkPool) {

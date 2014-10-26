@@ -16,7 +16,7 @@ import (
 /// MySQLStopTimeRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) StopTimes() database.StopTimeRepository {
+func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
 	return MySQLStopTimeRepository{
 		MySQLGTFSModelRepository{r.db},
 	}

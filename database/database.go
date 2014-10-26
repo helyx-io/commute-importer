@@ -10,8 +10,8 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GTFSRepository interface {
-	StopTimes() StopTimeRepository
-	Stops() StopRepository
+	StopTimes() GTFSModelRepository
+	Stops() GTFSModelRepository
 }
 
 
