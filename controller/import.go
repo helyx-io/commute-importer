@@ -44,20 +44,23 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	log.Println("Importing agencies ...")
-	log.Println(" - Downloading zip file from url: '", url, "' to file path: '", zipFilename, "' ...")
+
+	log.Println(fmt.Sprintf(" - Downloading zip file from url: '%v' to file path: '%v' ...", url, zipFilename))
 
 	writtenBytes, err := utils.DownloadFileFromURL(url, zipFilename)
 	utils.FailOnError(err, fmt.Sprintf("Could not download file from url: '%v' to file path: '%v'", url, zipFilename))
 
-	log.Println(" - Downloaded zip file: '", zipFilename, "' - ", writtenBytes, " bytes - ElapsedTime: ", sw.ElapsedTime())
-	log.Println(" - Unzipping file: '", zipFilename, "' to directory: '", folderFilename, "' ...")
+	log.Println(fmt.Sprintf(" - Downloaded zip file: '%v' - %v bytes - ElapsedTime: %v", zipFilename, writtenBytes, sw.ElapsedTime()))
+
+	log.Println(fmt.Sprintf(" - Unzipping file: '%v' to directory: '%v' ...", zipFilename, folderFilename))
 
 	swZip := stopwatch.Start(0)
 
 	err = utils.Unzip(zipFilename, folderFilename)
 	utils.FailOnError(err, fmt.Sprintf("Could unzip filename: '%v' to folder: '%v'", zipFilename, folderFilename))
 
-	log.Println(" - Unzipped file: '", zipFilename, "' to directory: '", folderFilename, "' - ElapsedTime: ", sw.ElapsedTime(), " - Duration: ", swZip.ElapsedTime())
+	log.Println(fmt.Sprintf(" - Unzipped file: '%v' to directory: '%v' - ElapsedTime: %v - Duration: %v", zipFilename, folderFilename, sw.ElapsedTime(), swZip.ElapsedTime()))
+
 
 	d, err := os.Open(folderFilename)
 	utils.FailOnError(err, fmt.Sprintf("Could not open directory '%v' for read", folderFilename))
@@ -83,21 +86,22 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 		if fi.Mode().IsRegular() {
 			gtfsModelRepository := repositoryByFilenameMap[fi.Name()]
 			if (gtfsModelRepository == nil) {
-				log.Println("Filename '", fi.Name(), "' is not available in map")
+				log.Println(fmt.Sprintf("Filename '%v' is not available in map", fi.Name()))
 				continue;
 			}
 
-			log.Println("Filename '", fi.Name(), "' is available in map - Reading File with size: '", fi.Size(), "' ...")
+
+			log.Println(fmt.Sprintf("Filename '%v' is available in map - Reading File with size: %d bytes ...", fi.Name(), fi.Size()))
 
 			swReadFile := stopwatch.Start(0)
 
 			insertModels(gtfsModelRepository, fi.Name(), workPool)
 
-			log.Println(" - 	Read file: '", fi.Name(), "' - ElapsedTime: ", sw.ElapsedTime(), "ms - Duration: ", swReadFile.ElapsedTime(), "ms")
+			log.Println(fmt.Sprintf(" - 	Read file: '%v' - ElapsedTime: %v - Duration: %v", fi.Name(), sw.ElapsedTime(), swReadFile.ElapsedTime()))
 		}
 	}
 
-	w.Write([]byte(fmt.Sprintf("Done in %v ms", sw.ElapsedTime())))
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: ", sw.ElapsedTime(), "ms")))
 }
 
 func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string, workPool *workpool.WorkPool) {
