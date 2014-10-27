@@ -4,6 +4,7 @@ import (
 	"os"
 	"fmt"
 	"log"
+	"path"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
@@ -74,13 +75,14 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	db, err := mysql.InitDb(2, 100);
 	utils.FailOnError(err, "Could not open database")
-	defer db.Close()
+//	defer db.Close()
+// FIXME: Manage DB close
 
 	gtfs := mysql.CreateMySQLGTFSRepository(db)
 	repositoryByFilenameMap := make(map[string]database.GTFSModelRepository)
 
 	repositoryByFilenameMap["stop_times.txt"] = gtfs.StopTimes()
-	repositoryByFilenameMap["stops.txt"] = gtfs.StopTimes()
+	repositoryByFilenameMap["stops.txt"] = gtfs.Stops()
 
 	for _, fi := range fi {
 		if fi.Mode().IsRegular() {
@@ -89,7 +91,6 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 				log.Println(fmt.Sprintf("Filename '%v' is not available in map", fi.Name()))
 				continue;
 			}
-
 
 			log.Println(fmt.Sprintf("Filename '%v' is available in map - Reading File with size: %d bytes ...", fi.Name(), fi.Size()))
 
@@ -101,20 +102,25 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 		}
 	}
 
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: ", sw.ElapsedTime(), "ms")))
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v ms", sw.ElapsedTime())))
 }
 
 func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string, workPool *workpool.WorkPool) {
 
 	offset := 0
 
+	log.Println(fmt.Sprintf(" - Removing entries from repository related to file with name: '%v' ...", modelsFilename))
 	gtfsModel.RemoveAllByAgencyKey("RATP")
+	log.Println(fmt.Sprintf(" - Removed entries from repository related to file with name: '%v'", modelsFilename))
 
-	gtfsFile := models.GTFSFile{modelsFilename}
+	gtfsFile := models.GTFSFile{path.Join(folderFilename, modelsFilename)}
 
 	for lines := range gtfsFile.LinesIterator() {
 
 		offset++
+
+		log.Println(fmt.Sprintf(" - Inserting chunk of data with offset: '%d' related to file with name: '%v'", offset, modelsFilename))
+
 		taskName := fmt.Sprintf("ChunkImport-%d", offset)
 		task := gtfsModel.CreateImportTask(taskName, lines, workPool)
 

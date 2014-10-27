@@ -21,7 +21,7 @@ type StopTime struct {
 	//	ShapeDistTraveled string `bson:"shape_dist_traveled" json:"shapeDistTraveled"`
 }
 
-func (rs *Records) MapToStopTimes() StopTimes {
+func (rs Records) MapToStopTimes() StopTimes {
 	var st = StopTimes{ make([]StopTime, len(rs.Records)) }
 
 	for i, record := range rs.Records {

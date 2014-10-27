@@ -55,14 +55,13 @@ func stopsInserter(db *gorm.DB, agencyKey string) tasks.StopsInserter {
 
 	return func(ss *models.Stops) (error) {
 		valueStrings := make([]string, 0, len(ss.Records))
-		valueArgs := make([]interface{}, 0, len(ss.Records) * 10)
+		valueArgs := make([]interface{}, 0, len(ss.Records) * 9)
 
 		for _, s := range ss.Records {
-			valueStrings = append(valueStrings, "('" + agencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+			valueStrings = append(valueStrings, "('" + agencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 			valueArgs = append(
 				valueArgs,
 				s.StopId,
-				s.StopCode,
 				s.StopName,
 				s.StopDesc,
 				s.StopLat,
@@ -75,10 +74,9 @@ func stopsInserter(db *gorm.DB, agencyKey string) tasks.StopsInserter {
 		}
 
 		stmt := fmt.Sprintf(
-			"INSERT INTO stop_times (" +
+			"INSERT INTO stops (" +
 			" agency_key," +
 			" stop_id," +
-			" stop_code," +
 			" stop_name," +
 			" stop_desc," +
 			" stop_lat," +
@@ -86,7 +84,7 @@ func stopsInserter(db *gorm.DB, agencyKey string) tasks.StopsInserter {
 			" zone_id," +
 			" stop_url," +
 			" location_type," +
-			" parent_station," +
+			" parent_station" +
 			" ) VALUES %s", strings.Join(valueStrings, ","))
 
 		return db.Exec(stmt, valueArgs...).Error

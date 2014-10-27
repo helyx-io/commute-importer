@@ -16,7 +16,7 @@ type ImportTask struct {
 
 type StopTimesInserter func(sts *models.StopTimes) error
 
-func (it *ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
+func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
 	records, err := models.ParseCsv(it.Lines)
 
@@ -39,7 +39,7 @@ func (it *ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
 type StopsInserter func(sts *models.Stops) error
 
-func (it *ImportTask) InsertStops(stopsInserter StopsInserter) {
+func (it ImportTask) InsertStops(stopsInserter StopsInserter) {
 
 	records, err := models.ParseCsv(it.Lines)
 
