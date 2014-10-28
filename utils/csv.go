@@ -44,7 +44,7 @@ func ReadCsvFile(src string, channel chan []byte) {
 
 		i++
 
-		if len(b) >= 512000 {
+		if len(b) >= 256000 {
 			chunk++
 			//			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 			channel <- b
