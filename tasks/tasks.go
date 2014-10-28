@@ -14,7 +14,7 @@ type ImportTask struct {
 }
 
 
-type StopTimesInserter func(sts *models.StopTimes) error
+type StopTimesInserter func(sts models.StopTimes) error
 
 func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
@@ -26,7 +26,7 @@ func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 	}
 
 	stopTimes := records.MapToStopTimes()
-	err = stopTimesInserter(&stopTimes)
+	err = stopTimesInserter(stopTimes)
 
 	if err != nil {
 		log.Println("Could not insert records in database:", err)
@@ -37,7 +37,7 @@ func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 }
 
 
-type StopsInserter func(sts *models.Stops) error
+type StopsInserter func(sts models.Stops) error
 
 func (it ImportTask) InsertStops(stopsInserter StopsInserter) {
 
@@ -49,7 +49,7 @@ func (it ImportTask) InsertStops(stopsInserter StopsInserter) {
 	}
 
 	stops := records.MapToStops()
-	err = stopsInserter(&stops)
+	err = stopsInserter(stops)
 
 	if err != nil {
 		log.Println("Could not insert records in database:", err)

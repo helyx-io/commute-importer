@@ -53,11 +53,11 @@ func (m MySQLStopsImportTask) DoWork(_ int) {
 
 func stopsInserter(db *gorm.DB, agencyKey string) tasks.StopsInserter {
 
-	return func(ss *models.Stops) (error) {
-		valueStrings := make([]string, 0, len(ss.Records))
-		valueArgs := make([]interface{}, 0, len(ss.Records) * 9)
+	return func(ss models.Stops) (error) {
+		valueStrings := make([]string, 0, len(ss))
+		valueArgs := make([]interface{}, 0, len(ss) * 9)
 
-		for _, s := range ss.Records {
+		for _, s := range ss {
 			valueStrings = append(valueStrings, "('" + agencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 			valueArgs = append(
 				valueArgs,

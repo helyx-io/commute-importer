@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"sort"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
@@ -26,6 +27,18 @@ type ImportController struct { }
 
 func (importController *ImportController) Init(r *mux.Router) {
 	r.HandleFunc("/", importController.Import)
+}
+
+type FileInfos []os.FileInfo
+
+func (fis FileInfos) Len() int {
+	return len(fis)
+}
+func (fis FileInfos) Less(i, j int) bool {
+	return fis[i].Size() < fis[j].Size()
+}
+func (fis FileInfos) Swap(i, j int) {
+	fis[i], fis[j] = fis[j], fis[i]
 }
 
 func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
@@ -67,8 +80,11 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 	utils.FailOnError(err, fmt.Sprintf("Could not open directory '%v' for read", folderFilename))
 	defer d.Close()
 
-	fi, err := d.Readdir(-1)
+    fisArr, err := d.Readdir(-1)
+	fis := FileInfos(fisArr)
 	utils.FailOnError(err, fmt.Sprintf("Could not read directory '%v' content", folderFilename))
+
+	sort.Sort(fis)
 
 
 	workPool := workpool.New(32, 10000)
@@ -84,7 +100,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 	repositoryByFilenameMap["stop_times.txt"] = gtfs.StopTimes()
 	repositoryByFilenameMap["stops.txt"] = gtfs.Stops()
 
-	for _, fi := range fi {
+	for _, fi := range fis {
 		if fi.Mode().IsRegular() {
 			gtfsModelRepository := repositoryByFilenameMap[fi.Name()]
 			if (gtfsModelRepository == nil) {

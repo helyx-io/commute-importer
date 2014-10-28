@@ -4,9 +4,7 @@ import (
 	"strconv"
 )
 
-type StopTimes struct {
-	Records []StopTime
-}
+type StopTimes []StopTime
 
 type StopTime struct {
 	AgencyKey string `bson:"agency_key" json:"agencyKey"`
@@ -22,13 +20,13 @@ type StopTime struct {
 }
 
 func (rs Records) MapToStopTimes() StopTimes {
-	var st = StopTimes{ make([]StopTime, len(rs.Records)) }
+	var st = make(StopTimes, len(rs))
 
-	for i, record := range rs.Records {
+	for i, record := range rs {
 		stopSequence, _ := strconv.Atoi(record[4])
 		pickup_type, _ := strconv.Atoi(record[6])
 		drop_off_type, _ := strconv.Atoi(record[7])
-		st.Records[i] = StopTime{
+		st[i] = StopTime{
 			"RATP",
 			record[0],
 			record[1],

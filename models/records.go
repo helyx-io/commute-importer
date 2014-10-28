@@ -8,9 +8,7 @@ import (
 	"encoding/csv"
 )
 
-type Records struct {
-	Records [][]string
-}
+type Records [][]string
 
 type RecordsInserter interface {
 	InsertStopTimes(sts *StopTimes) (err error)
@@ -21,7 +19,7 @@ type RecordsInserter interface {
 func ParseCsv(b []byte) (Records, error) {
 	r := bytes.NewReader(b)
 	reader := csv.NewReader(r)
-	records := make([][]string, 0)
+	records := make(Records, 0)
 
 	var err error
 
@@ -45,5 +43,5 @@ func ParseCsv(b []byte) (Records, error) {
 		records = append(records, record)
 	}
 
-	return Records{ records }, err
+	return records, err
 }
