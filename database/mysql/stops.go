@@ -30,7 +30,7 @@ func (s MySQLStopRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 	return s.db.Table("stops").Where("agency_key = ?", agencyKey).Delete(models.Stop{}).Error
 }
 
-func (r MySQLStopRepository) CreateImportTask(name string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+func (r MySQLStopRepository) CreateImportTask(name string, lines *[]byte, workPool *workpool.WorkPool) workpool.PoolWorker {
 	return MySQLStopsImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
@@ -53,11 +53,11 @@ func (m MySQLStopsImportTask) DoWork(_ int) {
 
 func stopsInserter(db *gorm.DB, agencyKey string) tasks.StopsInserter {
 
-	return func(ss models.Stops) (error) {
-		valueStrings := make([]string, 0, len(ss))
-		valueArgs := make([]interface{}, 0, len(ss) * 9)
+	return func(ss *models.Stops) (error) {
+		valueStrings := make([]string, 0, len(*ss))
+		valueArgs := make([]interface{}, 0, len(*ss) * 9)
 
-		for _, s := range ss {
+		for _, s := range *ss {
 			valueStrings = append(valueStrings, "('" + agencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 			valueArgs = append(
 				valueArgs,

@@ -138,7 +138,7 @@ func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string,
 		log.Println(fmt.Sprintf(" - Inserting chunk of data with offset: '%d' related to file with name: '%v'", offset, modelsFilename))
 
 		taskName := fmt.Sprintf("ChunkImport-%d", offset)
-		task := gtfsModel.CreateImportTask(taskName, lines, workPool)
+		task := gtfsModel.CreateImportTask(taskName, &lines, workPool)
 
 		err := workPool.PostWork("import", task)
 

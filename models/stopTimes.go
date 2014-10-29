@@ -19,10 +19,10 @@ type StopTime struct {
 	//	ShapeDistTraveled string `bson:"shape_dist_traveled" json:"shapeDistTraveled"`
 }
 
-func (rs Records) MapToStopTimes() StopTimes {
-	var st = make(StopTimes, len(rs))
+func (rs *Records) MapToStopTimes() *StopTimes {
+	var st = make(StopTimes, len(*rs))
 
-	for i, record := range rs {
+	for i, record := range *rs {
 		stopSequence, _ := strconv.Atoi(record[4])
 		pickup_type, _ := strconv.Atoi(record[6])
 		drop_off_type, _ := strconv.Atoi(record[7])
@@ -39,5 +39,5 @@ func (rs Records) MapToStopTimes() StopTimes {
 		}
 	}
 
-	return st
+	return &st
 }

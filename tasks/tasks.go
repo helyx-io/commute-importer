@@ -9,12 +9,12 @@ import (
 
 type ImportTask struct {
 	Name string
-	Lines []byte
+	Lines *[]byte
 	WP *workpool.WorkPool
 }
 
 
-type StopTimesInserter func(sts models.StopTimes) error
+type StopTimesInserter func(sts *models.StopTimes) error
 
 func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 
@@ -37,7 +37,7 @@ func (it ImportTask) InsertStopTimes(stopTimesInserter StopTimesInserter) {
 }
 
 
-type StopsInserter func(sts models.Stops) error
+type StopsInserter func(sts *models.Stops) error
 
 func (it ImportTask) InsertStops(stopsInserter StopsInserter) {
 

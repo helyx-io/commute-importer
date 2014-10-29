@@ -21,7 +21,7 @@ type GTFSRepository interface {
 
 type GTFSModelRepository interface {
 	RemoveAllByAgencyKey(agencyKey string) (error)
-	CreateImportTask(name string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker
+	CreateImportTask(name string, lines *[]byte, workPool *workpool.WorkPool) workpool.PoolWorker
 }
 
 

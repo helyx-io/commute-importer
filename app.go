@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"net/http/pprof"
 )
 
 func check(e error) {
@@ -29,6 +30,11 @@ func main() {
 
 	http.Handle("/", router)
 
+//	http.Handle("/debug/pprof/", http.HandlerFunc(Index))
+//	http.Handle("/debug/pprof/cmdline", http.HandlerFunc(Cmdline))
+//	http.Handle("/debug/pprof/profile", http.HandlerFunc(Profile))
+//	http.Handle("/debug/pprof/symbol", http.HandlerFunc(Symbol))
+
 	loggingHandler := handlers.LoggingHandler(logWriter, router)
 
 	log.Println("Listening ...")
@@ -43,6 +49,10 @@ func main() {
 
 func initRouter() *mux.Router {
 	r := mux.NewRouter()
+	r.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
+	r.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+	r.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+	r.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
 
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())

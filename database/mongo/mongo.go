@@ -16,7 +16,7 @@ func (m MongoStopTimesImportTask) DoWork(workRoutine int) {
 	m.InsertStopTimes(stopTimesInserter);
 }
 
-func stopTimesInserter(sts models.StopTimes) (error)  {
+func stopTimesInserter(sts *models.StopTimes) (error)  {
 
 	mSession := GetSession()
 
@@ -26,7 +26,7 @@ func stopTimesInserter(sts models.StopTimes) (error)  {
 
 	bulk := c.Bulk()
 
-	for _, st := range sts {
+	for _, st := range *sts {
 		bulk.Insert(st)
 	}
 

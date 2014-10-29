@@ -20,10 +20,10 @@ type Stop struct {
 //	StopTimzone string `bson:"stop_timezone" json:"stopTimezone"`
 }
 
-func (rs Records) MapToStops() Stops {
-	var st = make(Stops, len(rs))
+func (rs *Records) MapToStops() *Stops {
+	var st = make(Stops, len(*rs))
 
-	for i, record := range rs {
+	for i, record := range *rs {
 		stopLat, _ := strconv.Atoi(record[3])
 		stopLon, _ := strconv.Atoi(record[4])
 		locationType, _ := strconv.Atoi(record[7])
@@ -42,5 +42,5 @@ func (rs Records) MapToStops() Stops {
 		}
 	}
 
-	return st
+	return &st
 }
