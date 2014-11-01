@@ -3,9 +3,9 @@ package mysql
 import (
 	"fmt"
 	"strings"
-	"github.com/akinsella/go-playground/models"
-	"github.com/akinsella/go-playground/database"
-	"github.com/akinsella/go-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/models"
+	"github.com/helyx-io/gtfs-playground/database"
+	"github.com/helyx-io/gtfs-playground/tasks"
 	"github.com/jinzhu/gorm"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"

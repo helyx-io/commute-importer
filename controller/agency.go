@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"github.com/akinsella/go-playground/database/mysql"
-	"github.com/akinsella/go-playground/utils"
-	"github.com/akinsella/go-playground/database"
+	"github.com/helyx-io/gtfs-playground/database/mysql"
+	"github.com/helyx-io/gtfs-playground/utils"
+	"github.com/helyx-io/gtfs-playground/database"
 )
 
 type AgencyController struct { }

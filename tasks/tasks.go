@@ -3,7 +3,7 @@ package tasks
 import (
 	"log"
 	"github.com/goinggo/workpool"
-	"github.com/akinsella/go-playground/models"
+	"github.com/helyx-io/gtfs-playground/models"
 )
 
 

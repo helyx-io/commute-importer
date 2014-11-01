@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/akinsella/go-playground/controller"
+	"github.com/helyx-io/gtfs-playground/controller"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"log"

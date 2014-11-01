@@ -2,7 +2,7 @@ package database
 
 import (
 	"github.com/goinggo/workpool"
-	"github.com/akinsella/go-playground/models"
+	"github.com/helyx-io/gtfs-playground/models"
 )
 
 

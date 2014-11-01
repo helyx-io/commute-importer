@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"github.com/akinsella/go-playground/models"
-	"github.com/akinsella/go-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/models"
+	"github.com/helyx-io/gtfs-playground/tasks"
 )
 
 type MongoStopTimesImportTask struct {

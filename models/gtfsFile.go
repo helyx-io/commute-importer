@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/akinsella/go-playground/utils"
+	"github.com/helyx-io/gtfs-playground/utils"
 )
 
 type GTFSFile struct {

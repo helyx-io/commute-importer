@@ -2,8 +2,8 @@ package mysql
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/akinsella/go-playground/database"
-	"github.com/akinsella/go-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/database"
+	"github.com/helyx-io/gtfs-playground/tasks"
 	_ "github.com/go-sql-driver/mysql"
 )
 
