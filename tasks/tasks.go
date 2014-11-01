@@ -9,7 +9,7 @@ import (
 
 type ImportTask struct {
 	Name string
-	Lines *[]byte
+	Lines []byte
 	WP *workpool.WorkPool
 }
 

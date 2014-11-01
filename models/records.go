@@ -16,8 +16,8 @@ type RecordsInserter interface {
 }
 
 
-func ParseCsv(b *[]byte) (*Records, error) {
-	r := bytes.NewReader(*b)
+func ParseCsv(b []byte) (*Records, error) {
+	r := bytes.NewReader(b)
 	reader := csv.NewReader(r)
 	records := make(Records, 0)
 

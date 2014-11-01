@@ -10,6 +10,7 @@ import (
 	"os"
 	"runtime"
 	"net/http/pprof"
+	"github.com/davecheney/profile"
 )
 
 func check(e error) {
@@ -20,6 +21,9 @@ func check(e error) {
 
 func main() {
 
+	//	defer profile.Start(profile.MemProfile).Stop()
+		defer profile.Start(profile.CPUProfile).Stop()
+
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	logWriter, err := os.Create("./access.log")
@@ -28,12 +32,14 @@ func main() {
 
 	router := initRouter()
 
-	http.Handle("/", router)
 
-//	http.Handle("/debug/pprof/", http.HandlerFunc(Index))
-//	http.Handle("/debug/pprof/cmdline", http.HandlerFunc(Cmdline))
-//	http.Handle("/debug/pprof/profile", http.HandlerFunc(Profile))
-//	http.Handle("/debug/pprof/symbol", http.HandlerFunc(Symbol))
+	router.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
+	router.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+	router.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+	router.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
+
+
+	http.Handle("/", router)
 
 	loggingHandler := handlers.LoggingHandler(logWriter, router)
 

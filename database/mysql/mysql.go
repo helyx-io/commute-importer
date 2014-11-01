@@ -11,6 +11,7 @@ import (
 /// MySQL
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 func InitDb(maxIdelConns, maxOpenConns int) (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8")
 

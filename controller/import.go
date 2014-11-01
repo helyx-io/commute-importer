@@ -89,7 +89,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	workPool := workpool.New(32, 10000)
 
-	db, err := mysql.InitDb(2, 100);
+	db, err := mysql.InitDb(2, 5000);
 	utils.FailOnError(err, "Could not open database")
 //	defer db.Close()
 // FIXME: Manage DB close
@@ -138,7 +138,7 @@ func insertModels(gtfsModel database.GTFSModelRepository, modelsFilename string,
 		log.Println(fmt.Sprintf(" - Inserting chunk of data with offset: '%d' related to file with name: '%v'", offset, modelsFilename))
 
 		taskName := fmt.Sprintf("ChunkImport-%d", offset)
-		task := gtfsModel.CreateImportTask(taskName, &lines, workPool)
+		task := gtfsModel.CreateImportTask(taskName, lines, workPool)
 
 		err := workPool.PostWork("import", task)
 

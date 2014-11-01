@@ -2,11 +2,13 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"github.com/akinsella/go-playground/models"
 	"github.com/akinsella/go-playground/database"
 	"github.com/akinsella/go-playground/tasks"
 	"github.com/jinzhu/gorm"
+	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -30,7 +32,7 @@ func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) (error) 
 	return s.db.Table("stop_times").Where("agency_key = ?", agencyKey).Delete(models.StopTime{}).Error
 }
 
-func (r MySQLStopTimeRepository) CreateImportTask(name string, lines *[]byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+func (r MySQLStopTimeRepository) CreateImportTask(name string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
 	return MySQLStopTimesImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
@@ -54,6 +56,15 @@ func (m MySQLStopTimesImportTask) DoWork(_ int) {
 func stopTimesInserter(db *gorm.DB, agencyKey string) tasks.StopTimesInserter {
 
 	return func(sts *models.StopTimes) (error) {
+
+		dbSql, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
+
+		if err != nil {
+			panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+		}
+
+		defer dbSql.Close()
+
 		valueStrings := make([]string, 0, len(*sts))
 		valueArgs := make([]interface{}, 0, len(*sts) * 9)
 
@@ -85,7 +96,14 @@ func stopTimesInserter(db *gorm.DB, agencyKey string) tasks.StopTimesInserter {
 			" drop_off_type" +
 			" ) VALUES %s", strings.Join(valueStrings, ","))
 
-		return db.Exec(stmt, valueArgs...).Error
+
+		results, err := dbSql.Exec(stmt, valueArgs...)
+
+		insertCount, _ := results.RowsAffected()
+
+		log.Println("Number of stopTimes received: ", len(*sts), "/", insertCount)
+
+		return err
 	}
 
 }

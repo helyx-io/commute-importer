@@ -3,6 +3,7 @@ package utils
 import (
 	"io"
 	"os"
+	"fmt"
 	"bufio"
 )
 
@@ -46,7 +47,7 @@ func ReadCsvFile(src string, channel chan []byte) {
 
 		if len(b) >= 256000 {
 			chunk++
-			//			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
+			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 			channel <- b
 			i = 0
 			b = []byte{}
@@ -56,7 +57,7 @@ func ReadCsvFile(src string, channel chan []byte) {
 
 	if len(b) > 0 {
 		chunk++
-		//		fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
+		fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 		channel <- b
 	}
 
