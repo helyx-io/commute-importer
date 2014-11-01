@@ -16,6 +16,25 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `agencies`
+--
+
+DROP TABLE IF EXISTS `agencies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `agencies` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `agency_key` varchar(45) DEFAULT NULL,
+  `agency_id` varchar(45) DEFAULT NULL,
+  `agency_name` varchar(45) DEFAULT NULL,
+  `agency_url` varchar(45) DEFAULT NULL,
+  `agency_timezone` varchar(45) DEFAULT NULL,
+  `agency_lang` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `stop_times`
 --
 
@@ -34,7 +53,7 @@ CREATE TABLE `stop_times` (
   `pickup_type` int(11) DEFAULT NULL,
   `drop_off_type` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12503101 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=124379781 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,7 +76,7 @@ CREATE TABLE `stops` (
   `location_type` int(11) DEFAULT NULL,
   `parent_station` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27900 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1080222 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -69,4 +88,4 @@ CREATE TABLE `stops` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-10-28  0:17:27
+-- Dump completed on 2014-11-01 22:16:12

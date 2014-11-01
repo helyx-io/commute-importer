@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/goinggo/workpool"
+	"github.com/akinsella/go-playground/models"
 )
 
 
@@ -10,6 +11,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GTFSRepository interface {
+	Agencies() GTFSAgencyRepository
 	StopTimes() GTFSModelRepository
 	Stops() GTFSModelRepository
 }
@@ -20,25 +22,12 @@ type GTFSRepository interface {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GTFSModelRepository interface {
-	RemoveAllByAgencyKey(agencyKey string) (error)
+	RemoveAllByAgencyKey(agencyKey string) error
 	CreateImportTask(name string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-/// Stops
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-type StopRepository interface {
+type GTFSAgencyRepository interface {
 	GTFSModelRepository
+	FindAll() (*models.Agencies, error)
+	FindByKey(agencyKey string) (*models.Agency, error)
 }
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-/// StopTimes
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-type StopTimeRepository interface {
-	GTFSModelRepository
-}
-

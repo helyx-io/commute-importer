@@ -58,3 +58,26 @@ func (it ImportTask) InsertStops(stopsInserter StopsInserter) {
 
 	log.Println(it.Name)
 }
+
+
+type AgenciesInserter func(sts *models.Agencies) error
+
+func (it ImportTask) InsertAgencies(agenciesInserter AgenciesInserter) {
+
+	records, err := models.ParseCsv(it.Lines)
+
+	if err != nil {
+		log.Println("Could parse CSV File:", err)
+		panic(err)
+	}
+
+	agencies := records.MapToAgencies()
+	err = agenciesInserter(agencies)
+
+	if err != nil {
+		log.Println("Could not insert records in database:", err)
+		panic(err)
+	}
+
+	log.Println(it.Name)
+}

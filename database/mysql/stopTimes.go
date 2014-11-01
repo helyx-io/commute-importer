@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"github.com/akinsella/go-playground/models"
 	"github.com/akinsella/go-playground/database"
@@ -18,14 +17,14 @@ import (
 /// MySQLStopTimeRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+type MySQLStopTimeRepository struct {
+	MySQLGTFSModelRepository
+}
+
 func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
 	return MySQLStopTimeRepository{
 		MySQLGTFSModelRepository{r.db},
 	}
-}
-
-type MySQLStopTimeRepository struct {
-	MySQLGTFSModelRepository
 }
 
 func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
@@ -60,7 +59,7 @@ func stopTimesInserter(db *gorm.DB, agencyKey string) tasks.StopTimesInserter {
 		dbSql, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
 
 		if err != nil {
-			panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+			panic(err.Error())
 		}
 
 		defer dbSql.Close()
@@ -97,11 +96,7 @@ func stopTimesInserter(db *gorm.DB, agencyKey string) tasks.StopTimesInserter {
 			" ) VALUES %s", strings.Join(valueStrings, ","))
 
 
-		results, err := dbSql.Exec(stmt, valueArgs...)
-
-		insertCount, _ := results.RowsAffected()
-
-		log.Println("Number of stopTimes received: ", len(*sts), "/", insertCount)
+		_, err = dbSql.Exec(stmt, valueArgs...)
 
 		return err
 	}

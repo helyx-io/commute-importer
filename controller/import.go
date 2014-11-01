@@ -89,7 +89,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	workPool := workpool.New(32, 10000)
 
-	db, err := mysql.InitDb(2, 5000);
+	db, err := mysql.InitDb(2, 100);
 	utils.FailOnError(err, "Could not open database")
 //	defer db.Close()
 // FIXME: Manage DB close
@@ -99,6 +99,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	repositoryByFilenameMap["stop_times.txt"] = gtfs.StopTimes()
 	repositoryByFilenameMap["stops.txt"] = gtfs.Stops()
+	repositoryByFilenameMap["agency.txt"] = gtfs.Agencies()
 
 	for _, fi := range fis {
 		if fi.Mode().IsRegular() {

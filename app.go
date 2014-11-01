@@ -9,8 +9,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"net/http/pprof"
-	"github.com/davecheney/profile"
+//	"github.com/davecheney/profile"
 )
 
 func check(e error) {
@@ -22,7 +21,7 @@ func check(e error) {
 func main() {
 
 	//	defer profile.Start(profile.MemProfile).Stop()
-		defer profile.Start(profile.CPUProfile).Stop()
+	//	defer profile.Start(profile.CPUProfile).Stop()
 
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -31,12 +30,6 @@ func main() {
 	defer logWriter.Close()
 
 	router := initRouter()
-
-
-	router.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
-	router.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
-	router.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
-	router.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
 
 
 	http.Handle("/", router)
@@ -55,11 +48,7 @@ func main() {
 
 func initRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
-	r.Handle("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
-	r.Handle("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
-	r.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
-
+	
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
 	new(controller.AgencyController).Init(r.PathPrefix("/agencies").Subrouter())
