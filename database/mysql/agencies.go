@@ -1,12 +1,16 @@
 package mysql
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Imports
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 import (
 	"fmt"
 	"strings"
+	"database/sql"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )

@@ -1,5 +1,9 @@
 package mysql
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Imports
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database"
@@ -7,17 +11,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQL
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func openSqlConnection() (gorm.DB, error) {
-	return gorm.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8")
-}
-
-
-func InitDb(maxIdelConns, maxOpenConns int) (*gorm.DB, error) {
-	db, err := openSqlConnection()
+func InitDB(dbInfos *database.ConnectInfos) (*gorm.DB, error) {
+	db, err := gorm.Open(dbInfos.Dialect, dbInfos.URL)
 
 	if err != nil {
 		return nil, err
@@ -28,8 +28,8 @@ func InitDb(maxIdelConns, maxOpenConns int) (*gorm.DB, error) {
 	// Then you could invoke `*sql.DB`'s functions with it
 	db.DB().Ping()
 
-	db.DB().SetMaxIdleConns(maxIdelConns)
-	db.DB().SetMaxOpenConns(maxOpenConns)
+	db.DB().SetMaxIdleConns(dbInfos.MaxIdelConns)
+	db.DB().SetMaxOpenConns(dbInfos.MaxOpenConns)
 
 	db.SingularTable(true)
 

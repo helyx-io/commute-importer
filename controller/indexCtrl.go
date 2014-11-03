@@ -1,21 +1,29 @@
-package utils
+package controller
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Imports
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"log"
+	"fmt"
+	"github.com/gorilla/mux"
+	"net/http"
 )
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-/// Helper Functions
+/// Index Controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func FailOnError(err error, msg string) {
-	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-		panic(err)
-	}
+type IndexController struct {
+	*mux.Router
+}
+
+func (c *IndexController) Init(r *mux.Router) {
+	r.HandleFunc("/", c.indexHandler)
+}
+
+func (c *IndexController) indexHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "text/html")
+	fmt.Fprint(w, "Hello World.")
 }
