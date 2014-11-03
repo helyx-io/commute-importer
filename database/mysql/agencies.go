@@ -6,7 +6,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
-	"github.com/jinzhu/gorm"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
@@ -45,11 +44,12 @@ func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, erro
 	return &agency, err
 }
 
-func (r MySQLAgencyRepository) CreateImportTask(name string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
 	return MySQLAgenciesImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
 				Name: name,
+				AgencyKey: agencyKey,
 				Lines: lines,
 				WP: workPool,
 			},
@@ -58,56 +58,76 @@ func (r MySQLAgencyRepository) CreateImportTask(name string, lines []byte, workP
 	}
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// MySQLStopRepository
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 type MySQLAgenciesImportTask struct {
 	MySQLImportTask
 }
 
 func (m MySQLAgenciesImportTask) DoWork(_ int) {
-	m.InsertAgencies(agenciesInserter(m.db, "RATP"));
+	m.ImportCsv(m, m);
 }
 
-func agenciesInserter(db *gorm.DB, agencyKey string) tasks.AgenciesInserter {
+func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} {
+	var st = make([]interface{}, len(*rs))
 
-	return func(as *models.Agencies) (error) {
-
-		dbSql, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
-
-		if err != nil {
-			panic(err.Error())
+	for i, record := range *rs {
+		st[i] = models.Agency{
+			m.AgencyKey,
+			record[0],
+			record[1],
+			record[2],
+			record[3],
+			record[4],
 		}
-
-		defer dbSql.Close()
-
-		valueStrings := make([]string, 0, len(*as))
-		valueArgs := make([]interface{}, 0, len(*as) * 9)
-
-		for _, a := range *as {
-			valueStrings = append(valueStrings, "('" + agencyKey + "', ?, ?, ?, ?, ?)")
-			valueArgs = append(
-				valueArgs,
-				a.Id,
-				a.Name,
-				a.Url,
-				a.Timezone,
-				a.Lang,
-			)
-		}
-
-		stmt := fmt.Sprintf(
-			"INSERT INTO agencies (" +
-				" agency_key," +
-				" agency_id," +
-				" agency_name," +
-				" agency_url," +
-				" agency_timezone," +
-				" agency_lang" +
-			" ) VALUES %s", strings.Join(valueStrings, ","))
-
-
-		_, err = dbSql.Exec(stmt, valueArgs...)
-
-		return err
 	}
+
+	return st
+}
+
+func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
+
+	dbSql, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	defer dbSql.Close()
+
+	valueStrings := make([]string, 0, len(as))
+	valueArgs := make([]interface{}, 0, len(as) * 9)
+
+	for _, entry := range as {
+		a := entry.(models.Agency)
+		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
+		valueArgs = append(
+			valueArgs,
+			a.Id,
+			a.Name,
+			a.Url,
+			a.Timezone,
+			a.Lang,
+		)
+	}
+
+	stmt := fmt.Sprintf(
+		"INSERT INTO agencies (" +
+			" agency_key," +
+			" agency_id," +
+			" agency_name," +
+			" agency_url," +
+			" agency_timezone," +
+			" agency_lang" +
+		" ) VALUES %s", strings.Join(valueStrings, ","))
+
+
+	_, err = dbSql.Exec(stmt, valueArgs...)
+
+	return err
 
 }
 

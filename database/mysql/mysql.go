@@ -11,9 +11,13 @@ import (
 /// MySQL
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+func openSqlConnection() (gorm.DB, error) {
+	return gorm.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8")
+}
+
 
 func InitDb(maxIdelConns, maxOpenConns int) (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8")
+	db, err := openSqlConnection()
 
 	if err != nil {
 		return nil, err
@@ -31,6 +35,7 @@ func InitDb(maxIdelConns, maxOpenConns int) (*gorm.DB, error) {
 
 	return &db, nil
 }
+
 
 func CreateMySQLGTFSRepository(db *gorm.DB) database.GTFSRepository {
 	return MySQLGTFSRepository{db}
