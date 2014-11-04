@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"strings"
+	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -19,36 +20,23 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Agencies() database.GTFSAgencyRepository {
-	return MySQLAgencyRepository{
+func (r MySQLGTFSRepository) CalendarDates() database.GTFSModelRepository {
+	return MySQLCalendarDateRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
 }
 
-type MySQLAgencyRepository struct {
+type MySQLCalendarDateRepository struct {
 	MySQLGTFSModelRepository
 }
 
-func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("agencies").Where("agency_key = ?", agencyKey).Delete(models.Agency{}).Error
+func (s MySQLCalendarDateRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
+	return s.db.Table("calendar_dates").Where("agency_key = ?", agencyKey).Delete(models.CalendarDate{}).Error
 }
 
-func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
-	var agencies models.Agencies
-	err := s.db.Table("agencies").Find(&agencies).Error
 
-	return &agencies, err
-}
-
-func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, error) {
-	var agency models.Agency
-	err := s.db.Table("agencies").Where("agency_key = ?", agencyKey).First(&agency).Error
-
-	return &agency, err
-}
-
-func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLAgenciesImportTask{
+func (r MySQLCalendarDateRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+	return MySQLCalendarDatesImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
 				Name: name,
@@ -67,32 +55,33 @@ func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MySQLAgenciesImportTask struct {
+type MySQLCalendarDatesImportTask struct {
 	MySQLImportTask
 }
 
-func (m MySQLAgenciesImportTask) DoWork(_ int) {
+func (m MySQLCalendarDatesImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} {
+func(m MySQLCalendarDatesImportTask) ConvertModels(rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		st[i] = models.Agency{
+		serviceId, _ := strconv.Atoi(record[0])
+		exceptionType, _ := strconv.Atoi(record[2])
+
+		st[i] = models.CalendarDate{
 			m.AgencyKey,
-			record[0],
+			serviceId,
 			record[1],
-			record[2],
-			record[3],
-			record[4],
+			exceptionType,
 		}
 	}
 
 	return st
 }
 
-func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
+func (m MySQLCalendarDatesImportTask) ImportModels(as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -106,26 +95,22 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		a := entry.(models.Agency)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
+		cd := entry.(models.CalendarDate)
+		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
-			a.Id,
-			a.Name,
-			a.Url,
-			a.Timezone,
-			a.Lang,
+			cd.ServiceId,
+			cd.Date,
+			cd.ExceptionType,
 		)
 	}
 
 	stmt := fmt.Sprintf(
-		"INSERT INTO agencies (" +
+		"INSERT INTO calendar_dates (" +
 			" agency_key," +
-			" agency_id," +
-			" agency_name," +
-			" agency_url," +
-			" agency_timezone," +
-			" agency_lang" +
+			" service_id," +
+			" date," +
+			" exception_type" +
 		" ) VALUES %s", strings.Join(valueStrings, ","))
 
 

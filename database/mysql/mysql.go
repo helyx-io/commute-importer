@@ -5,6 +5,7 @@ package mysql
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"database/sql"
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -16,7 +17,7 @@ import (
 /// MySQL
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func InitDB(dbInfos *database.ConnectInfos) (*gorm.DB, error) {
+func InitDB(dbInfos *database.DBConnectInfos) (*gorm.DB, error) {
 	db, err := gorm.Open(dbInfos.Dialect, dbInfos.URL)
 
 	if err != nil {
@@ -37,19 +38,33 @@ func InitDB(dbInfos *database.ConnectInfos) (*gorm.DB, error) {
 }
 
 
-func CreateMySQLGTFSRepository(db *gorm.DB) database.GTFSRepository {
-	return MySQLGTFSRepository{db}
+func CreateMySQLGTFSRepository(db *gorm.DB, dbInfos *database.DBConnectInfos) database.GTFSRepository {
+	return MySQLGTFSRepository{db, dbInfos}
 }
 
 type MySQLGTFSRepository struct {
 	db *gorm.DB
+	dbInfos *database.DBConnectInfos
 }
 
 type MySQLGTFSModelRepository struct {
 	db *gorm.DB
+	dbInfos *database.DBConnectInfos
+}
+
+type SQLConnectionProvider interface {
+
+	OpenSqlConnection() (*sql.DB, error)
+
 }
 
 type MySQLImportTask struct {
 	tasks.ImportTask
 	db *gorm.DB
+	dbInfos *database.DBConnectInfos
+}
+
+
+func (it *MySQLImportTask) OpenSqlConnection() (*sql.DB, error) {
+	return sql.Open(it.dbInfos.Dialect, it.dbInfos.URL)
 }

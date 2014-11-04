@@ -74,9 +74,14 @@ func (importController *ImportController) Init(r *mux.Router) {
 	// Init Repository Map
 	repositoryByFilenameMap = make(map[string]database.GTFSModelRepository)
 
-	repositoryByFilenameMap["stop_times.txt"] = config.GTFS.StopTimes()
-	repositoryByFilenameMap["stops.txt"] = config.GTFS.Stops()
 	repositoryByFilenameMap["agency.txt"] = config.GTFS.Agencies()
+	repositoryByFilenameMap["calendar_dates.txt"] = config.GTFS.CalendarDates()
+	repositoryByFilenameMap["calendar.txt"] = config.GTFS.Calendars()
+	repositoryByFilenameMap["routes.txt"] = config.GTFS.Routes()
+	repositoryByFilenameMap["stops.txt"] = config.GTFS.Stops()
+	repositoryByFilenameMap["stop_times.txt"] = config.GTFS.StopTimes()
+	repositoryByFilenameMap["transfers.txt"] = config.GTFS.Transfers()
+	repositoryByFilenameMap["trips.txt"] = config.GTFS.Trips()
 }
 
 func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {

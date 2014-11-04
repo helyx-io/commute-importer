@@ -11,7 +11,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/tasks"
-	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -27,7 +26,7 @@ type MySQLStopTimeRepository struct {
 
 func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
 	return MySQLStopTimeRepository{
-		MySQLGTFSModelRepository{r.db},
+		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
 }
 
@@ -45,6 +44,7 @@ func (r MySQLStopTimeRepository) CreateImportTask(name, agencyKey string, lines 
 				WP: workPool,
 			},
 			r.db,
+			r.dbInfos,
 		},
 	}
 }
@@ -87,7 +87,7 @@ func (m MySQLStopTimesImportTask) ConvertModels(rs *models.Records) []interface{
 
 func (m MySQLStopTimesImportTask) ImportModels(sts []interface{}) error {
 
-	dbSql, err := sql.Open("mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8");
+	dbSql, err := m.OpenSqlConnection()
 
 	if err != nil {
 		panic(err.Error())

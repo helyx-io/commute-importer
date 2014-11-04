@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"strings"
+	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -19,36 +20,23 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Agencies() database.GTFSAgencyRepository {
-	return MySQLAgencyRepository{
+func (r MySQLGTFSRepository) Routes() database.GTFSModelRepository {
+	return MySQLRouteRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
 }
 
-type MySQLAgencyRepository struct {
+type MySQLRouteRepository struct {
 	MySQLGTFSModelRepository
 }
 
-func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("agencies").Where("agency_key = ?", agencyKey).Delete(models.Agency{}).Error
+func (s MySQLRouteRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
+	return s.db.Table("routes").Where("agency_key = ?", agencyKey).Delete(models.Route{}).Error
 }
 
-func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
-	var agencies models.Agencies
-	err := s.db.Table("agencies").Find(&agencies).Error
 
-	return &agencies, err
-}
-
-func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, error) {
-	var agency models.Agency
-	err := s.db.Table("agencies").Where("agency_key = ?", agencyKey).First(&agency).Error
-
-	return &agency, err
-}
-
-func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLAgenciesImportTask{
+func (r MySQLRouteRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+	return MySQLRoutesImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
 				Name: name,
@@ -67,32 +55,38 @@ func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MySQLAgenciesImportTask struct {
+type MySQLRoutesImportTask struct {
 	MySQLImportTask
 }
 
-func (m MySQLAgenciesImportTask) DoWork(_ int) {
+func (m MySQLRoutesImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} {
+func(m MySQLRoutesImportTask) ConvertModels(rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		st[i] = models.Agency{
+		routeType, _ := strconv.Atoi(record[5])
+
+		st[i] = models.Route{
 			m.AgencyKey,
 			record[0],
 			record[1],
 			record[2],
 			record[3],
 			record[4],
+			routeType,
+			record[6],
+			record[7],
+			record[8],
 		}
 	}
 
 	return st
 }
 
-func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
+func (m MySQLRoutesImportTask) ImportModels(as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -106,26 +100,34 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		a := entry.(models.Agency)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
+		r := entry.(models.Route)
+		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
-			a.Id,
-			a.Name,
-			a.Url,
-			a.Timezone,
-			a.Lang,
+			r.RouteId,
+			r.AgencyId,
+			r.RouteShortName,
+			r.RouteLongName,
+			r.RouteDesc,
+			r.RouteType,
+			r.RouteUrl,
+			r.RouteColor,
+			r.RouteTextColor,
 		)
 	}
 
 	stmt := fmt.Sprintf(
-		"INSERT INTO agencies (" +
+		"INSERT INTO routes (" +
 			" agency_key," +
+			" route_id," +
 			" agency_id," +
-			" agency_name," +
-			" agency_url," +
-			" agency_timezone," +
-			" agency_lang" +
+			" route_short_name," +
+			" route_long_name," +
+			" route_desc," +
+			" route_type," +
+			" route_url," +
+			" route_color," +
+			" route_text_color" +
 		" ) VALUES %s", strings.Join(valueStrings, ","))
 
 

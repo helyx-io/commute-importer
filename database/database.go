@@ -14,19 +14,23 @@ import (
 /// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type ConnectInfos struct {
+type GTFSRepository interface {
+	Agencies() GTFSAgencyRepository
+	CalendarDates() GTFSModelRepository
+	Calendars() GTFSModelRepository
+	Routes() GTFSModelRepository
+	Stops() GTFSModelRepository
+	StopTimes() GTFSModelRepository
+	Transfers() GTFSModelRepository
+	Trips() GTFSModelRepository
+}
+
+type DBConnectInfos struct {
 	Dialect string
 	URL string
 	MaxIdelConns int
 	MaxOpenConns int
 }
-
-type GTFSRepository interface {
-	Agencies() GTFSAgencyRepository
-	StopTimes() GTFSModelRepository
-	Stops() GTFSModelRepository
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Interfaces

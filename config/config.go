@@ -19,7 +19,7 @@ import (
 var (
 	DB *gorm.DB
 	GTFS database.GTFSRepository
-	ConnectInfos *database.ConnectInfos
+	ConnectInfos *database.DBConnectInfos
 	WorkPool *workpool.WorkPool
 )
 
@@ -31,7 +31,7 @@ func Init() error {
 
 	var err error
 
-	ConnectInfos = &database.ConnectInfos{"mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8", 2, 100}
+	ConnectInfos = &database.DBConnectInfos{"mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8", 2, 100}
 
 	// Init Gorm
 	if DB, err = mysql.InitDB(ConnectInfos); err != nil {
@@ -39,7 +39,7 @@ func Init() error {
 	}
 
 	// Init GTFS Repository
-	GTFS = mysql.CreateMySQLGTFSRepository(DB)
+	GTFS = mysql.CreateMySQLGTFSRepository(DB, ConnectInfos)
 
 	// Init WorkPool
 	WorkPool = workpool.New(32, 10000)

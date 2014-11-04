@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"strings"
+	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -19,36 +20,23 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Agencies() database.GTFSAgencyRepository {
-	return MySQLAgencyRepository{
+func (r MySQLGTFSRepository) Calendars() database.GTFSModelRepository {
+	return MySQLCalendarRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
 }
 
-type MySQLAgencyRepository struct {
+type MySQLCalendarRepository struct {
 	MySQLGTFSModelRepository
 }
 
-func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("agencies").Where("agency_key = ?", agencyKey).Delete(models.Agency{}).Error
+func (s MySQLCalendarRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
+	return s.db.Table("calendars").Where("agency_key = ?", agencyKey).Delete(models.Calendar{}).Error
 }
 
-func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
-	var agencies models.Agencies
-	err := s.db.Table("agencies").Find(&agencies).Error
 
-	return &agencies, err
-}
-
-func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, error) {
-	var agency models.Agency
-	err := s.db.Table("agencies").Where("agency_key = ?", agencyKey).First(&agency).Error
-
-	return &agency, err
-}
-
-func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLAgenciesImportTask{
+func (r MySQLCalendarRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
+	return MySQLCalendarsImportTask{
 		MySQLImportTask{
 			tasks.ImportTask{
 				Name: name,
@@ -67,32 +55,46 @@ func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MySQLAgenciesImportTask struct {
+type MySQLCalendarsImportTask struct {
 	MySQLImportTask
 }
 
-func (m MySQLAgenciesImportTask) DoWork(_ int) {
+func (m MySQLCalendarsImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} {
+func(m MySQLCalendarsImportTask) ConvertModels(rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		st[i] = models.Agency{
+		serviceId, _ := strconv.Atoi(record[0])
+		monday, _ := strconv.Atoi(record[1])
+		tuesday, _ := strconv.Atoi(record[2])
+		wednesday, _ := strconv.Atoi(record[3])
+		thursday, _ := strconv.Atoi(record[4])
+		friday, _ := strconv.Atoi(record[5])
+		saturday, _ := strconv.Atoi(record[6])
+		sunday, _ := strconv.Atoi(record[7])
+
+		st[i] = models.Calendar{
 			m.AgencyKey,
-			record[0],
-			record[1],
-			record[2],
-			record[3],
-			record[4],
+			serviceId,
+			monday,
+			tuesday,
+			wednesday,
+			thursday,
+			friday,
+			saturday,
+			sunday,
+			record[8],
+			record[9],
 		}
 	}
 
 	return st
 }
 
-func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
+func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -106,26 +108,34 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		a := entry.(models.Agency)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
+		c := entry.(models.Calendar)
+		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
-			a.Id,
-			a.Name,
-			a.Url,
-			a.Timezone,
-			a.Lang,
+			c.Monday,
+			c.Tuesday,
+			c.Wednesday,
+			c.Thursday,
+			c.Friday,
+			c.Saturday,
+			c.Sunday,
+			c.StartDate,
+			c.EndDate,
 		)
 	}
 
 	stmt := fmt.Sprintf(
-		"INSERT INTO agencies (" +
+		"INSERT INTO calendars (" +
 			" agency_key," +
-			" agency_id," +
-			" agency_name," +
-			" agency_url," +
-			" agency_timezone," +
-			" agency_lang" +
+			" monday," +
+			" tuesday," +
+			" wednesday," +
+			" thursday," +
+			" friday," +
+			" saturday," +
+			" sunday," +
+			" start_date," +
+			" end_date" +
 		" ) VALUES %s", strings.Join(valueStrings, ","))
 
 
