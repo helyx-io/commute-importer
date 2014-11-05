@@ -1,0 +1,28 @@
+package utils
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Imports
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+import (
+	"fmt"
+	"log"
+	"github.com/fatih/stopwatch"
+)
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Private Functions
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+func DownloadFile(url, filename string) {
+
+	log.Println(fmt.Sprintf(" - Downloading file from url: '%v' to file path: '%v' ...", url, filename))
+
+	sw := stopwatch.Start(0)
+
+	writtenBytes, err := DownloadFileFromURL(url, filename)
+	FailOnError(err, fmt.Sprintf("Could not download file from url: '%v' to file path: '%v'", url, filename))
+
+	log.Println(fmt.Sprintf(" - Downloaded file: '%v' - %v bytes - Duration: %v", filename, writtenBytes, sw.ElapsedTime()))
+}

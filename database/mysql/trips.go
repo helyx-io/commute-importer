@@ -36,18 +36,9 @@ func (s MySQLTripRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 
 
 func (r MySQLTripRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLTripsImportTask{
-		MySQLImportTask{
-			tasks.ImportTask{
-				Name: name,
-				AgencyKey: agencyKey,
-				Lines: lines,
-				WP: workPool,
-			},
-			r.db,
-			r.dbInfos,
-		},
-	}
+	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
+	return MySQLTripsImportTask{mysqlImportTask}
 }
 
 

@@ -53,9 +53,7 @@ type MySQLGTFSModelRepository struct {
 }
 
 type SQLConnectionProvider interface {
-
 	OpenSqlConnection() (*sql.DB, error)
-
 }
 
 type MySQLImportTask struct {
@@ -64,6 +62,9 @@ type MySQLImportTask struct {
 	dbInfos *database.DBConnectInfos
 }
 
+func NewMySQLImportTask(importTask tasks.ImportTask, db *gorm.DB, dbInfos *database.DBConnectInfos) MySQLImportTask {
+	return MySQLImportTask{importTask, db, dbInfos}
+}
 
 func (it *MySQLImportTask) OpenSqlConnection() (*sql.DB, error) {
 	return sql.Open(it.dbInfos.Dialect, it.dbInfos.URL)

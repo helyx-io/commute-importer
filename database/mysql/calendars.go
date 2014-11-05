@@ -36,18 +36,9 @@ func (s MySQLCalendarRepository) RemoveAllByAgencyKey(agencyKey string) (error) 
 
 
 func (r MySQLCalendarRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLCalendarsImportTask{
-		MySQLImportTask{
-			tasks.ImportTask{
-				Name: name,
-				AgencyKey: agencyKey,
-				Lines: lines,
-				WP: workPool,
-			},
-			r.db,
-			r.dbInfos,
-		},
-	}
+	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
+	return MySQLCalendarsImportTask{mysqlImportTask}
 }
 
 

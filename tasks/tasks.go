@@ -21,6 +21,11 @@ type ModelImporter interface {
 	ImportModels(models []interface{}) error
 }
 
+func NewImportTask(name string, agencyKey string, lines []byte, workPool *workpool.WorkPool) ImportTask {
+	return ImportTask{name, agencyKey, lines, workPool}
+}
+
+
 func (it ImportTask) ImportCsv(converter ModelConverter, importer ModelImporter) {
 
 	records, err := models.ParseCsv(it.Lines)

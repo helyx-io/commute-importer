@@ -16,6 +16,14 @@ import (
 /// Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+func RecoverFromError(w http.ResponseWriter) {
+	if r := recover(); r != nil {
+		err, _ := r.(error)
+		http.Error(w, err.Error(), 500)
+		return
+	}
+}
+
 func SendJSON(w http.ResponseWriter, data interface{}) {
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if  err != nil {

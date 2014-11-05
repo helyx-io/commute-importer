@@ -48,18 +48,9 @@ func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, erro
 }
 
 func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLAgenciesImportTask{
-		MySQLImportTask{
-			tasks.ImportTask{
-				Name: name,
-				AgencyKey: agencyKey,
-				Lines: lines,
-				WP: workPool,
-			},
-			r.db,
-			r.dbInfos,
-		},
-	}
+	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
+	return MySQLAgenciesImportTask{mysqlImportTask}
 }
 
 

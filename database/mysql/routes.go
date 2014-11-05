@@ -36,18 +36,9 @@ func (s MySQLRouteRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 
 
 func (r MySQLRouteRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	return MySQLRoutesImportTask{
-		MySQLImportTask{
-			tasks.ImportTask{
-				Name: name,
-				AgencyKey: agencyKey,
-				Lines: lines,
-				WP: workPool,
-			},
-			r.db,
-			r.dbInfos,
-		},
-	}
+	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
+	return MySQLRoutesImportTask{mysqlImportTask}
 }
 
 
