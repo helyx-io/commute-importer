@@ -7,4 +7,5 @@ before_install:
     - go get code.google.com/p/go.tools/cmd/cover
 
 script:
-    - goveralls -v -package="github.com/helyx-io/gtfs-playground/utils"
+    - gocov test github.com/helyx-io/gtfs-playground/utils | gocov report
+    - goveralls -package="github.com/helyx-io/gtfs-playground/utils"
