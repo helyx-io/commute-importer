@@ -44,4 +44,13 @@ REST Resources
           }
         ]
 
- - **GET** http://localhost:3000/agencies/76
+ - **GET** http://localhost:3000/agencies/85 - *Get an agency by id*
+
+        {
+          "key": "RATP",
+          "agencyId": "Noctilien",
+          "name": "Noctilien",
+          "url": "http://www.navitia.com",
+          "timezone": "Europe/Paris",
+          "lang": "fr"
+        }

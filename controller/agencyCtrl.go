@@ -78,11 +78,12 @@ func (ac *AgencyController) AgencyById(w http.ResponseWriter, r *http.Request) {
 	log.Printf("id: %s", idParam)
 
 	id, _ := strconv.Atoi(idParam)
+
 	agency, err := agencyRepository.FindById(id)
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-	} else if agency != nil {
+	} else if agency == nil {
 		http.Error(w, fmt.Sprintf("No agency found for key %v", id), 500)
 	} else {
 		utils.SendJSON(w, agency)
