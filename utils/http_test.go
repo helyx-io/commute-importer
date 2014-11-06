@@ -16,7 +16,7 @@ type Agency struct {
 	Lang string `json:"lang"`
 }
 
-func TestStub(t *testing.T) {
+func TestSerializeModel(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
@@ -26,4 +26,5 @@ func TestStub(t *testing.T) {
 	expected :=  "{\n  \"key\": \"Key\",\n  \"agencyId\": \"Id\",\n  \"name\": \"Name\",\n  \"url\": \"URL\",\n  \"timezone\": \"Timezone\",\n  \"lang\": \"Lang\"\n}"
 
 	assert.Equal(t, expected, string(rr.Body.String()))
+	assert.Equal(t, "application/json", string(rr.Header().Get("Content-Type")))
 }
