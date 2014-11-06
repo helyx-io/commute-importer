@@ -7,6 +7,7 @@ package controller
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"net/http"
 	"encoding/json"
 	"github.com/gorilla/mux"
@@ -55,7 +56,7 @@ func (agencyController *AgencyController) Init(r *mux.Router) {
 	agencyRepository = config.GTFS.Agencies().(database.GTFSAgencyRepository)
 
 	r.HandleFunc("/", agencyController.Agencies)
-	r.HandleFunc("/{agencyKey:[0-9]+}", agencyController.AgenciesByKey)
+	r.HandleFunc("/{id:[0-9]+}", agencyController.AgencyById)
 }
 
 func (ac *AgencyController) Agencies(w http.ResponseWriter, r *http.Request) {
@@ -70,18 +71,19 @@ func (ac *AgencyController) Agencies(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (ac *AgencyController) AgenciesByKey(w http.ResponseWriter, r *http.Request) {
+func (ac *AgencyController) AgencyById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	agencyKey := params["agencyKey"]
+	idParam := params["id"]
 
-	log.Printf("Agency Key: %s", agencyKey)
+	log.Printf("id: %s", idParam)
 
-	agency, err := agencyRepository.FindByKey(agencyKey)
+	id, _ := strconv.Atoi(idParam)
+	agency, err := agencyRepository.FindById(id)
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	} else if agency != nil {
-		http.Error(w, fmt.Sprintf("No agency found for key %v", agencyKey), 500)
+		http.Error(w, fmt.Sprintf("No agency found for key %v", id), 500)
 	} else {
 		utils.SendJSON(w, agency)
 	}

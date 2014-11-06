@@ -44,5 +44,5 @@ type GTFSModelRepository interface {
 type GTFSAgencyRepository interface {
 	GTFSModelRepository
 	FindAll() (*models.Agencies, error)
-	FindByKey(agencyKey string) (*models.Agency, error)
+	FindById(id int) (*models.Agency, error)
 }

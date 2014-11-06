@@ -40,9 +40,9 @@ func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
 	return &agencies, err
 }
 
-func (s MySQLAgencyRepository) FindByKey(agencyKey string) (*models.Agency, error) {
+func (s MySQLAgencyRepository) FindById(id int) (*models.Agency, error) {
 	var agency models.Agency
-	err := s.db.Table("agencies").Where("agency_key = ?", agencyKey).First(&agency).Error
+	err := s.db.Table("agencies").Where("id = ?", id).First(&agency).Error
 
 	return &agency, err
 }

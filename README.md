@@ -3,8 +3,8 @@ gtfs-playground
 
 This project aims to be an playground to explore General Transit Feed Specification Reference by enabling import GTFS data sets into a MySQL database and exposing an API to query data.
 
+[![Build Status](https://travis-ci.org/helyx-io/gtfs-playground.svg?branch=master)](https://travis-ci.org/helyx-io/gtfs-playground)
 [![Coverage Status](https://coveralls.io/repos/helyx-io/gtfs-playground/badge.png)](https://coveralls.io/r/helyx-io/gtfs-playground)
-
 
 Dump Database
 -------------
@@ -13,8 +13,35 @@ Dump Database
     
     
 
-Impo
-rt Database
+Import Database
 ---------------
 
     mysql -ugtfs -pgtfs gtfs < gtfs-ddl.sql
+    
+    
+REST Resources
+--------------
+
+ - **GET** http://localhost:3000/import/ - *Run import job*
+ - **GET** http://localhost:3000/agencies/ - *Get list of agencies*
+
+        [
+          {
+            "key": "RATP",
+            "agencyId": "RER",
+            "name": "RER",
+            "url": "http://...",
+            "timezone": "Europe/Paris",
+            "lang": "fr"
+          }, ... ,
+          {
+            "key": "RATP",
+            "agencyId": "Noctilien",
+            "name": "Noctilien",
+            "url": "http://...",
+            "timezone": "Europe/Paris",
+            "lang": "fr"
+          }
+        ]
+
+ - **GET** http://localhost:3000/agencies/76
