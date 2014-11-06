@@ -7,4 +7,4 @@ before_install:
     - go get code.google.com/p/go.tools/cmd/cover
 
 script:
-    - $HOME/go/bin/goveralls
+    - goveralls -v -package="github.com/helyx-io/gtfs-playground/utils"
