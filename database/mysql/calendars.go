@@ -41,6 +41,13 @@ func (r MySQLCalendarRepository) CreateImportTask(name, agencyKey string, lines 
 	return MySQLCalendarsImportTask{mysqlImportTask}
 }
 
+func (s MySQLCalendarRepository) FindAll() (*models.Calendars, error) {
+	var calendars models.Calendars
+	err := s.db.Table("calendars").Find(&calendars).Error
+
+	return &calendars, err
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopRepository
@@ -67,7 +74,7 @@ func(m MySQLCalendarsImportTask) ConvertModels(rs *models.Records) []interface{}
 		saturday, _ := strconv.Atoi(record[6])
 		sunday, _ := strconv.Atoi(record[7])
 
-		st[i] = models.Calendar{
+		st[i] = models.CalendarImportRow{
 			m.AgencyKey,
 			serviceId,
 			monday,
@@ -99,10 +106,11 @@ func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		c := entry.(models.Calendar)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		c := entry.(models.CalendarImportRow)
+		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
+			c.ServiceId,
 			c.Monday,
 			c.Tuesday,
 			c.Wednesday,
@@ -118,6 +126,7 @@ func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
 	stmt := fmt.Sprintf(
 		"INSERT INTO calendars (" +
 			" agency_key," +
+			" service_id," +
 			" monday," +
 			" tuesday," +
 			" wednesday," +

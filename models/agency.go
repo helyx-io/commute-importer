@@ -10,3 +10,4 @@ type Agency struct {
 	Timezone string `bson:"agency_timezone" json:"timezone" gorm:"column:agency_timezone"`
 	Lang string `bson:"agency_lang" json:"lang" gorm:"column:agency_lang"`
 }
+

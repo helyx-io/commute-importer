@@ -5,9 +5,6 @@ package controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"fmt"
-	"log"
-	"strconv"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/helyx-io/gtfs-playground/database"
@@ -20,7 +17,7 @@ import (
 /// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type AgencyController struct { }
+type CalendarController struct { }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,48 +25,48 @@ type AgencyController struct { }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	agencyRepository database.GTFSAgencyRepository
+	calendarRepository database.GTFSCalendarRepository
 )
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-/// Agency Controller
+/// Calendar Controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (agencyController *AgencyController) Init(r *mux.Router) {
-	agencyRepository = config.GTFS.Agencies().(database.GTFSAgencyRepository)
+func (calendarController *CalendarController) Init(r *mux.Router) {
+	calendarRepository = config.GTFS.Calendars().(database.GTFSCalendarRepository)
 
-	r.HandleFunc("/", agencyController.Agencies)
-	r.HandleFunc("/{id:[0-9]+}", agencyController.AgencyById)
+	r.HandleFunc("/", calendarController.Calendars)
+//	r.HandleFunc("/{id:[0-9]+}", calendarController.CalendarById)
 }
 
-func (ac *AgencyController) Agencies(w http.ResponseWriter, r *http.Request) {
-	agencies, err := agencyRepository.FindAll()
+func (ac *CalendarController) Calendars(w http.ResponseWriter, r *http.Request) {
+	calendars, err := calendarRepository.FindAll()
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-	} else if agencies == nil {
-		http.Error(w, "No agency found", 500)
+	} else if calendars == nil {
+		http.Error(w, "No calendar found", 500)
 	} else {
-		utils.SendJSON(w, agencies)
+		utils.SendJSON(w, calendars)
 	}
 }
-
-func (ac *AgencyController) AgencyById(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	idParam := params["id"]
-
-	log.Printf("id: %s", idParam)
-
-	id, _ := strconv.Atoi(idParam)
-
-	agency, err := agencyRepository.FindById(id)
-
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	} else if agency == nil {
-		http.Error(w, fmt.Sprintf("No agency found for key %v", id), 500)
-	} else {
-		utils.SendJSON(w, agency)
-	}
-}
+//
+//func (ac *CalendarController) CalendarById(w http.ResponseWriter, r *http.Request) {
+//	params := mux.Vars(r)
+//	idParam := params["id"]
+//
+//	log.Printf("id: %s", idParam)
+//
+//	id, _ := strconv.Atoi(idParam)
+//
+//	calendar, err := calendarRepository.FindById(id)
+//
+//	if err != nil {
+//		http.Error(w, err.Error(), 500)
+//	} else if calendar == nil {
+//		http.Error(w, fmt.Sprintf("No calendar found for key %v", id), 500)
+//	} else {
+//		utils.SendJSON(w, calendar)
+//	}
+//}

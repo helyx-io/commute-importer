@@ -42,7 +42,12 @@ type GTFSModelRepository interface {
 }
 
 type GTFSAgencyRepository interface {
-	GTFSModelRepository
+GTFSModelRepository
 	FindAll() (*models.Agencies, error)
 	FindById(id int) (*models.Agency, error)
+}
+
+type GTFSCalendarRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.Calendars, error)
 }

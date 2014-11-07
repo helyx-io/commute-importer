@@ -31,7 +31,7 @@ CREATE TABLE `agencies` (
   `agency_timezone` varchar(45) DEFAULT NULL,
   `agency_lang` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `calendar_dates` (
   `date` varchar(45) DEFAULT NULL,
   `exception_type` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=306449 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=536285 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,10 +69,10 @@ CREATE TABLE `calendars` (
   `friday` int(11) DEFAULT NULL,
   `saturday` int(11) DEFAULT NULL,
   `sunday` int(11) DEFAULT NULL,
-  `start_date` varchar(45) DEFAULT NULL,
-  `end_date` varchar(45) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26181 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=52361 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -95,7 +95,7 @@ CREATE TABLE `routes` (
   `route_color` varchar(45) DEFAULT NULL,
   `route_text_color` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6355 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=8473 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,15 +109,15 @@ CREATE TABLE `stop_times` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(8) DEFAULT NULL,
   `trip_id` varchar(40) DEFAULT NULL,
-  `arrival_time` varchar(16) DEFAULT NULL,
-  `departure_time` varchar(16) DEFAULT NULL,
+  `arrival_time` time DEFAULT NULL,
+  `departure_time` time DEFAULT NULL,
   `stop_id` varchar(32) DEFAULT NULL,
   `stop_sequence` int(11) DEFAULT NULL,
   `stop_head_sign` varchar(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
   `drop_off_type` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=180680207 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=215383727 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,7 +140,7 @@ CREATE TABLE `stops` (
   `location_type` int(11) DEFAULT NULL,
   `parent_station` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1559750 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1628254 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -158,7 +158,7 @@ CREATE TABLE `transfers` (
   `transfer_type` int(11) DEFAULT NULL,
   `min_transfer_time` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=294319 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,7 +179,7 @@ CREATE TABLE `trips` (
   `block_id` varchar(45) DEFAULT NULL,
   `shape_id` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=457155 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1371463 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -191,4 +191,4 @@ CREATE TABLE `trips` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-11-04  3:20:33
+-- Dump completed on 2014-11-07 21:33:56

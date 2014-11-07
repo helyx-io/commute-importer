@@ -31,7 +31,7 @@ func Init() error {
 
 	var err error
 
-	ConnectInfos = &database.DBConnectInfos{"mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8", 2, 100}
+	ConnectInfos = &database.DBConnectInfos{"mysql", "gtfs:gtfs@/gtfs?charset=utf8mb4,utf8&parseTime=true", 2, 100}
 
 	// Init Gorm
 	if DB, err = mysql.InitDB(ConnectInfos); err != nil {

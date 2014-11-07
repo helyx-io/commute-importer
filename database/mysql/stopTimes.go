@@ -60,7 +60,7 @@ func (m MySQLStopTimesImportTask) ConvertModels(rs *models.Records) []interface{
 		stopSequence, _ := strconv.Atoi(record[4])
 		pickup_type, _ := strconv.Atoi(record[6])
 		drop_off_type, _ := strconv.Atoi(record[7])
-		st[i] = models.StopTime{
+		st[i] = models.StopTimeImportRow{
 			m.AgencyKey,
 			record[0],
 			record[1],
@@ -90,7 +90,7 @@ func (m MySQLStopTimesImportTask) ImportModels(sts []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(sts) * 9)
 
 	for _, entry := range sts {
-		st := entry.(models.StopTime)
+		st := entry.(models.StopTimeImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,

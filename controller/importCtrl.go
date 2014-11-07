@@ -45,14 +45,14 @@ func (importController *ImportController) Init(r *mux.Router) {
 func initRepositoryMap() {
 	repositoryByFilenameMap = make(map[string]database.GTFSModelRepository)
 
-	repositoryByFilenameMap["agency.txt"] = config.GTFS.Agencies()
-	repositoryByFilenameMap["calendar_dates.txt"] = config.GTFS.CalendarDates()
-	repositoryByFilenameMap["calendar.txt"] = config.GTFS.Calendars()
-	repositoryByFilenameMap["routes.txt"] = config.GTFS.Routes()
-	repositoryByFilenameMap["stops.txt"] = config.GTFS.Stops()
+//	repositoryByFilenameMap["agency.txt"] = config.GTFS.Agencies()
+//	repositoryByFilenameMap["calendar_dates.txt"] = config.GTFS.CalendarDates()
+//	repositoryByFilenameMap["calendar.txt"] = config.GTFS.Calendars()
+//	repositoryByFilenameMap["routes.txt"] = config.GTFS.Routes()
+//	repositoryByFilenameMap["stops.txt"] = config.GTFS.Stops()
 	repositoryByFilenameMap["stop_times.txt"] = config.GTFS.StopTimes()
-	repositoryByFilenameMap["transfers.txt"] = config.GTFS.Transfers()
-	repositoryByFilenameMap["trips.txt"] = config.GTFS.Trips()
+//	repositoryByFilenameMap["transfers.txt"] = config.GTFS.Transfers()
+//	repositoryByFilenameMap["trips.txt"] = config.GTFS.Trips()
 
 }
 
@@ -90,5 +90,5 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 		}
 	}
 
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v ms", sw.ElapsedTime())))
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }

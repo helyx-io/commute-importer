@@ -1,5 +1,9 @@
 package models
 
+import(
+	"time"
+)
+
 type Calendars []Calendar
 
 type Calendar struct {
@@ -12,6 +16,20 @@ type Calendar struct {
 	Friday int `bson:"friday" json:"friday" gorm:"column:friday"`
 	Saturday int `bson:"saturday" json:"saturday" gorm:"column:saturday"`
 	Sunday int `bson:"sunday" json:"sunday" gorm:"column:sunday"`
-	StartDate string `bson:"start_date" json:"startDate" gorm:"column:start_date"`
-	EndDate string `bson:"end_date" json:"endDate" gorm:"column:end_date"`
+	StartDate time.Time `bson:"start_date" json:"startDate" gorm:"column:start_date"`
+	EndDate time.Time `bson:"end_date" json:"endDate" gorm:"column:end_date"`
+}
+
+type CalendarImportRow struct {
+	AgencyKey string `gorm:"column:agency_key"`
+	ServiceId int `gorm:"column:service_id"`
+	Monday int `gorm:"column:monday"`
+	Tuesday int `gorm:"column:tuesday"`
+	Wednesday int `gorm:"column:wednesday"`
+	Thursday int `gorm:"column:thursday"`
+	Friday int `gorm:"column:friday"`
+	Saturday int `gorm:"column:saturday"`
+	Sunday int `gorm:"column:sunday"`
+	StartDate string `gorm:"column:start_date"`
+	EndDate string `gorm:"column:end_date"`
 }

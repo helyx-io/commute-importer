@@ -61,7 +61,7 @@ func(m MySQLCalendarDatesImportTask) ConvertModels(rs *models.Records) []interfa
 		serviceId, _ := strconv.Atoi(record[0])
 		exceptionType, _ := strconv.Atoi(record[2])
 
-		st[i] = models.CalendarDate{
+		st[i] = models.CalendarDateImportRow{
 			m.AgencyKey,
 			serviceId,
 			record[1],
@@ -86,7 +86,7 @@ func (m MySQLCalendarDatesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		cd := entry.(models.CalendarDate)
+		cd := entry.(models.CalendarDateImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
