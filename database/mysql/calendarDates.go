@@ -41,6 +41,13 @@ func (r MySQLCalendarDateRepository) CreateImportTask(name, agencyKey string, li
 	return MySQLCalendarDatesImportTask{mysqlImportTask}
 }
 
+func (s MySQLCalendarDateRepository) FindAll() (*models.CalendarDates, error) {
+	var calendarDates models.CalendarDates
+	err := s.db.Table("calendar_dates").Find(&calendarDates).Error
+
+	return &calendarDates, err
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopRepository

@@ -7,15 +7,47 @@ import(
 type CalendarDates []CalendarDate
 
 type CalendarDate struct {
-	AgencyKey string `bson:"agency_key" json:"agencyKey" gorm:"column:agency_key"`
-	ServiceId int `bson:"service_id" json:"serviceId" gorm:"column:service_id"`
-	Date time.Time `bson:"date" json:"date" gorm:"column:date"`
-	ExceptionType int `bson:"exception_type" json:"exceptionType" gorm:"column:exception_type"`
+	AgencyKey string `gorm:"column:agency_key"`
+	ServiceId int `gorm:"column:service_id"`
+	Date time.Time `gorm:"column:date"`
+	ExceptionType int `gorm:"column:exception_type"`
+}
+
+type JSONCalendarDates []JSONCalendarDate
+
+type JSONCalendarDate struct {
+	AgencyKey string `json:"agencyKey"`
+	ServiceId int `json:"serviceId"`
+	Date JSONDate `json:"date"`
+	ExceptionType int `json:"exceptionType"`
 }
 
 type CalendarDateImportRow struct {
-	AgencyKey string `gorm:"column:agency_key"`
-	ServiceId int `gorm:"column:service_id"`
-	Date string `gorm:"column:date"`
-	ExceptionType int `gorm:"column:exception_type"`
+	AgencyKey string
+	ServiceId int
+	Date string
+	ExceptionType int
 }
+
+func (c *CalendarDate) ToJSONCalendarDate() *JSONCalendarDate {
+	jc := JSONCalendarDate{
+		c.AgencyKey,
+		c.ServiceId,
+		JSONDate(c.Date),
+		c.ExceptionType,
+	}
+
+	return &jc
+}
+
+func (cs *CalendarDates) ToJSONCalendarDates() *JSONCalendarDates {
+
+	jcs := make(JSONCalendarDates, len(*cs))
+
+	for i, c := range *cs {
+		jcs[i] = *c.ToJSONCalendarDate()
+	}
+
+	return &jcs
+}
+

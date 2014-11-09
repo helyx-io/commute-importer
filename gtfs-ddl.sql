@@ -45,7 +45,7 @@ CREATE TABLE `calendar_dates` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(45) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
-  `date` varchar(45) DEFAULT NULL,
+  `date` date DEFAULT NULL,
   `exception_type` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=536285 DEFAULT CHARSET=utf8mb4;
@@ -62,17 +62,17 @@ CREATE TABLE `calendars` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(45) DEFAULT NULL,
   `service_id` varchar(45) DEFAULT NULL,
-  `monday` int(11) DEFAULT NULL,
-  `tuesday` int(11) DEFAULT NULL,
-  `wednesday` int(11) DEFAULT NULL,
-  `thursday` int(11) DEFAULT NULL,
-  `friday` int(11) DEFAULT NULL,
-  `saturday` int(11) DEFAULT NULL,
-  `sunday` int(11) DEFAULT NULL,
+  `monday` tinyint(1) DEFAULT NULL,
+  `tuesday` tinyint(1) DEFAULT NULL,
+  `wednesday` tinyint(1) DEFAULT NULL,
+  `thursday` tinyint(1) DEFAULT NULL,
+  `friday` tinyint(1) DEFAULT NULL,
+  `saturday` tinyint(1) DEFAULT NULL,
+  `sunday` tinyint(1) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=52361 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=57597 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -191,4 +191,4 @@ CREATE TABLE `trips` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-11-07 21:33:56
+-- Dump completed on 2014-11-09 14:50:20

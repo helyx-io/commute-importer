@@ -17,7 +17,7 @@ import (
 /// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type CalendarController struct { }
+type CalendarDateController struct { }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,29 +25,28 @@ type CalendarController struct { }
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	calendarRepository database.GTFSCalendarRepository
+	calendarDateRepository database.GTFSCalendarDateRepository
 )
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-/// Calendar Controller
+/// CalendarDate Controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (calendarController *CalendarController) Init(r *mux.Router) {
-	calendarRepository = config.GTFS.Calendars().(database.GTFSCalendarRepository)
+func (calendarDateController *CalendarDateController) Init(r *mux.Router) {
+	calendarDateRepository = config.GTFS.CalendarDates().(database.GTFSCalendarDateRepository)
 
-	r.HandleFunc("/", calendarController.Calendars)
+	r.HandleFunc("/", calendarDateController.CalendarDates)
 }
 
-func (ac *CalendarController) Calendars(w http.ResponseWriter, r *http.Request) {
-	calendars, err := calendarRepository.FindAll()
+func (ac *CalendarDateController) CalendarDates(w http.ResponseWriter, r *http.Request) {
+	calendarDates, err := calendarDateRepository.FindAll()
 
 	if err != nil {
 		http.Error(w, err.Error(), 500)
-	} else if calendars == nil {
-		http.Error(w, "No calendar found", 500)
+	} else if calendarDates == nil {
+		http.Error(w, "No calendarDate found", 500)
 	} else {
-		utils.SendJSON(w, calendars.ToJSONCalendars())
+		utils.SendJSON(w, calendarDates.ToJSONCalendarDates())
 	}
 }
-
