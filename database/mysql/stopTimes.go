@@ -40,6 +40,13 @@ func (r MySQLStopTimeRepository) CreateImportTask(name, agencyKey string, lines 
 	return MySQLStopTimesImportTask{mysqlImportTask}
 }
 
+func (s MySQLStopTimeRepository) FindAll() (*models.StopTimes, error) {
+	var stopTimes models.StopTimes
+	err := s.db.Table("stop_times").Limit(1000).Find(&stopTimes).Error
+
+	return &stopTimes, err
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopTimesImportTask

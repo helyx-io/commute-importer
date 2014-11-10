@@ -7,10 +7,18 @@ import(
 type CalendarDates []CalendarDate
 
 type CalendarDate struct {
+	Id int `gorm:"column:id"`
 	AgencyKey string `gorm:"column:agency_key"`
 	ServiceId int `gorm:"column:service_id"`
 	Date time.Time `gorm:"column:date"`
 	ExceptionType int `gorm:"column:exception_type"`
+}
+
+type CalendarDateImportRow struct {
+	AgencyKey string
+	ServiceId int
+	Date string
+	ExceptionType int
 }
 
 type JSONCalendarDates []JSONCalendarDate
@@ -20,13 +28,6 @@ type JSONCalendarDate struct {
 	ServiceId int `json:"serviceId"`
 	Date JSONDate `json:"date"`
 	ExceptionType int `json:"exceptionType"`
-}
-
-type CalendarDateImportRow struct {
-	AgencyKey string
-	ServiceId int
-	Date string
-	ExceptionType int
 }
 
 func (c *CalendarDate) ToJSONCalendarDate() *JSONCalendarDate {

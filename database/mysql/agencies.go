@@ -35,7 +35,7 @@ func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 
 func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
 	var agencies models.Agencies
-	err := s.db.Table("agencies").Find(&agencies).Error
+	err := s.db.Table("agencies").Limit(1000).Find(&agencies).Error
 
 	return &agencies, err
 }
@@ -70,7 +70,7 @@ func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} 
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		st[i] = models.Agency{
+		st[i] = models.AgencyImportRow{
 			m.AgencyKey,
 			record[0],
 			record[1],
@@ -101,7 +101,7 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
-			a.Id,
+			a.AgencyId,
 			a.Name,
 			a.Url,
 			a.Timezone,

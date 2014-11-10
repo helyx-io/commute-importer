@@ -43,7 +43,7 @@ func (r MySQLCalendarRepository) CreateImportTask(name, agencyKey string, lines 
 
 func (s MySQLCalendarRepository) FindAll() (*models.Calendars, error) {
 	var calendars models.Calendars
-	err := s.db.Table("calendars").Find(&calendars).Error
+	err := s.db.Table("calendars").Limit(1000).Find(&calendars).Error
 
 	return &calendars, err
 }

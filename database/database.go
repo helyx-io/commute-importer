@@ -56,3 +56,28 @@ type GTFSCalendarDateRepository interface {
 	GTFSModelRepository
 	FindAll() (*models.CalendarDates, error)
 }
+
+type GTFSRouteRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.Routes, error)
+}
+
+type GTFSTripRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.Trips, error)
+}
+
+type GTFSTransferRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.Transfers, error)
+}
+
+type GTFSStopRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.Stops, error)
+}
+
+type GTFSStopTimeRepository interface {
+	GTFSModelRepository
+	FindAll() (*models.StopTimes, error)
+}

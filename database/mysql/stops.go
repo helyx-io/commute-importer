@@ -40,6 +40,14 @@ func (r MySQLStopRepository) CreateImportTask(name, agencyKey string, lines []by
 	return MySQLStopsImportTask{mysqlImportTask}
 }
 
+func (s MySQLStopRepository) FindAll() (*models.Stops, error) {
+	var stops models.Stops
+	err := s.db.Table("stops").Limit(1000).Find(&stops).Error
+
+	return &stops, err
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopsImportTask
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +68,7 @@ func (m MySQLStopsImportTask) ConvertModels(rs *models.Records) []interface{} {
 		stopLon, _ := strconv.Atoi(record[4])
 		locationType, _ := strconv.Atoi(record[7])
 		parentStation, _ := strconv.Atoi(record[8])
-		st[i] = models.Stop{
+		st[i] = models.StopImportRow{
 			m.AgencyKey,
 			record[0],
 			record[1],

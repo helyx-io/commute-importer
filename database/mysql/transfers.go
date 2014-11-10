@@ -41,6 +41,12 @@ func (r MySQLTransferRepository) CreateImportTask(name, agencyKey string, lines 
 	return MySQLTransfersImportTask{mysqlImportTask}
 }
 
+func (s MySQLTransferRepository) FindAll() (*models.Transfers, error) {
+	var transfers models.Transfers
+	err := s.db.Table("transfers").Limit(1000).Find(&transfers).Error
+
+	return &transfers, err
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopRepository
@@ -61,7 +67,7 @@ func(m MySQLTransfersImportTask) ConvertModels(rs *models.Records) []interface{}
 		transferType, _ := strconv.Atoi(record[2])
 		minTransferType, _ := strconv.Atoi(record[3])
 
-		st[i] = models.Transfer{
+		st[i] = models.TransferImportRow{
 			m.AgencyKey,
 			record[0],
 			record[1],

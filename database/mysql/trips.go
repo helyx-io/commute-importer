@@ -34,11 +34,17 @@ func (s MySQLTripRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 	return s.db.Table("trips").Where("agency_key = ?", agencyKey).Delete(models.Trip{}).Error
 }
 
-
 func (r MySQLTripRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
 	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLTripsImportTask{mysqlImportTask}
+}
+
+func (s MySQLTripRepository) FindAll() (*models.Trips, error) {
+	var trips models.Trips
+	err := s.db.Table("trips").Limit(1000).Find(&trips).Error
+
+	return &trips, err
 }
 
 
@@ -61,7 +67,7 @@ func(m MySQLTripsImportTask) ConvertModels(rs *models.Records) []interface{} {
 		serviceId, _ := strconv.Atoi(record[1])
 		directionId, _ := strconv.Atoi(record[4])
 
-		st[i] = models.Trip{
+		st[i] = models.TripImportRow{
 			m.AgencyKey,
 			record[0],
 			serviceId,

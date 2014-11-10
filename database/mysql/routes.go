@@ -41,6 +41,13 @@ func (r MySQLRouteRepository) CreateImportTask(name, agencyKey string, lines []b
 	return MySQLRoutesImportTask{mysqlImportTask}
 }
 
+func (s MySQLRouteRepository) FindAll() (*models.Routes, error) {
+	var routes models.Routes
+	err := s.db.Table("routes").Limit(1000).Find(&routes).Error
+
+	return &routes, err
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// MySQLStopRepository
@@ -60,7 +67,7 @@ func(m MySQLRoutesImportTask) ConvertModels(rs *models.Records) []interface{} {
 	for i, record := range *rs {
 		routeType, _ := strconv.Atoi(record[5])
 
-		st[i] = models.Route{
+		st[i] = models.RouteImportRow{
 			m.AgencyKey,
 			record[0],
 			record[1],

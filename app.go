@@ -83,7 +83,12 @@ func initRouter() *mux.Router {
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
 	new(controller.AgencyController).Init(r.PathPrefix("/agencies").Subrouter())
 	new(controller.CalendarController).Init(r.PathPrefix("/calendars").Subrouter())
-	new(controller.CalendarDateController).Init(r.PathPrefix("/calendarDates").Subrouter())
+	new(controller.CalendarDateController).Init(r.PathPrefix("/calendar-dates").Subrouter())
+	new(controller.RouteController).Init(r.PathPrefix("/routes").Subrouter())
+	new(controller.TripController).Init(r.PathPrefix("/trips").Subrouter())
+	new(controller.TransferController).Init(r.PathPrefix("/transfers").Subrouter())
+	new(controller.StopController).Init(r.PathPrefix("/stops").Subrouter())
+	new(controller.StopTimeController).Init(r.PathPrefix("/stop-times").Subrouter())
 
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))

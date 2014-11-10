@@ -7,6 +7,7 @@ import(
 type Calendars []Calendar
 
 type Calendar struct {
+	Id int `gorm:"column:id"`
 	AgencyKey string `gorm:"column:agency_key"`
 	ServiceId int `gorm:"column:service_id"`
 	Monday bool `gorm:"column:monday"`
@@ -18,6 +19,20 @@ type Calendar struct {
 	Sunday bool `gorm:"column:sunday"`
 	StartDate time.Time `gorm:"column:start_date"`
 	EndDate time.Time `gorm:"column:end_date"`
+}
+
+type CalendarImportRow struct {
+	AgencyKey string
+	ServiceId int
+	Monday int
+	Tuesday int
+	Wednesday int
+	Thursday int
+	Friday int
+	Saturday int
+	Sunday int
+	StartDate string
+	EndDate string
 }
 
 type JSONCalendars []JSONCalendar
@@ -34,20 +49,6 @@ type JSONCalendar struct {
 	Sunday bool `json:"sunday"`
 	StartDate JSONDate `json:"startDate"`
 	EndDate JSONDate `json:"endDate"`
-}
-
-type CalendarImportRow struct {
-	AgencyKey string
-	ServiceId int
-	Monday int
-	Tuesday int
-	Wednesday int
-	Thursday int
-	Friday int
-	Saturday int
-	Sunday int
-	StartDate string
-	EndDate string
 }
 
 func (c *Calendar) ToJSONCalendar() *JSONCalendar {
