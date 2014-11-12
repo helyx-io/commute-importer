@@ -37,6 +37,7 @@ var (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func (agencyController *AgencyController) Init(r *mux.Router) {
+
 	agencyRepository = config.GTFS.Agencies().(database.GTFSAgencyRepository)
 
 	r.HandleFunc("/", agencyController.Agencies)

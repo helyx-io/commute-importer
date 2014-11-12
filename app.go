@@ -6,28 +6,19 @@ package main
 
 import (
 	"fmt"
+	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
 	"github.com/helyx-io/gtfs-playground/config"
 	"github.com/helyx-io/gtfs-playground/controller"
 	"github.com/helyx-io/gtfs-playground/utils"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
+
+
 	"log"
 	"net/http"
 	"os"
 	"runtime"
-//	"github.com/davecheney/profile"
 )
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-/// Helper Functions
-////////////////////////////////////////////////////////////////////////////////////////////////
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,12 +49,16 @@ func main() {
 	router := initRouter()
 	http.Handle("/", router)
 
-	loggingHandler := handlers.LoggingHandler(logWriter, router)
+	handlerChain := alice.New(
+		appHandlers.LoggingHandler(logWriter),
+		appHandlers.ThrottleHandler,
+		appHandlers.TimeoutHandler,
+	).Then(router)
 
 	// Init HTTP Server
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%s", "3000"),
-		Handler: loggingHandler,
+		Handler: handlerChain,
 	}
 
 	log.Println("Listening ...")
@@ -72,14 +67,16 @@ func main() {
 }
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Router Configuration
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func initRouter() *mux.Router {
 	r := mux.NewRouter()
-	
+
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
+	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
 	new(controller.AgencyController).Init(r.PathPrefix("/agencies").Subrouter())
 	new(controller.CalendarController).Init(r.PathPrefix("/calendars").Subrouter())

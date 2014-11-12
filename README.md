@@ -6,6 +6,8 @@ This project aims to be an playground to explore General Transit Feed Specificat
 [![Build Status](https://travis-ci.org/helyx-io/gtfs-playground.svg?branch=master)](https://travis-ci.org/helyx-io/gtfs-playground)
 [![Coverage Status](https://coveralls.io/repos/helyx-io/gtfs-playground/badge.png)](https://coveralls.io/r/helyx-io/gtfs-playground)
 
+
+
 Dump Database
 -------------
 
@@ -18,7 +20,8 @@ Import Database
 
     mysql -ugtfs -pgtfs gtfs < gtfs-ddl.sql
     
-    
+ 
+
 REST Resources
 --------------
 
@@ -54,3 +57,17 @@ REST Resources
           "timezone": "Europe/Paris",
           "lang": "fr"
         }
+
+
+
+Perf Test
+---------
+
+Install Vegeta:
+    
+     go get github.com/tsenart/vegeta
+     go install github.com/tsenart/vegeta
+
+Run Vegeta on Routes URL:
+
+    echo "GET http://localhost:3000/routes/" | vegeta attack -rate=20 -duration=10s | vegeta report -reporter=plot > report.html && open report.html

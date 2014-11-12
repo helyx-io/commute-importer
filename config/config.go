@@ -5,9 +5,11 @@ package config
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"os"
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database/mysql"
 	"github.com/helyx-io/gtfs-playground/database"
+	"github.com/helyx-io/gtfs-playground/auth"
 	"github.com/goinggo/workpool"
 )
 
@@ -21,6 +23,7 @@ var (
 	GTFS database.GTFSRepository
 	ConnectInfos *database.DBConnectInfos
 	WorkPool *workpool.WorkPool
+	OAuthInfos *auth.OAuthInfos
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +46,8 @@ func Init() error {
 
 	// Init WorkPool
 	WorkPool = workpool.New(32, 10000)
+
+	OAuthInfos = &auth.OAuthInfos{os.Getenv("GOOGLE_AUTH_CLIENT_ID"), os.Getenv("GOOGLE_AUTH_CLIENT_SECRET")}
 
 	return nil
 }
