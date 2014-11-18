@@ -5,12 +5,13 @@ package controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"fmt"
 	"github.com/gorilla/mux"
 //	jwt "github.com/dgrijalva/jwt-go"
 	"code.google.com/p/goauth2/oauth"
 	"github.com/helyx-io/gtfs-playground/config"
+	"github.com/helyx-io/gtfs-playground/session"
 	"net/http"
+	"log"
 )
 
 
@@ -58,33 +59,33 @@ func (ac *AuthController) AuthGoogleCallback(w http.ResponseWriter, r *http.Requ
 
 	code := r.Form.Get("code")
 
-	w.Write([]byte("<html><body>"))
-	w.Write([]byte("APP AUTH - CODE<br/>"))
-
-	if code != "" {
-
-		var jr *oauth.Token
-		var err error
-
-		// if parse, download and parse json
-		jr, err = ctransport.Exchange(code)
-		if err != nil {
-			jr = nil
-			w.Write([]byte(fmt.Sprintf("ERROR: %s<br/>\n", err)))
-		}
-
-		// show json access token
-		if jr != nil {
-			w.Write([]byte(fmt.Sprintf("ACCESS TOKEN: %s<br/>\n", jr.AccessToken)))
-			if jr.RefreshToken != "" {
-				w.Write([]byte(fmt.Sprintf("REFRESH TOKEN: %s<br/>\n", jr.RefreshToken)))
-			}
-		}
-
-		w.Write([]byte(fmt.Sprintf("FULL RESULT: %+v<br/>\n", jr)))
-	} else {
-		w.Write([]byte("Nothing to do"))
+	if code == "" {
+		w.WriteHeader(500)
+		w.Write([]byte("No code found"))
+		return
 	}
 
-	w.Write([]byte("</body></html>"))
+	var jr *oauth.Token
+	var err error
+
+	// if parse, download and parse json
+	jr, err = ctransport.Exchange(code)
+	if err != nil {
+		jr = nil
+		w.WriteHeader(500)
+		w.Write([]byte("Error found: "))
+		return
+	}
+
+	// show json access token
+	if jr == nil {
+		w.WriteHeader(500)
+		w.Write([]byte("No token retrieved"))
+		return
+	}
+
+	session.SetToken(w, r, jr)
+	log.Println("Token retrieved:", jr)
+
+	http.Redirect(w, r, "/", 302)
 }

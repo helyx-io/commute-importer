@@ -6,7 +6,9 @@ package controller
 
 import (
 	"fmt"
+	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 	"net/http"
 )
 
@@ -20,7 +22,15 @@ type IndexController struct {
 }
 
 func (c *IndexController) Init(r *mux.Router) {
-	r.HandleFunc("/", c.indexHandler)
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", c.indexHandler)
+
+	handlerChain := alice.New(
+		appHandlers.LoggedInHandler,
+	).Then(router)
+
+	r.Handle("/", http.Handler(handlerChain))
 }
 
 func (c *IndexController) indexHandler(w http.ResponseWriter, r *http.Request) {

@@ -8,11 +8,12 @@ import(
 	"io"
 	"net/http"
 	"time"
-//	"log"
+	"log"
 	"sync"
 	"github.com/gorilla/handlers"
 	"github.com/PuerkitoBio/throttled"
 	"github.com/PuerkitoBio/throttled/store"
+	"github.com/helyx-io/gtfs-playground/session"
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -25,6 +26,14 @@ func TimeoutHandler(h http.Handler) http.Handler {
 	return http.TimeoutHandler(h, 1 * time.Second, "timed out")
 }
 
+func LoggedInHandler(h http.Handler) http.Handler  {
+	return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Has Token: ", session.HasToken(r))
+		if !session.HasToken(r) {
+			http.Redirect(w, r, "/login.html", 302)
+		}
+	}))
+}
 
 func setupRedis() *redis.Pool {
 	pool := &redis.Pool{
