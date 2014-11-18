@@ -43,7 +43,7 @@ func GetToken(r *http.Request) (*oauth.Token, error) {
 		return nil, err
 	}
 
-	log.Println("Getting token: ", session.Values["token"])
+	log.Println("[GET_TOKEN] Session values: ", session.Values)
 
 	return session.Values["token"].(*oauth.Token), nil
 }
@@ -55,7 +55,7 @@ func HasToken(r *http.Request) bool {
 		return false
 	}
 
-	log.Println("Checking token: ", session.Values["token"])
+	log.Println("[CHECK_TOKEN] Session values: ", session.Values)
 
 	return session.Values["token"] != nil
 }
