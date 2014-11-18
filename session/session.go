@@ -45,7 +45,8 @@ func GetToken(r *http.Request) (*oauth.Token, error) {
 
 	log.Println("[GET_TOKEN] Session values: ", session.Values)
 
-	return session.Values["token"].(*oauth.Token), nil
+	token := session.Values["token"].(oauth.Token)
+	return &token, nil
 }
 
 func HasToken(r *http.Request) bool {
@@ -69,7 +70,8 @@ func SetToken(w http.ResponseWriter, r *http.Request, token *oauth.Token) error 
 
 	log.Println("Writing token", token)
 
-	session.Values["token"] = token
+	session.Values["token"] = *token
+	log.Println("[SETTING_TOKEN] Session values: ", session.Values)
 
 	session.Save(r, w)
 
