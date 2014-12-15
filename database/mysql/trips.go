@@ -96,7 +96,7 @@ func (m MySQLTripsImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		t := entry.(models.Trip)
+		t := entry.(models.TripImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,

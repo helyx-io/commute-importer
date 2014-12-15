@@ -98,7 +98,7 @@ func (m MySQLRoutesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		r := entry.(models.Route)
+		r := entry.(models.RouteImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,

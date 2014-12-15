@@ -97,7 +97,7 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(as) * 9)
 
 	for _, entry := range as {
-		a := entry.(models.Agency)
+		a := entry.(models.AgencyImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,

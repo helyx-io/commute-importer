@@ -99,7 +99,7 @@ func (m MySQLStopsImportTask) ImportModels(ss []interface{}) error {
 	valueArgs := make([]interface{}, 0, len(ss) * 9)
 
 	for _, entry := range ss {
-		s := entry.(models.Stop)
+		s := entry.(models.StopImportRow)
 		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
