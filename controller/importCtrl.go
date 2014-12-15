@@ -66,9 +66,9 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 
 	log.Println("Importing agencies ...")
 
-	folderFilename := "/Users/akinsella/Desktop/gtfs_paris_20140502"
-	url := "http://localhost/data/gtfs_paris_20140502.zip"
-	zipFilename := "/Users/akinsella/Desktop/gtfs_paris_20140502.zip"
+	folderFilename := config.TmpDir + "/gtfs_paris_20140502"
+	url := config.BaseURL + "/data/gtfs_paris_20140502.zip"
+	zipFilename := config.TmpDir + "/gtfs_paris_20140502.zip"
 
 	utils.DownloadFile(url, zipFilename)
 	utils.UnzipArchive(zipFilename, folderFilename)

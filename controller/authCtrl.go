@@ -58,6 +58,7 @@ func (ac *AuthController) AuthGoogleCallback(w http.ResponseWriter, r *http.Requ
 	r.ParseForm()
 
 	code := r.Form.Get("code")
+	log.Println("[OAUTH_CONTROLLER] Code retrieved:", code)
 
 	if code == "" {
 		w.WriteHeader(500)
@@ -85,7 +86,7 @@ func (ac *AuthController) AuthGoogleCallback(w http.ResponseWriter, r *http.Requ
 	}
 
 	session.SetToken(w, r, jr)
-	log.Println("Token retrieved:", jr)
+	log.Println("[OAUTH_CONTROLLER] Token retrieved: { Access Token: ", jr.AccessToken, ", Refresh Token: ", jr.RefreshToken, ", Expiry: ", jr.Expiry, ", Extra: ", jr.Extra)
 
 	http.Redirect(w, r, "/", 302)
 }

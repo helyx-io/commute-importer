@@ -29,6 +29,7 @@ var (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 func Init() {
+	log.Println("[SESSION] Initializing cookie store with secret: ", "'" + config.Session.Secret + "'");
 	store = sessions.NewCookieStore([]byte(config.Session.Secret))
 }
 

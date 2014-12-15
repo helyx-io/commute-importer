@@ -78,6 +78,7 @@ func initRouter() *mux.Router {
 
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
 	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
+	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
 
 	new(controller.ApiController).Init(r.PathPrefix("/api/v1").Subrouter())
 
