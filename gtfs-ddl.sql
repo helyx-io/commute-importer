@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.6.15, for osx10.7 (x86_64)
+-- MySQL dump 10.13  Distrib 5.6.21, for osx10.8 (x86_64)
 --
 -- Host: localhost    Database: gtfs
 -- ------------------------------------------------------
--- Server version	5.6.15
+-- Server version	5.6.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -28,8 +28,8 @@ CREATE TABLE `accessTokens` (
   `userID` varchar(255) DEFAULT NULL,
   `clientID` varchar(255) DEFAULT NULL,
   `scope` varchar(255) DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL,
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -49,8 +49,8 @@ CREATE TABLE `agencies` (
   `agency_url` varchar(45) DEFAULT NULL,
   `agency_timezone` varchar(45) DEFAULT NULL,
   `agency_lang` varchar(45) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `agency_id_idx` (`agency_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
@@ -69,28 +69,12 @@ CREATE TABLE `calendar_dates` (
   `service_id` int(11) NOT NULL,
   `date` date NOT NULL,
   `exception_type` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`service_id`,`date`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `service_id_idx` (`service_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=612897 DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `calendar_datestrips`
---
-
-DROP TABLE IF EXISTS `calendar_datestrips`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `calendar_datestrips` (
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  `service_id` varchar(45) NOT NULL DEFAULT '',
-  `calendar_date_service_id` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`service_id`,`calendar_date_service_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,8 +97,8 @@ CREATE TABLE `calendars` (
   `sunday` tinyint(1) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`service_id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `service_id_dix` (`service_id`)
@@ -133,8 +117,8 @@ CREATE TABLE `clients` (
   `name` varchar(255) DEFAULT NULL,
   `clientId` varchar(255) DEFAULT NULL,
   `clientSecret` varchar(255) DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL,
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -156,8 +140,8 @@ CREATE TABLE `pemClients` (
   `keyPassword` varchar(128) DEFAULT NULL,
   `certPassword` varchar(128) DEFAULT NULL,
   `days` int(11) DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL,
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -181,8 +165,8 @@ CREATE TABLE `routes` (
   `route_url` varchar(45) DEFAULT NULL,
   `route_color` varchar(45) DEFAULT NULL,
   `route_text_color` varchar(45) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `route_id_idx` (`route_id`),
   KEY `agency_id_idx` (`agency_id`)
@@ -207,8 +191,8 @@ CREATE TABLE `stopTimes` (
   `stop_head_sign` int(11) DEFAULT NULL,
   `pickup_time` varchar(255) DEFAULT NULL,
   `drop_off_type` varchar(255) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -231,8 +215,8 @@ CREATE TABLE `stop_times` (
   `stop_head_sign` varchar(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
   `drop_off_type` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `trip_id_idx` (`trip_id`),
   KEY `stop_id_idx` (`stop_id`)
@@ -258,8 +242,8 @@ CREATE TABLE `stops` (
   `stop_url` varchar(45) DEFAULT NULL,
   `location_type` int(11) DEFAULT NULL,
   `parent_station` varchar(45) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`stop_id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `stop_id_idx` (`stop_id`)
@@ -280,8 +264,8 @@ CREATE TABLE `transfers` (
   `to_stop_id` varchar(45) DEFAULT NULL,
   `transfer_type` int(11) DEFAULT NULL,
   `min_transfer_time` int(11) DEFAULT NULL,
-  `created_at` varchar(45) NOT NULL,
-  `updated_at` varchar(45) NOT NULL,
+  `created_at` varchar(45) NOT NULL DEFAULT 'NOW()',
+  `updated_at` varchar(45) NOT NULL DEFAULT 'NOW()',
   PRIMARY KEY (`id`),
   KEY `from_stop_id_idx` (`from_stop_id`),
   KEY `to_stop_id_idx` (`to_stop_id`)
@@ -305,8 +289,8 @@ CREATE TABLE `trips` (
   `direction_id` int(11) DEFAULT NULL,
   `block_id` varchar(45) DEFAULT NULL,
   `shape_id` varchar(45) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`trip_id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `route_id_idx` (`route_id`),
@@ -331,8 +315,8 @@ CREATE TABLE `users` (
   `googleId` varchar(255) DEFAULT NULL,
   `avatarUrl` varchar(255) DEFAULT NULL,
   `role` varchar(255) DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime NOT NULL,
+  `createdAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -346,4 +330,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-12-15  7:38:35
+-- Dump completed on 2014-12-15 18:54:45
