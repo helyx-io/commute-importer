@@ -16,6 +16,25 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `accessTokens`
+--
+
+DROP TABLE IF EXISTS `accessTokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `accessTokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token` varchar(255) DEFAULT NULL,
+  `userID` varchar(255) DEFAULT NULL,
+  `clientID` varchar(255) DEFAULT NULL,
+  `scope` varchar(255) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `agencies`
 --
 
@@ -30,7 +49,10 @@ CREATE TABLE `agencies` (
   `agency_url` varchar(45) DEFAULT NULL,
   `agency_timezone` varchar(45) DEFAULT NULL,
   `agency_lang` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `agency_id_idx` (`agency_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -44,11 +66,31 @@ DROP TABLE IF EXISTS `calendar_dates`;
 CREATE TABLE `calendar_dates` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(45) DEFAULT NULL,
-  `service_id` int(11) DEFAULT NULL,
-  `date` date DEFAULT NULL,
+  `service_id` int(11) NOT NULL,
+  `date` date NOT NULL,
   `exception_type` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=536285 DEFAULT CHARSET=utf8mb4;
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`service_id`,`date`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `service_id_idx` (`service_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=612897 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `calendar_datestrips`
+--
+
+DROP TABLE IF EXISTS `calendar_datestrips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `calendar_datestrips` (
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `service_id` varchar(45) NOT NULL DEFAULT '',
+  `calendar_date_service_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`service_id`,`calendar_date_service_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,7 +103,7 @@ DROP TABLE IF EXISTS `calendars`;
 CREATE TABLE `calendars` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(45) DEFAULT NULL,
-  `service_id` varchar(45) DEFAULT NULL,
+  `service_id` varchar(45) NOT NULL,
   `monday` tinyint(1) DEFAULT NULL,
   `tuesday` tinyint(1) DEFAULT NULL,
   `wednesday` tinyint(1) DEFAULT NULL,
@@ -71,8 +113,53 @@ CREATE TABLE `calendars` (
   `sunday` tinyint(1) DEFAULT NULL,
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`service_id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `service_id_dix` (`service_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=62833 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `clients`
+--
+
+DROP TABLE IF EXISTS `clients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `clients` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL,
+  `clientId` varchar(255) DEFAULT NULL,
+  `clientSecret` varchar(255) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=57597 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `pemClients`
+--
+
+DROP TABLE IF EXISTS `pemClients`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `pemClients` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `userId` int(11) DEFAULT NULL,
+  `privateKey` varchar(2048) DEFAULT NULL,
+  `publicKey` varchar(2048) DEFAULT NULL,
+  `certificate` varchar(2048) DEFAULT NULL,
+  `fingerprint` varchar(128) DEFAULT NULL,
+  `keyPassword` varchar(128) DEFAULT NULL,
+  `certPassword` varchar(128) DEFAULT NULL,
+  `days` int(11) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -94,8 +181,36 @@ CREATE TABLE `routes` (
   `route_url` varchar(45) DEFAULT NULL,
   `route_color` varchar(45) DEFAULT NULL,
   `route_text_color` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `route_id_idx` (`route_id`),
+  KEY `agency_id_idx` (`agency_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8473 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `stopTimes`
+--
+
+DROP TABLE IF EXISTS `stopTimes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stopTimes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `agency_key` varchar(255) DEFAULT NULL,
+  `trip_id` varchar(255) DEFAULT NULL,
+  `arrival_time` varchar(255) DEFAULT NULL,
+  `departure_time` varchar(255) DEFAULT NULL,
+  `stop_id` varchar(255) DEFAULT NULL,
+  `stop_sequence` varchar(255) DEFAULT NULL,
+  `stop_head_sign` int(11) DEFAULT NULL,
+  `pickup_time` varchar(255) DEFAULT NULL,
+  `drop_off_type` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,7 +231,11 @@ CREATE TABLE `stop_times` (
   `stop_head_sign` varchar(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
   `drop_off_type` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `trip_id_idx` (`trip_id`),
+  KEY `stop_id_idx` (`stop_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=215383727 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -130,7 +249,7 @@ DROP TABLE IF EXISTS `stops`;
 CREATE TABLE `stops` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `agency_key` varchar(45) DEFAULT NULL,
-  `stop_id` varchar(45) DEFAULT NULL,
+  `stop_id` varchar(45) NOT NULL,
   `stop_name` varchar(64) DEFAULT NULL,
   `stop_desc` varchar(128) DEFAULT NULL,
   `stop_lat` int(11) DEFAULT NULL,
@@ -139,7 +258,11 @@ CREATE TABLE `stops` (
   `stop_url` varchar(45) DEFAULT NULL,
   `location_type` int(11) DEFAULT NULL,
   `parent_station` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`stop_id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `stop_id_idx` (`stop_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1628254 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -157,7 +280,11 @@ CREATE TABLE `transfers` (
   `to_stop_id` varchar(45) DEFAULT NULL,
   `transfer_type` int(11) DEFAULT NULL,
   `min_transfer_time` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` varchar(45) NOT NULL,
+  `updated_at` varchar(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `from_stop_id_idx` (`from_stop_id`),
+  KEY `to_stop_id_idx` (`to_stop_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=294319 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -173,13 +300,41 @@ CREATE TABLE `trips` (
   `agency_key` varchar(45) DEFAULT NULL,
   `route_id` varchar(45) DEFAULT NULL,
   `service_id` int(11) DEFAULT NULL,
-  `trip_id` varchar(45) DEFAULT NULL,
+  `trip_id` varchar(45) NOT NULL,
   `trip_headsign` varchar(45) DEFAULT NULL,
   `direction_id` int(11) DEFAULT NULL,
   `block_id` varchar(45) DEFAULT NULL,
   `shape_id` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`trip_id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  KEY `route_id_idx` (`route_id`),
+  KEY `service_id_idx` (`service_id`),
+  KEY `trip_id_idx` (`trip_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1371463 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `firstName` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
+  `gender` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `googleId` varchar(255) DEFAULT NULL,
+  `avatarUrl` varchar(255) DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -191,4 +346,4 @@ CREATE TABLE `trips` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-11-09 14:50:20
+-- Dump completed on 2014-12-15  7:38:35
