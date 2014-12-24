@@ -6,11 +6,14 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/utils"
+	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -31,20 +34,34 @@ type MySQLStopRepository struct {
 }
 
 func (s MySQLStopRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("stops").Where("agency_key = ?", agencyKey).Delete(models.Stop{}).Error
+
+	table := fmt.Sprintf("%s_stops", agencyKey)
+
+	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
+
+	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
 }
 
-func (r MySQLStopRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+func (r MySQLStopRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLStopsImportTask{mysqlImportTask}
 }
 
-func (s MySQLStopRepository) FindAll() (*models.Stops, error) {
-	var stops models.Stops
-	err := s.db.Table("stops").Limit(1000).Find(&stops).Error
+func (s MySQLStopRepository) CreateTableByAgencyKey(agencyKey string) error {
 
-	return &stops, err
+	tmpTable := fmt.Sprintf("%s_stops", agencyKey)
+
+	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
+
+	ddl, _ := data.Asset("resources/ddl/stops.sql")
+	stmt := fmt.Sprintf(string(ddl), agencyKey);
+
+	return s.db.Exec(stmt).Error
+}
+
+func (s MySQLStopRepository) AddIndexesByAgencyKey(agencyKey string) error {
+	return nil
 }
 
 
@@ -60,23 +77,30 @@ func (m MySQLStopsImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m)
 }
 
-func (m MySQLStopsImportTask) ConvertModels(rs *models.Records) []interface{} {
+func (m MySQLStopsImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
+	var offsets = make(map[string]int)
+
+	for i, header := range headers {
+		offsets[header] = i
+	}
+
 	for i, record := range *rs {
-		stopLat, _ := strconv.Atoi(record[3])
-		stopLon, _ := strconv.Atoi(record[4])
-		locationType, _ := strconv.Atoi(record[7])
-		parentStation, _ := strconv.Atoi(record[8])
+		stopLat := recordValueAsInt(record, offsets, "stop_lat")
+		stopLon := recordValueAsInt(record, offsets, "stop_lon")
+		locationType := recordValueAsInt(record, offsets, "location_type")
+		parentStation := recordValueAsInt(record, offsets, "parent_station")
 		st[i] = models.StopImportRow{
 			m.AgencyKey,
-			record[0],
-			record[1],
-			record[2],
+			recordValueAsString(record, offsets, "stop_id"),
+			recordValueAsString(record, offsets, "stop_code"),
+			recordValueAsString(record, offsets, "stop_name"),
+			recordValueAsString(record, offsets, "stop_desc"),
 			stopLat,
 			stopLon,
-			record[5],
-			record[6],
+			recordValueAsString(record, offsets, "zone_id"),
+			recordValueAsString(record, offsets, "stop_url"),
 			locationType,
 			parentStation,
 		}
@@ -85,7 +109,31 @@ func (m MySQLStopsImportTask) ConvertModels(rs *models.Records) []interface{} {
 	return st
 }
 
-func (m MySQLStopsImportTask) ImportModels(ss []interface{}) error {
+func recordValueAsString(record []string, offsets map[string]int, key string) string {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return ""
+	}
+
+	return record[offset]
+}
+
+func recordValueAsInt(record []string, offsets map[string]int, key string) int {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return 0
+	}
+
+	intValue, _ := strconv.Atoi(record[offset])
+
+	return intValue
+}
+
+func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -96,14 +144,34 @@ func (m MySQLStopsImportTask) ImportModels(ss []interface{}) error {
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(ss))
-	valueArgs := make([]interface{}, 0, len(ss) * 9)
+	valueArgs := make([]interface{}, 0, len(ss) * 10)
 
+	table := fmt.Sprintf("%s_stops", m.AgencyKey)
+
+	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
+
+	query := "INSERT INTO " + table + " (" +
+		" stop_id," +
+		" stop_code," +
+		" stop_name," +
+		" stop_desc," +
+		" stop_lat," +
+		" stop_lon," +
+		" zone_id," +
+		" stop_url," +
+		" location_type," +
+		" parent_station" +
+		" ) VALUES %s"
+
+
+	var count int = 0
 	for _, entry := range ss {
 		s := entry.(models.StopImportRow)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
 			s.StopId,
+			s.StopCode,
 			s.StopName,
 			s.StopDesc,
 			s.StopLat,
@@ -113,24 +181,27 @@ func (m MySQLStopsImportTask) ImportModels(ss []interface{}) error {
 			s.LocationType,
 			s.ParentStation,
 		)
+
+		count += 1
+
+		if count >= 4096 {
+			stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
+
+			_, err = dbSql.Exec(stmt, valueArgs...)
+			utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
+
+			valueStrings = make([]string, 0, len(ss))
+			valueArgs = make([]interface{}, 0, len(ss) * 9)
+			count = 0
+		}
 	}
 
-	stmt := fmt.Sprintf(
-		"INSERT INTO stops (" +
-		" agency_key," +
-		" stop_id," +
-		" stop_name," +
-		" stop_desc," +
-		" stop_lat," +
-		" stop_lon," +
-		" zone_id," +
-		" stop_url," +
-		" location_type," +
-		" parent_station" +
-		" ) VALUES %s", strings.Join(valueStrings, ","))
+	if count > 0 {
+		stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
-
-	_, err = dbSql.Exec(stmt, valueArgs...)
+		_, err = dbSql.Exec(stmt, valueArgs...)
+		utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
+	}
 
 	return err
 

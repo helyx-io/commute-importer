@@ -20,6 +20,7 @@ type Stop struct {
 type StopImportRow struct {
 	AgencyKey string
 	StopId string
+	StopCode string
 	StopName string
 	StopDesc string
 	StopLat int

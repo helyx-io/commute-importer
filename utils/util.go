@@ -15,7 +15,7 @@ import (
 
 func FailOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
+		log.Printf("[ERROR] %s: %s", msg, err)
 		panic(err)
 	}
 }

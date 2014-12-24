@@ -10,11 +10,6 @@ import (
 
 type Records [][]string
 
-type RecordsInserter interface {
-	InsertStopTimes(sts *StopTimes) (err error)
-	InsertStops(sts *Stops) (err error)
-}
-
 
 func ParseCsv(b []byte) (*Records, error) {
 	r := bytes.NewReader(b)

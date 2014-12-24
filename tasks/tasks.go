@@ -2,27 +2,32 @@ package tasks
 
 import (
 	"log"
+	"fmt"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/goinggo/workpool"
 )
 
 type ImportTask struct {
 	Name string
+	JobIndex int
+	FileName string
 	AgencyKey string
+	Headers []string
 	Lines []byte
 	WP *workpool.WorkPool
+	Done chan error
 }
 
 type ModelConverter interface {
-	ConvertModels(records *models.Records) []interface{}
+	ConvertModels(headers []string, records *models.Records) []interface{}
 }
 
 type ModelImporter interface {
-	ImportModels(models []interface{}) error
+	ImportModels(headers []string, models []interface{}) error
 }
 
-func NewImportTask(name string, agencyKey string, lines []byte, workPool *workpool.WorkPool) ImportTask {
-	return ImportTask{name, agencyKey, lines, workPool}
+func NewImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) ImportTask {
+	return ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 }
 
 
@@ -31,17 +36,18 @@ func (it ImportTask) ImportCsv(converter ModelConverter, importer ModelImporter)
 	records, err := models.ParseCsv(it.Lines)
 
 	if err != nil {
-		log.Println("Could parse CSV File:", err)
-		panic(err)
+		log.Println(fmt.Sprintf("[%s][%d] Could parse CSV File:", it.AgencyKey, it.FileName), err)
+		it.Done <- err
 	}
 
-	models := converter.ConvertModels(records)
-	err = importer.ImportModels(models)
+	models := converter.ConvertModels(it.Headers, records)
+	err = importer.ImportModels(it.Headers, models)
 
 	if err != nil {
-		log.Println("Could not insert records in database:", err)
-		panic(err)
+		log.Println(fmt.Sprintf("[%s][%d] Could not insert records in database:", it.AgencyKey, it.JobIndex), err)
+		it.Done <- err
 	}
 
-	log.Println(it.Name)
+//	log.Println(fmt.Sprintf("[%s][%d] Sending Task Done Event", it.AgencyKey, it.JobIndex))
+	it.Done <- nil
 }

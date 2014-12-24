@@ -57,12 +57,13 @@ func main() {
 	).Then(router)
 
 	// Init HTTP Server
+
 	server := http.Server{
-		Addr:    fmt.Sprintf(":%s", "3000"),
+		Addr:    fmt.Sprintf(":%d", config.Http.Port),
 		Handler: handlerChain,
 	}
 
-	log.Println("Listening ...")
+	log.Println(fmt.Sprintf("Listening on port '%d' ...", config.Http.Port))
 
 	server.ListenAndServe()
 }
@@ -79,8 +80,6 @@ func initRouter() *mux.Router {
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
 	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
-
-	new(controller.ApiController).Init(r.PathPrefix("/api/v1").Subrouter())
 
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))

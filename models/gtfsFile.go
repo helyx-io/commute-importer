@@ -8,10 +8,10 @@ type GTFSFile struct {
 	Filename string
 }
 
-func (gf GTFSFile) LinesIterator() <- chan []byte {
+func (gf GTFSFile) LinesIterator(maxLength int) <- chan []byte {
 	channel := make(chan []byte)
 	go func() {
-		utils.ReadCsvFile(gf.Filename, channel)
+		utils.ReadCsvFile(gf.Filename, maxLength, channel)
 		defer close(channel)
 	}()
 	return channel

@@ -6,11 +6,14 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/data"
+	"github.com/helyx-io/gtfs-playground/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -31,21 +34,35 @@ type MySQLCalendarRepository struct {
 }
 
 func (s MySQLCalendarRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("calendars").Where("agency_key = ?", agencyKey).Delete(models.Calendar{}).Error
+
+	table := fmt.Sprintf("%s_calendars", agencyKey)
+
+	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
+
+	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
 }
 
 
-func (r MySQLCalendarRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+func (r MySQLCalendarRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLCalendarsImportTask{mysqlImportTask}
 }
 
-func (s MySQLCalendarRepository) FindAll() (*models.Calendars, error) {
-	var calendars models.Calendars
-	err := s.db.Table("calendars").Limit(1000).Find(&calendars).Error
+func (s MySQLCalendarRepository) CreateTableByAgencyKey(agencyKey string) error {
 
-	return &calendars, err
+	tmpTable := fmt.Sprintf("%s_calendars", agencyKey)
+
+	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
+
+	ddl, _ := data.Asset("resources/ddl/calendars.sql")
+	stmt := fmt.Sprintf(string(ddl), agencyKey);
+
+	return s.db.Exec(stmt).Error
+}
+
+func (s MySQLCalendarRepository) AddIndexesByAgencyKey(agencyKey string) error {
+	return nil
 }
 
 
@@ -61,7 +78,7 @@ func (m MySQLCalendarsImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLCalendarsImportTask) ConvertModels(rs *models.Records) []interface{} {
+func(m MySQLCalendarsImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
@@ -92,7 +109,7 @@ func(m MySQLCalendarsImportTask) ConvertModels(rs *models.Records) []interface{}
 	return st
 }
 
-func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
+func (m MySQLCalendarsImportTask) ImportModels(headers []string, as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -103,11 +120,31 @@ func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(as))
-	valueArgs := make([]interface{}, 0, len(as) * 9)
+	valueArgs := make([]interface{}, 0, len(as) * 10)
+
+
+	table := fmt.Sprintf("%s_calendars", m.AgencyKey)
+
+	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
+
+	query := "INSERT INTO " + table + " (" +
+		" service_id," +
+		" monday," +
+		" tuesday," +
+		" wednesday," +
+		" thursday," +
+		" friday," +
+		" saturday," +
+		" sunday," +
+		" start_date," +
+		" end_date" +
+		" ) VALUES %s"
+
+	count := 0
 
 	for _, entry := range as {
 		c := entry.(models.CalendarImportRow)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
 			c.ServiceId,
@@ -121,25 +158,27 @@ func (m MySQLCalendarsImportTask) ImportModels(as []interface{}) error {
 			c.StartDate,
 			c.EndDate,
 		)
+
+		count += 1
+
+		if count >= 4096 {
+			stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
+
+			_, err = dbSql.Exec(stmt, valueArgs...)
+			utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
+
+			valueStrings = make([]string, 0, len(as))
+			valueArgs = make([]interface{}, 0, len(as) * 9)
+			count = 0
+		}
 	}
 
-	stmt := fmt.Sprintf(
-		"INSERT INTO calendars (" +
-			" agency_key," +
-			" service_id," +
-			" monday," +
-			" tuesday," +
-			" wednesday," +
-			" thursday," +
-			" friday," +
-			" saturday," +
-			" sunday," +
-			" start_date," +
-			" end_date" +
-		" ) VALUES %s", strings.Join(valueStrings, ","))
+	if count > 0 {
+		stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
-
-	_, err = dbSql.Exec(stmt, valueArgs...)
+		_, err = dbSql.Exec(stmt, valueArgs...)
+		utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
+	}
 
 	return err
 

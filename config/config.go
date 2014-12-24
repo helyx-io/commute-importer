@@ -23,7 +23,9 @@ import (
 
 var (
 	DB *gorm.DB
+	Http *HttpConfig
 	GTFS database.GTFSRepository
+	DataResources map[string]string
 	ConnectInfos *database.DBConnectInfos
 	WorkPool *workpool.WorkPool
 	OAuthInfos *auth.OAuthInfos
@@ -37,8 +39,13 @@ var (
 /// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type SessionConfig struct{
+type SessionConfig struct {
 	Secret string
+}
+
+
+type HttpConfig struct {
+	Port int
 }
 
 
@@ -70,12 +77,12 @@ func Init() error {
 	dbURL := fmt.Sprintf("%v:%v@/%v?charset=utf8mb4,utf8&parseTime=true", dbUsername, dbPassword, dbDatabase)
 
 	dbMinCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
-	if (dbMinCnx == 0) {
+	if dbMinCnx == 0 {
 		dbMinCnx = 2
 	}
 
 	dbMaxCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MAX_CNX"))
-	if (dbMaxCnx == 0) {
+	if dbMaxCnx == 0 {
 		dbMaxCnx = 100
 	}
 
@@ -102,6 +109,19 @@ func Init() error {
 	TmpDir = os.Getenv("GTFS_TMP_DIR")
 
 	BaseURL = os.Getenv("GTFS_BASE_URL")
+
+	DataResources = make(map[string]string)
+
+	DataResources["PARIS_GTFS_20140502"] = BaseURL + "/data/PARIS_GTFS_20140502.zip"
+	DataResources["RATP_GTFS_FULL"] = BaseURL + "/data/RATP_GTFS_FULL.zip"
+	DataResources["RATP_GTFS_LINES"] = BaseURL + "/data/RATP_GTFS_LINES.zip"
+
+	httpPort, _ := strconv.Atoi(os.Getenv("HTTP_PORT"))
+	if httpPort == 0 {
+		httpPort = 3000
+	}
+
+	Http = &HttpConfig{httpPort}
 
 	return nil
 }

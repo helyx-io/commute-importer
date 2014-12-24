@@ -26,48 +26,9 @@ REST Resources
 --------------
 
  - **GET** http://localhost:3000/import/ - *Run import job*
- - **GET** http://localhost:3000/agencies/ - *Get list of agencies*
-
-        [
-          {
-            "key": "RATP",
-            "agencyId": "RER",
-            "name": "RER",
-            "url": "http://...",
-            "timezone": "Europe/Paris",
-            "lang": "fr"
-          }, ... ,
-          {
-            "key": "RATP",
-            "agencyId": "Noctilien",
-            "name": "Noctilien",
-            "url": "http://...",
-            "timezone": "Europe/Paris",
-            "lang": "fr"
-          }
-        ]
-
- - **GET** http://localhost:3000/agencies/85 - *Get an agency by id*
-
-        {
-          "key": "RATP",
-          "agencyId": "Noctilien",
-          "name": "Noctilien",
-          "url": "http://www.navitia.com",
-          "timezone": "Europe/Paris",
-          "lang": "fr"
-        }
 
 
+Generate static resources:
+--------------------------
 
-Perf Test
----------
 
-Install Vegeta:
-    
-     go get github.com/tsenart/vegeta
-     go install github.com/tsenart/vegeta
-
-Run Vegeta on Routes URL:
-
-    echo "GET http://localhost:3000/routes/" | vegeta attack -rate=20 -duration=10s | vegeta report -reporter=plot > report.html && open report.html

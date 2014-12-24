@@ -9,6 +9,7 @@ import (
 	"os"
 	"fmt"
 	"bufio"
+	"strings"
 )
 
 
@@ -16,7 +17,7 @@ import (
 /// Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func ReadCsvFile(src string, channel chan []byte) {
+func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 
 	file, err := os.Open(src)
 
@@ -54,7 +55,7 @@ func ReadCsvFile(src string, channel chan []byte) {
 
 		i++
 
-		if len(b) >= 256000 {
+		if len(b) >= maxLength {
 			chunk++
 			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
 			channel <- b
@@ -70,4 +71,23 @@ func ReadCsvFile(src string, channel chan []byte) {
 		channel <- b
 	}
 
+}
+
+func ReadCsvFileHeader(src string, separator string) ([]string, error) {
+
+	file, err := os.Open(src)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
+	headers, err := bufio.NewReader(file).ReadBytes('\n')
+
+	if err != nil {
+		return nil, err
+	}
+
+	return strings.Split(string(headers), ","), nil
 }

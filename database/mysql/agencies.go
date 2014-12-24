@@ -6,10 +6,12 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -30,27 +32,34 @@ type MySQLAgencyRepository struct {
 }
 
 func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("agencies").Where("agency_key = ?", agencyKey).Delete(models.Agency{}).Error
+
+	table := fmt.Sprintf("%s_agencies", agencyKey)
+
+	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
+
+	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
 }
 
-func (s MySQLAgencyRepository) FindAll() (*models.Agencies, error) {
-	var agencies models.Agencies
-	err := s.db.Table("agencies").Limit(1000).Find(&agencies).Error
-
-	return &agencies, err
-}
-
-func (s MySQLAgencyRepository) FindById(id int) (*models.Agency, error) {
-	var agency models.Agency
-	err := s.db.Table("agencies").Where("id = ?", id).First(&agency).Error
-
-	return &agency, err
-}
-
-func (r MySQLAgencyRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+func (r MySQLAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLAgenciesImportTask{mysqlImportTask}
+}
+
+func (s MySQLAgencyRepository) CreateTableByAgencyKey(agencyKey string) error {
+
+	tmpTable := fmt.Sprintf("%s_agencies", agencyKey)
+
+	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
+
+	ddl, _ := data.Asset("resources/ddl/agencies.sql")
+	stmt := fmt.Sprintf(string(ddl), agencyKey);
+
+	return s.db.Exec(stmt).Error
+}
+
+func (s MySQLAgencyRepository) AddIndexesByAgencyKey(agencyKey string) error {
+	return nil
 }
 
 
@@ -66,7 +75,7 @@ func (m MySQLAgenciesImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} {
+func(m MySQLAgenciesImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
@@ -83,7 +92,7 @@ func(m MySQLAgenciesImportTask) ConvertModels(rs *models.Records) []interface{} 
 	return st
 }
 
-func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
+func (m MySQLAgenciesImportTask) ImportModels(headers []string, as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -94,11 +103,11 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(as))
-	valueArgs := make([]interface{}, 0, len(as) * 9)
+	valueArgs := make([]interface{}, 0, len(as) * 5)
 
 	for _, entry := range as {
 		a := entry.(models.AgencyImportRow)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
 			a.AgencyId,
@@ -109,9 +118,12 @@ func (m MySQLAgenciesImportTask) ImportModels(as []interface{}) error {
 		)
 	}
 
+	table := fmt.Sprintf("%s_agencies", m.AgencyKey)
+
+	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
+
 	stmt := fmt.Sprintf(
-		"INSERT INTO agencies (" +
-			" agency_key," +
+		"INSERT INTO " + table + " (" +
 			" agency_id," +
 			" agency_name," +
 			" agency_url," +

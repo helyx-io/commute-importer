@@ -36,7 +36,8 @@ type ImportController struct { }
 func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
-	r.HandleFunc("/", importController.Import)
+	r.HandleFunc("/{key}", importController.Import)
+	r.HandleFunc("/{key}/{file}", importController.Import)
 
 	// Init Repository Map
 	initRepositoryMap()
@@ -56,19 +57,33 @@ func initRepositoryMap() {
 
 }
 
-func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
+func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	defer utils.RecoverFromError(w)
 
 	sw := stopwatch.Start(0)
 
+	params := mux.Vars(r)
+	keyParam := params["key"]
+	var fileParam string = params["file"]
+
+	if _, ok := config.DataResources[keyParam]; !ok {
+		log.Println(fmt.Sprintf("Cannot import agencies for Key: '%s'. key does not exist", keyParam))
+		w.WriteHeader(404)
+		return
+	}
+
+	log.Println(fmt.Sprintf("Importing agencies for Key: %s ...", keyParam))
+
+	if fileParam != "" {
+		log.Println(fmt.Sprintf("Processing on for file: %s ...", fileParam))
+	}
+
 	w.Header().Set("Content-Type", "text/html")
 
-	log.Println("Importing agencies ...")
-
-	folderFilename := config.TmpDir + "/gtfs_paris_20140502"
-	url := config.BaseURL + "/data/gtfs_paris_20140502.zip"
-	zipFilename := config.TmpDir + "/gtfs_paris_20140502.zip"
+	folderFilename := config.TmpDir + "/" + keyParam
+	url := config.DataResources[keyParam]
+	zipFilename := config.TmpDir + "/" + keyParam + ".zip"
 
 	utils.DownloadFile(url, zipFilename)
 	utils.UnzipArchive(zipFilename, folderFilename)
@@ -79,14 +94,19 @@ func (ac *ImportController) Import(w http.ResponseWriter, _ *http.Request) {
 		if fi.Mode().IsRegular() {
 			gtfsModelRepository := repositoryByFilenameMap[fi.Name()]
 
-			if (gtfsModelRepository == nil) {
+			if gtfsModelRepository == nil {
 				log.Println(fmt.Sprintf("Filename '%v' is not available in map", fi.Name()))
+				continue;
+			}
+
+			if fileParam != "" && fileParam + ".txt" != fi.Name() {
+				log.Println(fmt.Sprintf("Filename '%v' is not filtered - Does not match with: '%v'", fi.Name(), fileParam))
 				continue;
 			}
 
 			gaf := service.NewGTFSArchiveFile(fi)
 
-			gaf.ImportGTFSArchiveFile(folderFilename, gtfsModelRepository, config.WorkPool)
+			gaf.ImportGTFSArchiveFile(keyParam, folderFilename, gtfsModelRepository, 2048 * 1000, config.WorkPool)
 		}
 	}
 

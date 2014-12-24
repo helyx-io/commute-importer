@@ -6,11 +6,13 @@ package mysql
 
 import (
 	"fmt"
+	"log"
 	"strings"
-	"strconv"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-playground/utils"
+	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -30,21 +32,43 @@ func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
 	}
 }
 
-func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return s.db.Table("stop_times").Where("agency_key = ?", agencyKey).Delete(models.StopTime{}).Error
+func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) error {
+
+	table := fmt.Sprintf("%s_stop_times", agencyKey)
+
+	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
+
+	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
 }
 
-func (r MySQLStopTimeRepository) CreateImportTask(name, agencyKey string, lines []byte, workPool *workpool.WorkPool) workpool.PoolWorker {
-	importTask := tasks.ImportTask{name, agencyKey, lines, workPool}
+func (s MySQLStopTimeRepository) CreateTableByAgencyKey(agencyKey string) error {
+
+	table := fmt.Sprintf("%s_stop_times", agencyKey)
+
+	log.Println(fmt.Sprintf("Creating table: '%s'", table))
+
+	ddl, _ := data.Asset("resources/ddl/stop_times.sql")
+	stmt := fmt.Sprintf(string(ddl), agencyKey);
+
+	return s.db.Exec(stmt).Error
+}
+
+func (s MySQLStopTimeRepository) AddIndexesByAgencyKey(agencyKey string) error {
+
+	tmpTable := fmt.Sprintf("%s_stop_times", agencyKey)
+
+	log.Println(fmt.Sprintf("Creating indexes: '%s'", tmpTable))
+
+	ddl, _ := data.Asset("resources/ddl/stop_times_indexes.sql")
+	stmt := fmt.Sprintf(string(ddl), agencyKey);
+
+	return s.db.Exec(stmt).Error
+}
+
+func (r MySQLStopTimeRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLStopTimesImportTask{mysqlImportTask}
-}
-
-func (s MySQLStopTimeRepository) FindAll() (*models.StopTimes, error) {
-	var stopTimes models.StopTimes
-	err := s.db.Table("stop_times").Limit(1000).Find(&stopTimes).Error
-
-	return &stopTimes, err
 }
 
 
@@ -60,21 +84,27 @@ func (m MySQLStopTimesImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m)
 }
 
-func (m MySQLStopTimesImportTask) ConvertModels(rs *models.Records) []interface{} {
+func (m MySQLStopTimesImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
+	var offsets = make(map[string]int)
+
+	for i, header := range headers {
+		offsets[header] = i
+	}
+
 	for i, record := range *rs {
-		stopSequence, _ := strconv.Atoi(record[4])
-		pickup_type, _ := strconv.Atoi(record[6])
-		drop_off_type, _ := strconv.Atoi(record[7])
+		stopSequence := recordValueAsInt(record, offsets, "stop_sequence")
+		pickup_type := recordValueAsInt(record, offsets, "pickup_type")
+		drop_off_type := recordValueAsInt(record, offsets, "drop_off_type")
 		st[i] = models.StopTimeImportRow{
 			m.AgencyKey,
-			record[0],
-			record[1],
-			record[2],
-			record[3],
+			recordValueAsString(record, offsets, "trip_id"),
+			recordValueAsString(record, offsets, "arrival_time"),
+			recordValueAsString(record, offsets, "departure_time"),
+			recordValueAsString(record, offsets, "stop_id"),
 			stopSequence,
-			record[5],
+			recordValueAsString(record, offsets, "stop_headsign"),
 			pickup_type,
 			drop_off_type,
 		}
@@ -83,7 +113,7 @@ func (m MySQLStopTimesImportTask) ConvertModels(rs *models.Records) []interface{
 	return st
 }
 
-func (m MySQLStopTimesImportTask) ImportModels(sts []interface{}) error {
+func (m MySQLStopTimesImportTask) ImportModels(headers []string, sts []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -94,11 +124,27 @@ func (m MySQLStopTimesImportTask) ImportModels(sts []interface{}) error {
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(sts))
-	valueArgs := make([]interface{}, 0, len(sts) * 9)
+	valueArgs := make([]interface{}, 0, len(sts) * 8)
 
+	tmpTable := fmt.Sprintf("%s_stop_times", m.AgencyKey)
+
+	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, tmpTable))
+
+	insertIntoTmpTableQuery := "INSERT INTO `" + tmpTable + "` (" +
+		" trip_id," +
+		" arrival_time," +
+		" departure_time," +
+		" stop_id," +
+		" stop_sequence," +
+		" stop_head_sign," +
+		" pickup_type," +
+		" drop_off_type" +
+		" ) VALUES %s"
+
+	var count int = 0
 	for _, entry := range sts {
 		st := entry.(models.StopTimeImportRow)
-		valueStrings = append(valueStrings, "('" + m.AgencyKey + "', ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
 			st.TripId,
@@ -110,23 +156,27 @@ func (m MySQLStopTimesImportTask) ImportModels(sts []interface{}) error {
 			st.PickupType,
 			st.DropOffType,
 		)
+
+		count += 1
+
+		if count >= 4096 {
+			insertIntoTmpTableStmt := fmt.Sprintf(insertIntoTmpTableQuery, strings.Join(valueStrings, ","))
+
+			_, err = dbSql.Exec(insertIntoTmpTableStmt, valueArgs...)
+			utils.FailOnError(err, fmt.Sprintf("Could not insert into tmp table with name: '%s'", tmpTable))
+
+			valueStrings = make([]string, 0, len(sts))
+			valueArgs = make([]interface{}, 0, len(sts) * 9)
+			count = 0
+		}
 	}
 
-	stmt := fmt.Sprintf(
-		"INSERT INTO stop_times (" +
-		" agency_key," +
-		" trip_id," +
-		" arrival_time," +
-		" departure_time," +
-		" stop_id," +
-		" stop_sequence," +
-		" stop_head_sign," +
-		" pickup_type," +
-		" drop_off_type" +
-		" ) VALUES %s", strings.Join(valueStrings, ","))
+	if count > 0 {
+		insertIntoTmpTableStmt := fmt.Sprintf(insertIntoTmpTableQuery, strings.Join(valueStrings, ","))
 
-
-	_, err = dbSql.Exec(stmt, valueArgs...)
+		_, err = dbSql.Exec(insertIntoTmpTableStmt, valueArgs...)
+		utils.FailOnError(err, fmt.Sprintf("Could not insert into tmp table with name: '%s'", tmpTable))
+	}
 
 	return err
 }
