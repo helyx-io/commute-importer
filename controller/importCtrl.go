@@ -23,7 +23,7 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	repositoryByFilenameMap map[string]database.GTFSModelRepository
+	repositoryByFilenameMap map[string]database.GTFSCreatedModelRepository
 )
 
 
@@ -44,7 +44,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 }
 
 func initRepositoryMap() {
-	repositoryByFilenameMap = make(map[string]database.GTFSModelRepository)
+	repositoryByFilenameMap = make(map[string]database.GTFSCreatedModelRepository)
 
 	repositoryByFilenameMap["agency.txt"] = config.GTFS.Agencies()
 	repositoryByFilenameMap["calendar_dates.txt"] = config.GTFS.CalendarDates()
@@ -90,6 +90,9 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	fis := utils.ReadDirectoryFileInfos(folderFilename)
 	sort.Sort(utils.FileInfosBySize(fis))
 
+	err := config.GTFS.CreateSchema(keyParam)
+	utils.FailOnError(err, fmt.Sprintf("Could not create schema for key: '%s'", keyParam))
+
 	for _, fi := range fis {
 		if fi.Mode().IsRegular() {
 			gtfsModelRepository := repositoryByFilenameMap[fi.Name()]
@@ -106,7 +109,17 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 			gaf := service.NewGTFSArchiveFile(fi)
 
-			gaf.ImportGTFSArchiveFile(keyParam, folderFilename, gtfsModelRepository, 2048 * 1000, config.WorkPool)
+			err := gaf.ImportGTFSArchiveFileWithTableCreation(keyParam, folderFilename, gtfsModelRepository, 2048 * 1000, config.WorkPool)
+			utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive with table creation for key: '%s'", keyParam, fi.Name()))
+
+			if fi.Name() == "agency.txt" {
+				gtfsModelRepository := config.GTFS.GtfsAgencies()
+				gaf := service.NewGTFSArchiveFile(fi)
+
+				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, folderFilename, gtfsModelRepository, 2048 * 1000, config.WorkPool)
+				utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive without table creation for key: '%s'", keyParam, fi.Name()))
+			}
+
 		}
 	}
 

@@ -1,4 +1,4 @@
-CREATE TABLE `%s_calendar_dates` (
+CREATE TABLE `gtfs_%s`.`calendar_dates` (
   `service_id` int(11) NOT NULL,
   `date` date NOT NULL,
   `exception_type` int(11) DEFAULT NULL,

@@ -43,23 +43,75 @@ func (gaf *GTFSArchiveFile) Size() int64 {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-func (gaf *GTFSArchiveFile) ImportGTFSArchiveFile(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, workPool *workpool.WorkPool) {
-
-	log.Println(fmt.Sprintf("Filename '%v' is available in map - Reading File with size: %d bytes ...", gaf.Name(), gaf.Size()))
+func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSCreatedModelRepository, maxLength int, workPool *workpool.WorkPool) error {
 
 	sw := stopwatch.Start(0)
 
-	offset := 0
+	log.Println(fmt.Sprintf("Filename '%v' is available in map - Reading File with size: %d bytes ...", gaf.Name(), gaf.Size()))
+
 
 	log.Println(fmt.Sprintf(" - Removing entries from repository related to file with name: '%v' ...", gaf.Name()))
 
 	err := gtfsModelRepository.RemoveAllByAgencyKey(agencyKey)
 	utils.FailOnError(err, fmt.Sprintf("Could not remove table for file with name: '%v'", gaf.Name()))
 
+	log.Println(fmt.Sprintf(" - Removed entries from repository related to file with name: '%v'", gaf.Name()))
+
+
 	err = gtfsModelRepository.CreateTableByAgencyKey(agencyKey)
 	utils.FailOnError(err, fmt.Sprintf("Could not create table for file with name: '%v'", gaf.Name()))
 
+	err = gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, workPool, sw)
+
+	if err != nil {
+		log.Printf("[ERROR] %s", err)
+	}
+
+	log.Println(fmt.Sprintf("Adding indexes for file: '%v'", gaf.Name()))
+
+	err = gtfsModelRepository.AddIndexesByAgencyKey(agencyKey)
+	utils.FailOnError(err, fmt.Sprintf("Could not add indexes for file: '%v'", gaf.Name()))
+
+	log.Println(fmt.Sprintf("Indexes created for file: '%v'", gaf.Name()))
+
+
+	log.Println(fmt.Sprintf("All done in for file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+
+	return err
+}
+
+
+
+func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, workPool *workpool.WorkPool) error {
+
+	sw := stopwatch.Start(0)
+
+	log.Println(fmt.Sprintf("Filename '%v' is available in map - Reading File with size: %d bytes ...", gaf.Name(), gaf.Size()))
+
+
+	log.Println(fmt.Sprintf(" - Removing entries from repository related to file with name: '%v' ...", gaf.Name()))
+
+	err := gtfsModelRepository.RemoveAllByAgencyKey(agencyKey)
+	utils.FailOnError(err, fmt.Sprintf("Could not remove table for file with name: '%v'", gaf.Name()))
+
 	log.Println(fmt.Sprintf(" - Removed entries from repository related to file with name: '%v'", gaf.Name()))
+
+
+	err= gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, workPool, sw)
+
+	if err != nil {
+		log.Printf("[ERROR] %s", err)
+	}
+
+	log.Println(fmt.Sprintf("All done in for file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+
+	return err
+}
+
+
+func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, workPool *workpool.WorkPool, sw *stopwatch.Stopwatch) error {
+
+	offset := 0
 
 	gtfsFile := models.GTFSFile{path.Join(folderFilename, gaf.Name())}
 
@@ -93,25 +145,14 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFile(agencyKey string, folderFilena
 		} else {
 			doneCount += 1
 			if offset == doneCount {
-//				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
-//				log.Println(fmt.Sprintf("Closing done chan"))
+				//				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
+				log.Println(fmt.Sprintf("Closing done chan"))
 				close(doneChan)
 			} else {
-//				log.Println(fmt.Sprintf("Received event on done chan."))
+				// log.Println(fmt.Sprintf("Received event on done chan."))
 			}
 		}
 	}
 
-	if err != nil {
-		log.Printf("[ERROR] %s", err)
-	}
-
-	log.Println(fmt.Sprintf("Adding indexes for file: '%v'", gaf.Name()))
-
-	err = gtfsModelRepository.AddIndexesByAgencyKey(agencyKey)
-	utils.FailOnError(err, fmt.Sprintf("Could not add indexes for file: '%v'", gaf.Name()))
-
-	log.Println(fmt.Sprintf("Indexes created for file: '%v'", gaf.Name()))
-
-	log.Println(fmt.Sprintf("All done in for file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+	return err
 }

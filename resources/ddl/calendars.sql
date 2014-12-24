@@ -1,4 +1,4 @@
-CREATE TABLE `%s_calendars` (
+CREATE TABLE `gtfs_%s`.`calendars` (
   `service_id` varchar(45) NOT NULL,
   `monday` tinyint(1) DEFAULT NULL,
   `tuesday` tinyint(1) DEFAULT NULL,

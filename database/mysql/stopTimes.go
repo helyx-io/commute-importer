@@ -26,7 +26,7 @@ type MySQLStopTimeRepository struct {
 	MySQLGTFSModelRepository
 }
 
-func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
+func (r MySQLGTFSRepository) StopTimes() database.GTFSCreatedModelRepository {
 	return MySQLStopTimeRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
@@ -34,7 +34,7 @@ func (r MySQLGTFSRepository) StopTimes() database.GTFSModelRepository {
 
 func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) error {
 
-	table := fmt.Sprintf("%s_stop_times", agencyKey)
+	table := fmt.Sprintf("gtfs_%s.stop_times", agencyKey)
 
 	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
 
@@ -43,7 +43,7 @@ func (s MySQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) error {
 
 func (s MySQLStopTimeRepository) CreateTableByAgencyKey(agencyKey string) error {
 
-	table := fmt.Sprintf("%s_stop_times", agencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`stop_times`", agencyKey)
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
@@ -55,9 +55,9 @@ func (s MySQLStopTimeRepository) CreateTableByAgencyKey(agencyKey string) error 
 
 func (s MySQLStopTimeRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
-	tmpTable := fmt.Sprintf("%s_stop_times", agencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`stop_times`", agencyKey)
 
-	log.Println(fmt.Sprintf("Creating indexes: '%s'", tmpTable))
+	log.Println(fmt.Sprintf("Creating indexes: '%s'", table))
 
 	ddl, _ := data.Asset("resources/ddl/stop_times_indexes.sql")
 	stmt := fmt.Sprintf(string(ddl), agencyKey);
@@ -126,11 +126,11 @@ func (m MySQLStopTimesImportTask) ImportModels(headers []string, sts []interface
 	valueStrings := make([]string, 0, len(sts))
 	valueArgs := make([]interface{}, 0, len(sts) * 8)
 
-	tmpTable := fmt.Sprintf("%s_stop_times", m.AgencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`stop_times`", m.AgencyKey)
 
-	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, tmpTable))
+	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
 
-	insertIntoTmpTableQuery := "INSERT INTO `" + tmpTable + "` (" +
+	query := "INSERT INTO " + table + " (" +
 		" trip_id," +
 		" arrival_time," +
 		" departure_time," +
@@ -160,10 +160,10 @@ func (m MySQLStopTimesImportTask) ImportModels(headers []string, sts []interface
 		count += 1
 
 		if count >= 4096 {
-			insertIntoTmpTableStmt := fmt.Sprintf(insertIntoTmpTableQuery, strings.Join(valueStrings, ","))
+			stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
-			_, err = dbSql.Exec(insertIntoTmpTableStmt, valueArgs...)
-			utils.FailOnError(err, fmt.Sprintf("Could not insert into tmp table with name: '%s'", tmpTable))
+			_, err = dbSql.Exec(stmt, valueArgs...)
+			utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
 
 			valueStrings = make([]string, 0, len(sts))
 			valueArgs = make([]interface{}, 0, len(sts) * 9)
@@ -172,10 +172,10 @@ func (m MySQLStopTimesImportTask) ImportModels(headers []string, sts []interface
 	}
 
 	if count > 0 {
-		insertIntoTmpTableStmt := fmt.Sprintf(insertIntoTmpTableQuery, strings.Join(valueStrings, ","))
+		stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
-		_, err = dbSql.Exec(insertIntoTmpTableStmt, valueArgs...)
-		utils.FailOnError(err, fmt.Sprintf("Could not insert into tmp table with name: '%s'", tmpTable))
+		_, err = dbSql.Exec(stmt, valueArgs...)
+		utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
 	}
 
 	return err

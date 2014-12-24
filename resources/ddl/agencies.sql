@@ -1,4 +1,4 @@
-CREATE TABLE `%s_agencies` (
+CREATE TABLE `gtfs_%s`.`agencies` (
   `agency_id` varchar(45) NOT NULL,
   `agency_name` varchar(45) DEFAULT NULL,
   `agency_url` varchar(45) DEFAULT NULL,

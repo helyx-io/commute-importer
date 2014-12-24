@@ -1,4 +1,4 @@
-CREATE TABLE `%s_transfers` (
+CREATE TABLE `gtfs_%s`.`transfers` (
   `from_stop_id` varchar(45) NOT NULL,
   `to_stop_id` varchar(45) NOT NULL,
   `transfer_type` int(11) NOT NULL DEFAULT '0',

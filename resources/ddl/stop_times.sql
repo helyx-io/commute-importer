@@ -1,4 +1,4 @@
-CREATE TABLE `%s_stop_times` (
+CREATE TABLE `gtfs_%s`.`stop_times` (
   `trip_id` varchar(40) NOT NULL,
   `arrival_time` time DEFAULT NULL,
   `departure_time` time DEFAULT NULL,

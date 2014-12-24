@@ -11,7 +11,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
-	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goinggo/workpool"
 )
@@ -21,45 +20,24 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Agencies() database.GTFSCreatedModelRepository {
-	return MySQLAgencyRepository{
+func (r MySQLGTFSRepository) GtfsAgencies() database.GTFSModelRepository {
+	return MySQLGtfsAgencyRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
 }
 
-type MySQLAgencyRepository struct {
+type MySQLGtfsAgencyRepository struct {
 	MySQLGTFSModelRepository
 }
 
-func (s MySQLAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-
-	table := fmt.Sprintf("`gtfs_%s`.`agencies`", agencyKey)
-
-	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
-
-	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
+func (s MySQLGtfsAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
+	return s.db.Exec("DELETE FROM `gtfs`.`agencies` where agency_key=?", agencyKey).Error
 }
 
-func (r MySQLAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
+func (r MySQLGtfsAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLAgenciesImportTask{mysqlImportTask}
-}
-
-func (s MySQLAgencyRepository) CreateTableByAgencyKey(agencyKey string) error {
-
-	tmpTable := fmt.Sprintf("`gtfs_%s`.`agencies`", agencyKey)
-
-	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
-
-	ddl, _ := data.Asset("resources/ddl/agencies.sql")
-	stmt := fmt.Sprintf(string(ddl), agencyKey);
-
-	return s.db.Exec(stmt).Error
-}
-
-func (s MySQLAgencyRepository) AddIndexesByAgencyKey(agencyKey string) error {
-	return nil
 }
 
 
@@ -67,15 +45,15 @@ func (s MySQLAgencyRepository) AddIndexesByAgencyKey(agencyKey string) error {
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type MySQLAgenciesImportTask struct {
+type MySQLGtfsAgenciesImportTask struct {
 	MySQLImportTask
 }
 
-func (m MySQLAgenciesImportTask) DoWork(_ int) {
+func (m MySQLGtfsAgenciesImportTask) DoWork(_ int) {
 	m.ImportCsv(m, m);
 }
 
-func(m MySQLAgenciesImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
+func(m MySQLGtfsAgenciesImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
@@ -92,7 +70,7 @@ func(m MySQLAgenciesImportTask) ConvertModels(headers []string, rs *models.Recor
 	return st
 }
 
-func (m MySQLAgenciesImportTask) ImportModels(headers []string, as []interface{}) error {
+func (m MySQLGtfsAgenciesImportTask) ImportModels(headers []string, as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
 
@@ -107,9 +85,10 @@ func (m MySQLAgenciesImportTask) ImportModels(headers []string, as []interface{}
 
 	for _, entry := range as {
 		a := entry.(models.AgencyImportRow)
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
+			m.AgencyKey,
 			a.AgencyId,
 			a.Name,
 			a.Url,
@@ -118,17 +97,18 @@ func (m MySQLAgenciesImportTask) ImportModels(headers []string, as []interface{}
 		)
 	}
 
-	table := fmt.Sprintf("`gtfs_%s`.`agencies`", m.AgencyKey)
+	table := fmt.Sprintf("`gtfs`.`agencies`", m.AgencyKey)
 
 	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
 
 	stmt := fmt.Sprintf(
 		"INSERT INTO " + table + " (" +
-			" agency_id," +
-			" agency_name," +
-			" agency_url," +
-			" agency_timezone," +
-			" agency_lang" +
+		" agency_key, " +
+		" agency_id," +
+		" agency_name," +
+		" agency_url," +
+		" agency_timezone," +
+		" agency_lang" +
 		" ) VALUES %s", strings.Join(valueStrings, ","))
 
 

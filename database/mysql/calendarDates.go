@@ -23,7 +23,7 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) CalendarDates() database.GTFSModelRepository {
+func (r MySQLGTFSRepository) CalendarDates() database.GTFSCreatedModelRepository {
 	return MySQLCalendarDateRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
@@ -35,7 +35,7 @@ type MySQLCalendarDateRepository struct {
 
 func (s MySQLCalendarDateRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 
-	table := fmt.Sprintf("%s_calendar_dates", agencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`calendar_dates`", agencyKey)
 
 	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
 
@@ -50,7 +50,7 @@ func (r MySQLCalendarDateRepository) CreateImportTask(taskName string, jobIndex 
 
 func (s MySQLCalendarDateRepository) CreateTableByAgencyKey(agencyKey string) error {
 
-	tmpTable := fmt.Sprintf("%s_calendar_dates", agencyKey)
+	tmpTable := fmt.Sprintf("`gtfs_%s`.`calendar_dates`", agencyKey)
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
 
@@ -108,7 +108,7 @@ func (m MySQLCalendarDatesImportTask) ImportModels(headers []string, as []interf
 	valueStrings := make([]string, 0, len(as))
 	valueArgs := make([]interface{}, 0, len(as) * 3)
 
-	table := fmt.Sprintf("%s_calendar_dates", m.AgencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`calendar_dates`", m.AgencyKey)
 
 	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
 

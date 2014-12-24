@@ -14,14 +14,16 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 type GTFSRepository interface {
-	Agencies() GTFSAgencyRepository
-	CalendarDates() GTFSModelRepository
-	Calendars() GTFSModelRepository
-	Routes() GTFSModelRepository
-	Stops() GTFSModelRepository
-	StopTimes() GTFSModelRepository
-	Transfers() GTFSModelRepository
-	Trips() GTFSModelRepository
+	CreateSchema(agencyKey string) error
+	GtfsAgencies() GTFSModelRepository
+	Agencies()	GTFSCreatedModelRepository
+	CalendarDates() GTFSCreatedModelRepository
+	Calendars() GTFSCreatedModelRepository
+	Routes() GTFSCreatedModelRepository
+	Stops() GTFSCreatedModelRepository
+	StopTimes() GTFSCreatedModelRepository
+	Transfers() GTFSCreatedModelRepository
+	Trips() GTFSCreatedModelRepository
 }
 
 type DBConnectInfos struct {
@@ -38,38 +40,46 @@ type DBConnectInfos struct {
 type GTFSModelRepository interface {
 	RemoveAllByAgencyKey(agencyKey string) error
 	CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker
+}
+
+type GTFSCreatedModelRepository interface {
+	GTFSModelRepository
 	CreateTableByAgencyKey(agencyKey string) error
 	AddIndexesByAgencyKey(agencyKey string) error
 }
 
 type GTFSAgencyRepository interface {
+	GTFSCreatedModelRepository
+}
+
+type GTFSGtfsAgencyRepository interface {
 	GTFSModelRepository
 }
 
 type GTFSCalendarRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSCalendarDateRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSRouteRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSTripRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSTransferRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSStopRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }
 
 type GTFSStopTimeRepository interface {
-	GTFSModelRepository
+	GTFSCreatedModelRepository
 }

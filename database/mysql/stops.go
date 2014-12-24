@@ -23,7 +23,7 @@ import (
 /// MySQLStopRepository
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (r MySQLGTFSRepository) Stops() database.GTFSModelRepository {
+func (r MySQLGTFSRepository) Stops() database.GTFSCreatedModelRepository {
 	return MySQLStopRepository{
 		MySQLGTFSModelRepository{r.db,r.dbInfos},
 	}
@@ -35,7 +35,7 @@ type MySQLStopRepository struct {
 
 func (s MySQLStopRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 
-	table := fmt.Sprintf("%s_stops", agencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`stops`", agencyKey)
 
 	log.Println(fmt.Sprintf("Dropping table: '%s'", table))
 
@@ -50,7 +50,7 @@ func (r MySQLStopRepository) CreateImportTask(taskName string, jobIndex int, fil
 
 func (s MySQLStopRepository) CreateTableByAgencyKey(agencyKey string) error {
 
-	tmpTable := fmt.Sprintf("%s_stops", agencyKey)
+	tmpTable := fmt.Sprintf("`gtfs_%s`.`stops`", agencyKey)
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", tmpTable))
 
@@ -146,7 +146,7 @@ func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) e
 	valueStrings := make([]string, 0, len(ss))
 	valueArgs := make([]interface{}, 0, len(ss) * 10)
 
-	table := fmt.Sprintf("%s_stops", m.AgencyKey)
+	table := fmt.Sprintf("`gtfs_%s`.`stops`", m.AgencyKey)
 
 	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
 

@@ -5,6 +5,8 @@ package mysql
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+	"fmt"
+	"log"
 	"database/sql"
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database"
@@ -60,6 +62,18 @@ type MySQLImportTask struct {
 	tasks.ImportTask
 	db *gorm.DB
 	dbInfos *database.DBConnectInfos
+}
+
+func (r MySQLGTFSRepository) CreateSchema(agencyKey string) error {
+	log.Println(fmt.Sprintf("Try to create schema for key: '%s' ...", agencyKey))
+	query := fmt.Sprintf("CREATE SCHEMA IF NOT EXISTS `gtfs_%s` DEFAULT CHARACTER SET utf8mb4;", agencyKey)
+	err := r.db.Exec(query).Error
+
+	if err == nil {
+		log.Println(fmt.Sprintf("Created schema for key: '%s' with success", agencyKey))
+	}
+
+	return err
 }
 
 func NewMySQLImportTask(importTask tasks.ImportTask, db *gorm.DB, dbInfos *database.DBConnectInfos) MySQLImportTask {
