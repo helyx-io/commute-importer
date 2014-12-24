@@ -37,7 +37,7 @@ func (s MySQLGtfsAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error
 func (r MySQLGtfsAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
-	return MySQLAgenciesImportTask{mysqlImportTask}
+	return MySQLGtfsAgenciesImportTask{mysqlImportTask}
 }
 
 
@@ -97,7 +97,7 @@ func (m MySQLGtfsAgenciesImportTask) ImportModels(headers []string, as []interfa
 		)
 	}
 
-	table := fmt.Sprintf("`gtfs`.`agencies`", m.AgencyKey)
+	table := "`gtfs`.`agencies`"
 
 	log.Println(fmt.Sprintf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table))
 

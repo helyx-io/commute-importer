@@ -113,10 +113,12 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 			utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive with table creation for key: '%s'", keyParam, fi.Name()))
 
 			if fi.Name() == "agency.txt" {
-				gtfsModelRepository := config.GTFS.GtfsAgencies()
+				log.Println("Importing agencies in GTFS agencies table ...")
+
+				gtfsAgencyModelRepository := config.GTFS.GtfsAgencies()
 				gaf := service.NewGTFSArchiveFile(fi)
 
-				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, folderFilename, gtfsModelRepository, 2048 * 1000, config.WorkPool)
+				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, folderFilename, gtfsAgencyModelRepository, 2048 * 1000, config.WorkPool)
 				utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive without table creation for key: '%s'", keyParam, fi.Name()))
 			}
 
