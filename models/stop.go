@@ -23,8 +23,8 @@ type StopImportRow struct {
 	StopCode string
 	StopName string
 	StopDesc string
-	StopLat int
-	StopLon int
+	StopLat float64
+	StopLon float64
 	ZoneId string
 	StopUrl string
 	LocationType int

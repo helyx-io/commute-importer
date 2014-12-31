@@ -87,8 +87,8 @@ func (m MySQLStopsImportTask) ConvertModels(headers []string, rs *models.Records
 	}
 
 	for i, record := range *rs {
-		stopLat := recordValueAsInt(record, offsets, "stop_lat")
-		stopLon := recordValueAsInt(record, offsets, "stop_lon")
+		stopLat := recordValueAsFloat(record, offsets, "stop_lat")
+		stopLon := recordValueAsFloat(record, offsets, "stop_lon")
 		locationType := recordValueAsInt(record, offsets, "location_type")
 		parentStation := recordValueAsInt(record, offsets, "parent_station")
 		st[i] = models.StopImportRow{
@@ -131,6 +131,19 @@ func recordValueAsInt(record []string, offsets map[string]int, key string) int {
 	intValue, _ := strconv.Atoi(record[offset])
 
 	return intValue
+}
+
+func recordValueAsFloat(record []string, offsets map[string]int, key string) float64 {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return 0
+	}
+
+	floatValue, _ := strconv.ParseFloat(record[offset], 64)
+
+	return floatValue
 }
 
 func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) error {

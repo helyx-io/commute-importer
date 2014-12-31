@@ -35,6 +35,26 @@ CREATE TABLE `accessTokens` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `agencies`
+--
+
+DROP TABLE IF EXISTS `agencies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `agencies` (
+  `agency_key` varchar(45) NOT NULL,
+  `agency_id` varchar(45) NOT NULL,
+  `agency_name` varchar(45) DEFAULT NULL,
+  `agency_url` varchar(45) DEFAULT NULL,
+  `agency_timezone` varchar(45) DEFAULT NULL,
+  `agency_lang` varchar(45) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`agency_key`,`agency_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `clients`
 --
 
@@ -106,4 +126,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-12-24 14:06:01
+-- Dump completed on 2014-12-31  2:52:30

@@ -11,7 +11,7 @@ This project aims to be an playground to explore General Transit Feed Specificat
 Dump Database
 -------------
 
-    mysqldump --no-data -hlocalhost -ugtfs -pgtfs gtfs > gtfs-ddl.sql
+    mysqldump --no-data -hlocalhost -ugtfs -pgtfs gtfs > ddl/gtfs-ddl.sql  
     
     
 
@@ -28,7 +28,9 @@ REST Resources
  - **GET** http://localhost:3000/import/ - *Run import job*
 
 
+
 Generate static resources:
 --------------------------
 
+    go-bindata -o data/data.go -pkg data resources/... 
 
