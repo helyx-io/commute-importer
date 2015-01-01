@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"regexp"
 	"net/http"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
@@ -15,6 +16,7 @@ import (
 	"github.com/helyx-io/gtfs-playground/utils"
 	"github.com/helyx-io/gtfs-playground/service"
 	"github.com/helyx-io/gtfs-playground/database"
+	"github.com/helyx-io/gtfs-playground/data"
 )
 
 
@@ -125,5 +127,60 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	createTable(keyParam, "lines")
+	createTable(keyParam, "line_stops")
+	createTable(keyParam, "stations")
+	createTable(keyParam, "station_stops")
+	createTable(keyParam, "station_lines")
+
+	populateTable(keyParam, "lines")
+	populateTable(keyParam, "line_stops")
+	populateTable(keyParam, "stations")
+	populateTable(keyParam, "station_stops")
+	populateTable(keyParam, "station_lines")
+
+	log.Println("-----------------------------------------------------------------------------------")
+	log.Println(fmt.Println("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
+	log.Println("-----------------------------------------------------------------------------------")
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func createTable(schema string, tableName string) {
+
+	log.Println(fmt.Sprintf("Drop table with name: `gtfs_%s`.`%s`", schema, tableName))
+
+	dropStmt := fmt.Sprintf("DROP TABLE IF EXISTS `gtfs_%s`.`%s`", schema, tableName)
+	log.Println(fmt.Sprintf("Create statement: %s", dropStmt))
+	err := config.DB.Exec(dropStmt).Error
+	utils.FailOnError(err, fmt.Sprintf("Could not drop '%s' table", tableName))
+
+
+	filePath := fmt.Sprintf("resources/ddl/create-table-%s.sql", tableName)
+	log.Println(fmt.Sprintf("Creating table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+
+	dml, err := data.Asset(filePath)
+	utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for create of table `gtfs_%s`.`%s`", filePath, schema, tableName))
+	createStmt := fmt.Sprintf(string(dml), schema)
+	log.Println(fmt.Sprintf("Create statement: %s", createStmt))
+	err = config.DB.Exec(createStmt).Error
+	utils.FailOnError(err, fmt.Sprintf("Could not create '%s' table", tableName))
+
+}
+
+func populateTable(schema string, tableName string) {
+
+	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
+
+	log.Println(fmt.Sprintf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+
+	ddl, err := data.Asset(filePath)
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table `gtfs_%s`.`%s`", filePath, schema, tableName))
+
+	re := regexp.MustCompile("%s")
+	insertStmt := re.ReplaceAllString(string(ddl), schema)
+
+	log.Println(fmt.Sprintf("Insert statement: %s", insertStmt))
+	err = config.DB.Exec(insertStmt).Error
+	utils.FailOnError(err, fmt.Sprintf("Could not insert into '%s' table", tableName))
+
 }

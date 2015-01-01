@@ -170,6 +170,7 @@ func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) e
 		" stop_desc," +
 		" stop_lat," +
 		" stop_lon," +
+		" stop_geo," +
 		" zone_id," +
 		" stop_url," +
 		" location_type," +
@@ -180,7 +181,7 @@ func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) e
 	var count int = 0
 	for _, entry := range ss {
 		s := entry.(models.StopImportRow)
-		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?, ?, GeomFromText(?), ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
 			s.StopId,
@@ -189,6 +190,7 @@ func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) e
 			s.StopDesc,
 			s.StopLat,
 			s.StopLon,
+			fmt.Sprintf("POINT(%f %f)", s.StopLat, s.StopLon),
 			s.ZoneId,
 			s.StopUrl,
 			s.LocationType,
