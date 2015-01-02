@@ -115,6 +115,7 @@ func Init() error {
 	DataResources["PARIS_GTFS_20140502"] = BaseURL + "/data/PARIS_GTFS_20140502.zip"
 	DataResources["RATP_GTFS_FULL"] = BaseURL + "/data/RATP_GTFS_FULL.zip"
 	DataResources["RATP_GTFS_LINES"] = BaseURL + "/data/RATP_GTFS_LINES.zip"
+	DataResources["STAR_GTFS_RENNES"] = BaseURL + "/data/STAR_GTFS_RENNES.zip"
 
 	httpPort, _ := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if httpPort == 0 {

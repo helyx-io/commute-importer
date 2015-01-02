@@ -136,7 +136,12 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 
 		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
 	}
-	log.Println(fmt.Sprintf(" - 	Read file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+	log.Println(fmt.Sprintf(" - Read file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+
+	if (offset == 0) {
+		close(doneChan)
+		return err
+	}
 
 	doneCount := 0
 	for err := range doneChan {

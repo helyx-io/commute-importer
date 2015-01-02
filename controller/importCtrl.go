@@ -30,20 +30,29 @@ var (
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-/// Import Controller
+/// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type ImportController struct { }
+type Lines []Line
 
-func (importController *ImportController) Init(r *mux.Router) {
-
-	// Init Router
-	r.HandleFunc("/{key}", importController.Import)
-	r.HandleFunc("/{key}/{file}", importController.Import)
-
-	// Init Repository Map
-	initRepositoryMap()
+type Line struct {
+	Id int `gorm:"column:line_id"`
+	Name  string `gorm:"column:line_name"`
 }
+
+type InsertLineResult struct {
+	Line Line
+	Error error
+}
+
+type CreateIndexResult struct {
+	Index string
+	Error error
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Helper functions
+////////////////////////////////////////////////////////////////////////////////////////////////
 
 func initRepositoryMap() {
 	repositoryByFilenameMap = make(map[string]database.GTFSCreatedModelRepository)
@@ -57,6 +66,151 @@ func initRepositoryMap() {
 	repositoryByFilenameMap["transfers.txt"] = config.GTFS.Transfers()
 	repositoryByFilenameMap["trips.txt"] = config.GTFS.Trips()
 
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+/// Import Controller
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+type ImportController struct { }
+
+func (importController *ImportController) Init(r *mux.Router) {
+
+	// Init Router
+	r.HandleFunc("/{key}", importController.Import)
+	r.HandleFunc("/{key}/stop_times_full", importController.ImportStopTimesFull)
+	r.HandleFunc("/{key}/post_process", importController.ImportPostProcess)
+	r.HandleFunc("/{key}/{file}", importController.Import)
+
+	// Init Repository Map
+	initRepositoryMap()
+}
+
+func (ac *ImportController) ImportPostProcess(w http.ResponseWriter, r *http.Request) {
+
+	defer utils.RecoverFromError(w)
+
+	sw := stopwatch.Start(0)
+
+	params := mux.Vars(r)
+	keyParam := params["key"]
+
+	importPostProcess(keyParam)
+
+	log.Println("-----------------------------------------------------------------------------------")
+	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
+	log.Println("-----------------------------------------------------------------------------------")
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.Request) {
+
+	defer utils.RecoverFromError(w)
+
+	sw := stopwatch.Start(0)
+
+	params := mux.Vars(r)
+	keyParam := params["key"]
+
+	importStopTimesFull(keyParam)
+
+	log.Println("-----------------------------------------------------------------------------------")
+	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
+	log.Println("-----------------------------------------------------------------------------------")
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func importPostProcess(schema string) {
+
+	createTable(schema, "lines")
+	createTable(schema, "line_stops")
+	createTable(schema, "stations")
+	createTable(schema, "station_stops")
+	createTable(schema, "station_lines")
+	createTable(schema, "route_stops")
+
+	populateTable(schema, "lines")
+	populateTable(schema, "line_stops")
+	populateTable(schema, "stations")
+	populateTable(schema, "station_stops")
+	populateTable(schema, "station_lines")
+	populateTable(schema, "route_stops")
+}
+
+func importStopTimesFull(schema string) {
+//	config.DB.LogMode(true)
+
+	tableName := "stop_times_full"
+	createTable(schema, tableName)
+
+	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
+
+	log.Println(fmt.Sprintf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+
+	ddlBytes, err := data.Asset(filePath)
+	ddl := string(ddlBytes)
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table `gtfs_%s`.`%s`", filePath, schema, tableName))
+
+	var lines Lines
+
+	fullTableName := fmt.Sprintf("`gtfs_%s`.`%s`", schema, "lines")
+	err = config.DB.Table(fullTableName).Find(&lines).Error
+	utils.FailOnError(err, fmt.Sprintf("Could get lines from table %s", fullTableName))
+
+	insertLineDoneChan := make(chan InsertLineResult, 8)
+
+	for _, line := range lines {
+		go insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
+//		log.Println(fmt.Sprintf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl))
+	}
+
+	doneCount := 0
+	for insertLineResult := range insertLineDoneChan {
+		if insertLineResult.Error != nil {
+			log.Println(fmt.Sprintf("Received event on done chan with error: %s", insertLineResult.Error))
+		} else {
+			doneCount += 1
+			if len(lines) == doneCount {
+				log.Println(fmt.Sprintf("Closing done chan."))
+				close(insertLineDoneChan)
+			} else {
+				log.Println(fmt.Sprintf("Received event on done chan for line %s.", insertLineResult.Line.Name))
+			}
+		}
+	}
+
+
+	createIndexDoneChan := make(chan CreateIndexResult, 8)
+	indexes := []string{"service_id", "stop_id", "trip_id", "route_id"}
+	for _, index := range indexes {
+		go createIndex(schema, tableName, index, createIndexDoneChan)
+	}
+
+	doneCount = 0
+	for createIndexResult := range createIndexDoneChan {
+		if createIndexResult.Error != nil {
+			log.Println(fmt.Sprintf("[CREATE_INDEX] Received event on done chan for index :%s with error: %s", createIndexResult.Index, createIndexResult.Error))
+		} else {
+			doneCount += 1
+			if len(indexes) == doneCount {
+				log.Println(fmt.Sprintf("[CREATE_INDEX] Closing done chan."))
+				close(createIndexDoneChan)
+			} else {
+				log.Println(fmt.Sprintf("[CREATE_INDEX] Received event on done chan for index %s.", createIndexResult.Index))
+			}
+		}
+	}
+}
+
+func insertForLine(schema string, tableName string, ddl string, line Line, doneChan chan InsertLineResult) {
+	log.Println(fmt.Sprintf("--- Inserting data for line: %s", line.Name))
+
+	insertStmt := regexp.MustCompile("%s").ReplaceAllString(ddl, schema)
+	insertStmt = regexp.MustCompile("%v").ReplaceAllString(insertStmt, line.Name)
+
+	//		log.Println(fmt.Sprintf("Insert statement: %s", insertStmt))
+	err := config.DB.Exec(insertStmt).Error
+	doneChan <- InsertLineResult{line, err}
 }
 
 func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
@@ -127,20 +281,11 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	createTable(keyParam, "lines")
-	createTable(keyParam, "line_stops")
-	createTable(keyParam, "stations")
-	createTable(keyParam, "station_stops")
-	createTable(keyParam, "station_lines")
-
-	populateTable(keyParam, "lines")
-	populateTable(keyParam, "line_stops")
-	populateTable(keyParam, "stations")
-	populateTable(keyParam, "station_stops")
-	populateTable(keyParam, "station_lines")
+	importPostProcess(keyParam)
+	importStopTimesFull(keyParam)
 
 	log.Println("-----------------------------------------------------------------------------------")
-	log.Println(fmt.Println("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
+	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
 	log.Println("-----------------------------------------------------------------------------------")
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
@@ -164,7 +309,15 @@ func createTable(schema string, tableName string) {
 	log.Println(fmt.Sprintf("Create statement: %s", createStmt))
 	err = config.DB.Exec(createStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not create '%s' table", tableName))
+}
 
+func createIndex(schema string, tableName string, indexName string, doneChan chan CreateIndexResult) {
+	log.Println(fmt.Sprintf("Creating index with name: `%s_idx` on field `%s` for table with name: `gtfs_%s`.`%s`", indexName, indexName, schema, tableName))
+
+	createIndexStmt := fmt.Sprintf("ALTER TABLE `gtfs_%s`.`%s` ADD INDEX `%s_idx` (`%s` ASC);", schema, tableName, indexName, indexName)
+	log.Println(fmt.Sprintf("Create statement: %s", createIndexStmt))
+	err := config.DB.Exec(createIndexStmt).Error
+	doneChan <- CreateIndexResult{indexName, err}
 }
 
 func populateTable(schema string, tableName string) {
