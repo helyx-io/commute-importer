@@ -35,7 +35,7 @@ func main() {
 	//	defer profile.Start(profile.CPUProfile).Stop()
 
 	// Init Logger
-	logWriter, err := os.Create("/var/log/import-gtfs-helyx-io-access.log")
+	logWriter, err := os.Create("/var/log/import-gtfs-helyx-io/access.log")
 	utils.FailOnError(err, fmt.Sprintf("Could not access log"))
 	defer logWriter.Close()
 
