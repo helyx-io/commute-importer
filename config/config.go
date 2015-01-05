@@ -137,7 +137,7 @@ func Init() error {
 
 	Http = &HttpConfig{httpPort}
 
-	log.Println("[CONFIG] Application - HTTP Port :", "'" + Http + "'")
+	log.Println("[CONFIG] Application - HTTP Port :", "'" + Http.Port + "'")
 
 	return nil
 }
