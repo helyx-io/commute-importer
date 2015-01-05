@@ -74,6 +74,10 @@ func Init() error {
 		dbDatabase = "gtfs"
 	}
 
+	log.Println("[CONFIG] DB infos - Database :", "'" + dbDatabase + "'")
+	log.Println("[CONFIG] DB infos - Username :", "'" + dbUsername + "'")
+	log.Println("[CONFIG] DB infos - Password :", "'" + "********" + "'")
+
 	dbURL := fmt.Sprintf("%v:%v@/%v?charset=utf8mb4,utf8&parseTime=true", dbUsername, dbPassword, dbDatabase)
 
 	dbMinCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
@@ -85,6 +89,9 @@ func Init() error {
 	if dbMaxCnx == 0 {
 		dbMaxCnx = 100
 	}
+
+	log.Println(fmt.Sprintf("[CONFIG] DB infos - Min Connections : %d", dbMinCnx))
+	log.Println(fmt.Sprintf("[CONFIG] DB infos - Max Connections : %d", dbMaxCnx))
 
 	ConnectInfos = &database.DBConnectInfos{dbDialect, dbURL, dbMinCnx, dbMaxCnx}
 
@@ -106,9 +113,15 @@ func Init() error {
 
 	Session = &SessionConfig{os.Getenv("SESSION_SECRET")}
 
+	log.Println("[CONFIG] Session - Secret :", "'" + Session.Secret + "'")
+
 	TmpDir = os.Getenv("GTFS_TMP_DIR")
 
+	log.Println("[CONFIG] Application - Temp Directory :", "'" + TmpDir + "'")
+
 	BaseURL = os.Getenv("GTFS_BASE_URL")
+
+	log.Println("[CONFIG] Application - Base URL :", "'" + BaseURL + "'")
 
 	DataResources = make(map[string]string)
 
@@ -123,6 +136,8 @@ func Init() error {
 	}
 
 	Http = &HttpConfig{httpPort}
+
+	log.Println("[CONFIG] Application - HTTP Port :", "'" + Http + "'")
 
 	return nil
 }
