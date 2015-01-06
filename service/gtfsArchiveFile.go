@@ -121,7 +121,7 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 
 	// Init WorkPool
 
-	doneChan := make(chan error, 32)
+	doneChan := make(chan error, 16)
 
 	for lines := range gtfsFile.LinesIterator(maxLength) {
 

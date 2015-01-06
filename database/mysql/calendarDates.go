@@ -132,7 +132,7 @@ func (m MySQLCalendarDatesImportTask) ImportModels(headers []string, as []interf
 
 		count += 1
 
-		if count >= 4096 {
+		if count >= 1024 {
 			stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
 			_, err = dbSql.Exec(stmt, valueArgs...)
