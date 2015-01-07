@@ -110,8 +110,6 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey 
 
 func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, sw *stopwatch.Stopwatch) error {
 
-	offset := 0
-
 	gtfsFile := models.GTFSFile{path.Join(folderFilename, gaf.Name())}
 
 	headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
@@ -123,6 +121,8 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 	doneChan := make(chan error, 16)
 
 	go func() {
+		offset := 0
+
 		for lines := range gtfsFile.LinesIterator(maxLength) {
 
 			offset++
@@ -138,9 +138,7 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 		}
 		log.Println(fmt.Sprintf(" - Read file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
 
-		if (offset == 0) {
-			close(doneChan)
-		}
+		close(doneChan)
 	}()
 
 	doneCount := 0
@@ -152,7 +150,7 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 			if offset == doneCount {
 				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
 				log.Println(fmt.Sprintf("Closing done chan"))
-				close(doneChan)
+//				close(doneChan)
 			} else {
 				log.Println(fmt.Sprintf("Received event on done chan."))
 			}
