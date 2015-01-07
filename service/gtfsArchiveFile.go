@@ -142,7 +142,6 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 		close(doneChan)
 	}()
 
-	errCount := 0
 	doneCount := 0
 	for err := range doneChan {
 		if err != nil {
