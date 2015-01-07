@@ -113,8 +113,9 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 	gtfsFile := models.GTFSFile{path.Join(folderFilename, gaf.Name())}
 
 	headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
-	utils.FailOnError(err, fmt.Sprintf("Could not read csv headers for file with name: '%v'", gaf.Name()))
-
+	if err != nil {
+		return err
+	}
 
 	// Init WorkPool
 
@@ -141,21 +142,19 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 		close(doneChan)
 	}()
 
+	errCount := 0
 	doneCount := 0
 	for err := range doneChan {
 		if err != nil {
 			log.Println(fmt.Sprintf("Received event on done chan with error: %s", err))
+			return err
 		} else {
 			doneCount += 1
-			if offset == doneCount {
-				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
-				log.Println(fmt.Sprintf("Closing done chan"))
-//				close(doneChan)
-			} else {
-				log.Println(fmt.Sprintf("Received event on done chan."))
-			}
+			log.Println(fmt.Sprintf("Received event on done chan."))
 		}
 	}
+	log.Println(fmt.Sprintf("done (%d)", doneCount))
+	log.Println(fmt.Sprintf("Closing done chan"))
 
-	return err
+	return nil
 }
