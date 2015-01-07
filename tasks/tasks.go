@@ -4,8 +4,11 @@ import (
 	"log"
 	"fmt"
 	"github.com/helyx-io/gtfs-playground/models"
-	"github.com/goinggo/workpool"
 )
+
+type Task interface {
+	DoWork(workId int)
+}
 
 type ImportTask struct {
 	Name string
@@ -14,7 +17,6 @@ type ImportTask struct {
 	AgencyKey string
 	Headers []string
 	Lines []byte
-	WP *workpool.WorkPool
 	Done chan error
 }
 
@@ -26,8 +28,8 @@ type ModelImporter interface {
 	ImportModels(headers []string, models []interface{}) error
 }
 
-func NewImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) ImportTask {
-	return ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
+func NewImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) ImportTask {
+	return ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
 }
 
 
@@ -48,6 +50,6 @@ func (it ImportTask) ImportCsv(converter ModelConverter, importer ModelImporter)
 		it.Done <- err
 	}
 
-//	log.Println(fmt.Sprintf("[%s][%d] Sending Task Done Event", it.AgencyKey, it.JobIndex))
+	log.Println(fmt.Sprintf("[%s][%d] Sending Task Done Event", it.AgencyKey, it.JobIndex))
 	it.Done <- nil
 }

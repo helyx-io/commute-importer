@@ -12,7 +12,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/goinggo/workpool"
 )
 
 
@@ -34,8 +33,8 @@ func (s MySQLGtfsAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error
 	return s.db.Exec("DELETE FROM `gtfs`.`agencies` where agency_key=?", agencyKey).Error
 }
 
-func (r MySQLGtfsAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
-	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
+func (r MySQLGtfsAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLGtfsAgenciesImportTask{mysqlImportTask}
 }

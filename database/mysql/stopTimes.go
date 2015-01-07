@@ -14,7 +14,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/utils"
 	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/goinggo/workpool"
 )
 
 
@@ -65,8 +64,8 @@ func (s MySQLStopTimeRepository) AddIndexesByAgencyKey(agencyKey string) error {
 	return s.db.Exec(stmt).Error
 }
 
-func (r MySQLStopTimeRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
-	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
+func (r MySQLStopTimeRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLStopTimesImportTask{mysqlImportTask}
 }

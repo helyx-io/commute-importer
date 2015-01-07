@@ -13,7 +13,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/utils"
 	"github.com/helyx-io/gtfs-playground/models"
-	"github.com/goinggo/workpool"
 )
 
 
@@ -43,7 +42,7 @@ func (gaf *GTFSArchiveFile) Size() int64 {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSCreatedModelRepository, maxLength int, workPool *workpool.WorkPool) error {
+func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSCreatedModelRepository, maxLength int) error {
 
 	sw := stopwatch.Start(0)
 
@@ -61,7 +60,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey str
 	err = gtfsModelRepository.CreateTableByAgencyKey(agencyKey)
 	utils.FailOnError(err, fmt.Sprintf("Could not create table for file with name: '%v'", gaf.Name()))
 
-	err = gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, workPool, sw)
+	err = gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, sw)
 
 	if err != nil {
 		log.Printf("[ERROR] %s", err)
@@ -82,7 +81,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey str
 
 
 
-func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, workPool *workpool.WorkPool) error {
+func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int) error {
 
 	sw := stopwatch.Start(0)
 
@@ -97,7 +96,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey 
 	log.Println(fmt.Sprintf(" - Removed entries from repository related to file with name: '%v'", gaf.Name()))
 
 
-	err= gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, workPool, sw)
+	err= gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, sw)
 
 	if err != nil {
 		log.Printf("[ERROR] %s", err)
@@ -109,7 +108,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithoutTableCreation(agencyKey 
 }
 
 
-func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, workPool *workpool.WorkPool, sw *stopwatch.Stopwatch) error {
+func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSModelRepository, maxLength int, sw *stopwatch.Stopwatch) error {
 
 	offset := 0
 
@@ -123,25 +122,26 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 
 	doneChan := make(chan error, 16)
 
-	for lines := range gtfsFile.LinesIterator(maxLength) {
+	go func() {
+		for lines := range gtfsFile.LinesIterator(maxLength) {
 
-		offset++
+			offset++
 
-		log.Println(fmt.Sprintf(" - Inserting chunk of data with offset: '%d' related to file with name: '%v'", offset, gaf.Name()))
+			log.Println(fmt.Sprintf(" - Inserting chunk of data with offset: '%d' related to file with name: '%v'", offset, gaf.Name()))
 
-		taskName := fmt.Sprintf("ChunkImport-%d for file with name: '%v'", offset, gaf.Name())
-		task := gtfsModelRepository.CreateImportTask(taskName, offset, gaf.Name(), agencyKey, headers, lines, workPool, doneChan)
+			taskName := fmt.Sprintf("ChunkImport-%d for file with name: '%v'", offset, gaf.Name())
+			task := gtfsModelRepository.CreateImportTask(taskName, offset, gaf.Name(), agencyKey, headers, lines, doneChan)
 
-		err := workPool.PostWork("import", task)
+			task.DoWork(offset)
 
-		utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
-	}
-	log.Println(fmt.Sprintf(" - Read file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+			utils.FailOnError(err, fmt.Sprintf("Could not post work with offset: %d", offset))
+		}
+		log.Println(fmt.Sprintf(" - Read file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
 
-	if (offset == 0) {
-		close(doneChan)
-		return err
-	}
+		if (offset == 0) {
+			close(doneChan)
+		}
+	}()
 
 	doneCount := 0
 	for err := range doneChan {
@@ -150,11 +150,11 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 		} else {
 			doneCount += 1
 			if offset == doneCount {
-				//				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
+				log.Println(fmt.Sprintf("offset (%d) = done (%d)", offset, doneCount))
 				log.Println(fmt.Sprintf("Closing done chan"))
 				close(doneChan)
 			} else {
-				// log.Println(fmt.Sprintf("Received event on done chan."))
+				log.Println(fmt.Sprintf("Received event on done chan."))
 			}
 		}
 	}

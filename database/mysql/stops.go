@@ -15,7 +15,6 @@ import (
 	"github.com/helyx-io/gtfs-playground/utils"
 	"github.com/helyx-io/gtfs-playground/data"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/goinggo/workpool"
 )
 
 
@@ -42,8 +41,8 @@ func (s MySQLStopRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
 	return s.db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error
 }
 
-func (r MySQLStopRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, workPool *workpool.WorkPool, done chan error) workpool.PoolWorker {
-	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, workPool, done}
+func (r MySQLStopRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
+	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
 	mysqlImportTask := MySQLImportTask{importTask, r.db, r.dbInfos}
 	return MySQLStopsImportTask{mysqlImportTask}
 }

@@ -8,12 +8,11 @@ import (
 	"os"
 	"log"
 	"fmt"
+	"strconv"
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database/mysql"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/auth"
-	"github.com/goinggo/workpool"
-	"strconv"
 )
 
 
@@ -27,7 +26,6 @@ var (
 	GTFS database.GTFSRepository
 	DataResources map[string]string
 	ConnectInfos *database.DBConnectInfos
-	WorkPool *workpool.WorkPool
 	OAuthInfos *auth.OAuthInfos
 	Session *SessionConfig
 	TmpDir string
@@ -102,9 +100,6 @@ func Init() error {
 
 	// Init GTFS Repository
 	GTFS = mysql.CreateMySQLGTFSRepository(DB, ConnectInfos)
-
-	// Init WorkPool
-	WorkPool = workpool.New(32, 10000)
 
 	OAuthInfos = &auth.OAuthInfos{os.Getenv("GOOGLE_AUTH_CLIENT_ID"), os.Getenv("GOOGLE_AUTH_CLIENT_SECRET")}
 
