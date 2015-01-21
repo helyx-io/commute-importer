@@ -113,6 +113,7 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 	gtfsFile := models.GTFSFile{path.Join(folderFilename, gaf.Name())}
 
 	headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
+
 	if err != nil {
 		return err
 	}

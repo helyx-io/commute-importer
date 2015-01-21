@@ -61,7 +61,7 @@ func (fi bindata_file_info) Sys() interface{} {
 	return nil
 }
 
-var _resources_ddl_agencies_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x9c\xd0\xcf\x4a\xc4\x30\x10\x06\xf0\x7b\x9f\x62\x2e\x42\x0b\xe2\x69\x05\x41\xf6\x90\xdd\x1d\x35\x98\xc6\x25\x9b\x1e\xf6\x94\xc4\x26\xad\x85\x36\x95\x34\x15\xf4\xe9\xfd\x07\xb5\xe2\xc1\xb2\xb7\x04\x7e\xdf\x37\xcc\x6c\x05\x12\x89\x20\xc9\x86\x21\xe8\x3a\x56\x83\x3a\x1b\xf4\x85\x36\xb5\xf3\x65\xe3\x06\x0d\x69\x02\xf0\xfd\x7d\x55\x8d\xd5\xf0\x62\x42\xf9\x64\x42\xba\xba\xcc\x80\x3f\x48\xe0\x05\x63\xe7\x33\xe3\x4d\xe7\x7e\xab\x1d\xde\x90\x82\xfd\x95\x63\x68\x97\xc1\xd8\x74\xee\xad\xf7\x0b\x6b\x5b\xe3\xeb\x7f\x64\x19\x9c\x89\xce\x2a\x13\x35\xd8\x8f\xd7\xe7\x80\x69\x99\x89\x6f\x0b\x21\x90\x4b\x25\x69\x8e\x07\x49\xf2\xfd\x57\x76\x7c\xb6\xa7\x66\xf7\x82\xe6\x44\x1c\xe1\x1e\x8f\x90\xce\x6e\x9a\x25\x19\x20\xbf\xa5\x1c\xd7\xd4\xfb\x7e\xb7\xf9\xa9\xb9\x23\xe2\x80\x72\x3d\xc6\xea\xaa\x7b\x5c\x5d\x27\xef\x01\x00\x00\xff\xff\x99\xf3\x0c\x35\xb0\x01\x00\x00")
+var _resources_ddl_agencies_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x9c\xd1\x41\x4b\xc3\x30\x14\xc0\xf1\x7b\x3f\xc5\xbb\x08\x2d\x88\xa7\x09\x82\xec\x90\x6d\x4f\x2d\xb6\x71\x64\xe9\x61\xa7\x26\xb6\x69\x2d\xb4\xaf\x92\xa6\xa2\x7e\x7a\x57\x85\x59\x11\x25\xec\x96\xc0\xef\xfd\x43\x92\xb5\x40\x26\x11\x24\x5b\x25\x08\xaa\x76\xd5\x90\x9f\x0d\xea\x42\xe9\xda\x50\xd1\x98\x41\x41\x18\x00\x7c\x6d\xdf\xf2\xa6\x54\xf0\xa2\x6d\xf1\xa4\x6d\xb8\xb8\x8c\x80\x3f\x48\xe0\x59\x92\x9c\xcf\x0c\xe9\xce\xfc\x54\x1b\xbc\x61\x59\xf2\x5b\x8e\xb6\xf5\x83\xae\xe9\xcc\x7b\x4f\x9e\xd9\x56\x53\xed\x27\xbb\x86\x0e\xda\x29\xa8\xda\x5e\xbb\xbf\x99\x7e\xf5\x62\x53\xad\x27\xaf\xda\x3f\xac\xb0\x46\x3b\x53\xe6\xd3\x81\xe5\x61\x35\x5d\xfe\xf8\xd0\x47\xbe\xce\x84\x40\x2e\x73\x19\xa7\xb8\x93\x2c\xdd\x7e\xce\x8e\xcf\xe5\xa9\xb3\x5b\x11\xa7\x4c\xec\xe1\x1e\xf7\x10\xce\xfe\x3b\x0a\x22\x40\x7e\x1b\x73\x5c\xc6\x44\xfd\x66\xf5\x9d\xb9\x63\x62\x87\x72\x39\xba\xea\xaa\x7b\x5c\x5c\x07\x1f\x01\x00\x00\xff\xff\xfe\x36\x68\x61\x4c\x02\x00\x00")
 
 func resources_ddl_agencies_sql_bytes() ([]byte, error) {
 	return bindata_read(
@@ -76,7 +76,7 @@ func resources_ddl_agencies_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/agencies.sql", size: 432, mode: os.FileMode(420), modTime: time.Unix(1419430954, 0)}
+	info := bindata_file_info{name: "resources/ddl/agencies.sql", size: 588, mode: os.FileMode(420), modTime: time.Unix(1421882968, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -96,7 +96,7 @@ func resources_ddl_calendar_dates_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/calendar_dates.sql", size: 338, mode: os.FileMode(420), modTime: time.Unix(1419429294, 0)}
+	info := bindata_file_info{name: "resources/ddl/calendar_dates.sql", size: 338, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -116,7 +116,7 @@ func resources_ddl_calendars_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/calendars.sql", size: 897, mode: os.FileMode(420), modTime: time.Unix(1419429294, 0)}
+	info := bindata_file_info{name: "resources/ddl/calendars.sql", size: 897, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -136,7 +136,7 @@ func resources_ddl_create_table_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-line_stops.sql", size: 405, mode: os.FileMode(420), modTime: time.Unix(1420147279, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-line_stops.sql", size: 405, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -156,7 +156,7 @@ func resources_ddl_create_table_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-lines.sql", size: 342, mode: os.FileMode(420), modTime: time.Unix(1420146922, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-lines.sql", size: 342, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -176,7 +176,7 @@ func resources_ddl_create_table_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-route_stops.sql", size: 410, mode: os.FileMode(420), modTime: time.Unix(1420163556, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-route_stops.sql", size: 410, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -196,7 +196,7 @@ func resources_ddl_create_table_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-station_lines.sql", size: 385, mode: os.FileMode(420), modTime: time.Unix(1420147279, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-station_lines.sql", size: 385, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -216,7 +216,7 @@ func resources_ddl_create_table_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-station_stops.sql", size: 384, mode: os.FileMode(420), modTime: time.Unix(1420147005, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-station_stops.sql", size: 384, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -236,7 +236,7 @@ func resources_ddl_create_table_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-stations.sql", size: 516, mode: os.FileMode(420), modTime: time.Unix(1420159226, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-stations.sql", size: 516, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -256,7 +256,7 @@ func resources_ddl_create_table_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/create-table-stop_times_full.sql", size: 1469, mode: os.FileMode(420), modTime: time.Unix(1420209383, 0)}
+	info := bindata_file_info{name: "resources/ddl/create-table-stop_times_full.sql", size: 1469, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -276,7 +276,7 @@ func resources_ddl_insert_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-line_stops.sql", size: 434, mode: os.FileMode(420), modTime: time.Unix(1420149789, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-line_stops.sql", size: 434, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -296,7 +296,7 @@ func resources_ddl_insert_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-lines.sql", size: 157, mode: os.FileMode(420), modTime: time.Unix(1420149741, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-lines.sql", size: 157, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -316,7 +316,7 @@ func resources_ddl_insert_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-route_stops.sql", size: 341, mode: os.FileMode(420), modTime: time.Unix(1420163556, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-route_stops.sql", size: 341, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -336,7 +336,7 @@ func resources_ddl_insert_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-station_lines.sql", size: 337, mode: os.FileMode(420), modTime: time.Unix(1420149925, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-station_lines.sql", size: 337, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -356,7 +356,7 @@ func resources_ddl_insert_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-station_stops.sql", size: 208, mode: os.FileMode(420), modTime: time.Unix(1420149448, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-station_stops.sql", size: 208, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -376,7 +376,7 @@ func resources_ddl_insert_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-stations.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1420159226, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-stations.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -396,7 +396,7 @@ func resources_ddl_insert_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/insert-stop_times_full.sql", size: 917, mode: os.FileMode(420), modTime: time.Unix(1420209300, 0)}
+	info := bindata_file_info{name: "resources/ddl/insert-stop_times_full.sql", size: 917, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -416,7 +416,27 @@ func resources_ddl_routes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/routes.sql", size: 598, mode: os.FileMode(420), modTime: time.Unix(1419429294, 0)}
+	info := bindata_file_info{name: "resources/ddl/routes.sql", size: 598, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
+	a := &asset{bytes: bytes, info:  info}
+	return a, nil
+}
+
+var _resources_ddl_select_agency_zone_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x2a\x4e\xcd\x49\x4d\x2e\x51\xc8\xcd\xcc\xd3\x28\xd6\x4b\x28\x2e\xc9\x2f\x88\xcf\x49\x2c\x49\xd0\xd4\x51\xc8\x4d\xac\xc0\x10\x42\x56\x95\x9f\x87\xa1\x0a\x24\xa4\x90\x56\x94\x9f\xab\x90\x90\x5e\x92\x56\x1c\xaf\x5a\x9c\x00\x91\x2a\x4e\x50\x28\x06\x04\x00\x00\xff\xff\x27\xdf\x80\x60\x6a\x00\x00\x00")
+
+func resources_ddl_select_agency_zone_sql_bytes() ([]byte, error) {
+	return bindata_read(
+		_resources_ddl_select_agency_zone_sql,
+		"resources/ddl/select-agency-zone.sql",
+	)
+}
+
+func resources_ddl_select_agency_zone_sql() (*asset, error) {
+	bytes, err := resources_ddl_select_agency_zone_sql_bytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindata_file_info{name: "resources/ddl/select-agency-zone.sql", size: 106, mode: os.FileMode(420), modTime: time.Unix(1421874419, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -436,7 +456,7 @@ func resources_ddl_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/stop_times.sql", size: 502, mode: os.FileMode(420), modTime: time.Unix(1419429294, 0)}
+	info := bindata_file_info{name: "resources/ddl/stop_times.sql", size: 502, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -456,7 +476,7 @@ func resources_ddl_stop_times_indexes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/stop_times_indexes.sql", size: 169, mode: os.FileMode(420), modTime: time.Unix(1420120855, 0)}
+	info := bindata_file_info{name: "resources/ddl/stop_times_indexes.sql", size: 169, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -476,7 +496,7 @@ func resources_ddl_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/stops.sql", size: 639, mode: os.FileMode(420), modTime: time.Unix(1420037980, 0)}
+	info := bindata_file_info{name: "resources/ddl/stops.sql", size: 639, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -496,7 +516,7 @@ func resources_ddl_transfers_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/transfers.sql", size: 426, mode: os.FileMode(420), modTime: time.Unix(1420125801, 0)}
+	info := bindata_file_info{name: "resources/ddl/transfers.sql", size: 426, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -516,7 +536,47 @@ func resources_ddl_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/trips.sql", size: 565, mode: os.FileMode(420), modTime: time.Unix(1419429294, 0)}
+	info := bindata_file_info{name: "resources/ddl/trips.sql", size: 565, mode: os.FileMode(420), modTime: time.Unix(1420235978, 0)}
+	a := &asset{bytes: bytes, info:  info}
+	return a, nil
+}
+
+var _resources_ddl_update_agency_zone_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x2a\x2d\x48\x49\x2c\x49\x55\x48\x48\x2f\x49\x2b\x8e\x57\x2d\x4e\xd0\x4b\x48\x4c\x4f\xcd\x4b\xce\x4c\x2d\x4e\x50\x28\x4e\x2d\x51\x80\x70\x2b\xe3\x73\x33\xf3\xe2\x73\x12\x4b\x12\x6c\xed\x75\x10\x62\x89\x15\x98\x62\x20\x75\xf9\x79\x98\xea\xc0\x62\x5c\x80\x00\x00\x00\xff\xff\x6c\xbd\xa7\x65\x6f\x00\x00\x00")
+
+func resources_ddl_update_agency_zone_sql_bytes() ([]byte, error) {
+	return bindata_read(
+		_resources_ddl_update_agency_zone_sql,
+		"resources/ddl/update-agency-zone.sql",
+	)
+}
+
+func resources_ddl_update_agency_zone_sql() (*asset, error) {
+	bytes, err := resources_ddl_update_agency_zone_sql_bytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindata_file_info{name: "resources/ddl/update-agency-zone.sql", size: 111, mode: os.FileMode(420), modTime: time.Unix(1421882826, 0)}
+	a := &asset{bytes: bytes, info:  info}
+	return a, nil
+}
+
+var _resources_ddl_update_gtfs_agency_zone_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x2a\x2d\x48\x49\x2c\x49\x55\x48\x48\x2f\x49\x2b\x4e\xd0\x4b\x48\x4c\x4f\xcd\x4b\xce\x4c\x2d\x4e\x50\x28\x4e\x2d\x51\x80\x70\x2b\xe3\x73\x33\xf3\xe2\x73\x12\x4b\x12\x6c\xed\x75\x10\x62\x89\x15\x98\x62\x20\x75\xf9\x79\x98\xea\xc0\x62\x0a\xe5\x19\xa9\x45\xa9\x70\x89\xec\xd4\x4a\xa0\x20\x17\x20\x00\x00\xff\xff\x86\xf4\xa1\xf0\x81\x00\x00\x00")
+
+func resources_ddl_update_gtfs_agency_zone_sql_bytes() ([]byte, error) {
+	return bindata_read(
+		_resources_ddl_update_gtfs_agency_zone_sql,
+		"resources/ddl/update-gtfs-agency-zone.sql",
+	)
+}
+
+func resources_ddl_update_gtfs_agency_zone_sql() (*asset, error) {
+	bytes, err := resources_ddl_update_gtfs_agency_zone_sql_bytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindata_file_info{name: "resources/ddl/update-gtfs-agency-zone.sql", size: 129, mode: os.FileMode(420), modTime: time.Unix(1421882593, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -580,11 +640,14 @@ var _bindata = map[string]func() (*asset, error){
 	"resources/ddl/insert-stations.sql": resources_ddl_insert_stations_sql,
 	"resources/ddl/insert-stop_times_full.sql": resources_ddl_insert_stop_times_full_sql,
 	"resources/ddl/routes.sql": resources_ddl_routes_sql,
+	"resources/ddl/select-agency-zone.sql": resources_ddl_select_agency_zone_sql,
 	"resources/ddl/stop_times.sql": resources_ddl_stop_times_sql,
 	"resources/ddl/stop_times_indexes.sql": resources_ddl_stop_times_indexes_sql,
 	"resources/ddl/stops.sql": resources_ddl_stops_sql,
 	"resources/ddl/transfers.sql": resources_ddl_transfers_sql,
 	"resources/ddl/trips.sql": resources_ddl_trips_sql,
+	"resources/ddl/update-agency-zone.sql": resources_ddl_update_agency_zone_sql,
+	"resources/ddl/update-gtfs-agency-zone.sql": resources_ddl_update_gtfs_agency_zone_sql,
 }
 
 // AssetDir returns the file names below a certain
@@ -665,6 +728,8 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 			}},
 			"routes.sql": &_bintree_t{resources_ddl_routes_sql, map[string]*_bintree_t{
 			}},
+			"select-agency-zone.sql": &_bintree_t{resources_ddl_select_agency_zone_sql, map[string]*_bintree_t{
+			}},
 			"stop_times.sql": &_bintree_t{resources_ddl_stop_times_sql, map[string]*_bintree_t{
 			}},
 			"stop_times_indexes.sql": &_bintree_t{resources_ddl_stop_times_indexes_sql, map[string]*_bintree_t{
@@ -674,6 +739,10 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 			"transfers.sql": &_bintree_t{resources_ddl_transfers_sql, map[string]*_bintree_t{
 			}},
 			"trips.sql": &_bintree_t{resources_ddl_trips_sql, map[string]*_bintree_t{
+			}},
+			"update-agency-zone.sql": &_bintree_t{resources_ddl_update_agency_zone_sql, map[string]*_bintree_t{
+			}},
+			"update-gtfs-agency-zone.sql": &_bintree_t{resources_ddl_update_gtfs_agency_zone_sql, map[string]*_bintree_t{
 			}},
 		}},
 	}},

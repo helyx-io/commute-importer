@@ -10,6 +10,7 @@ import (
 	"sort"
 	"regexp"
 	"net/http"
+	"database/sql"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
 	"github.com/helyx-io/gtfs-playground/config"
@@ -202,6 +203,82 @@ func importStopTimesFull(schema string) {
 	}
 }
 
+func updateAgenciesMetaData(schema string) error {
+	dbSql, err := sql.Open(config.ConnectInfos.Dialect, config.ConnectInfos.URL)
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	defer dbSql.Close()
+
+
+	log.Println(fmt.Sprintf("Updating agency zone for schema: %s", schema))
+
+	selectFilePath := "resources/ddl/select-agency-zone.sql"
+	ddlSelect, err := data.Asset(selectFilePath)
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for fetching agency zone: `%s`", selectFilePath, schema))
+
+	selectStmt := fmt.Sprintf(string(ddlSelect), schema)
+
+	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, selectStmt))
+
+	row := config.DB.Raw(selectStmt).Row()
+
+	var min_stop_lat float64;
+	var max_stop_lat float64;
+	var min_stop_lon float64;
+	var max_stop_lon float64;
+
+	row.Scan(&min_stop_lat, &max_stop_lat, &min_stop_lon, &max_stop_lon)
+
+	log.Println(fmt.Sprintf(" - Min stop lat: %f", min_stop_lat))
+	log.Println(fmt.Sprintf(" - Max stop lat: %f", max_stop_lat))
+	log.Println(fmt.Sprintf(" - Min stop lon: %f", min_stop_lon))
+	log.Println(fmt.Sprintf(" - Max stop lon: %f", max_stop_lon))
+
+
+	log.Println(fmt.Sprintf("Updating agency zone for schema: %s", schema))
+
+
+	updateFilePath := "resources/ddl/update-agency-zone.sql"
+	ddlUpdate, err := data.Asset(updateFilePath)
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: `%s`", updateFilePath, schema))
+
+	updateStmt := fmt.Sprintf(string(ddlUpdate), schema)
+
+	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateStmt))
+
+	updateValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon }
+
+
+	_, err = dbSql.Exec(updateStmt, updateValueArgs...)
+
+	if err != nil {
+		log.Println(fmt.Println("Failed on Error: %v", err))
+		return err
+	}
+
+
+	updateGtfsFilePath := "resources/ddl/update-gtfs-agency-zone.sql"
+	ddlUpdateGtfs, err := data.Asset(updateGtfsFilePath)
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: `%s`", updateGtfsFilePath, schema))
+
+	updateGtfsStmt := string(ddlUpdateGtfs)
+
+	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateGtfsStmt))
+
+	updateGtfsValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon, schema }
+
+	_, err = dbSql.Exec(updateGtfsStmt, updateGtfsValueArgs...)
+
+	if err != nil {
+		log.Println(fmt.Println("Failed on Error: %v", err))
+	}
+
+	return err
+}
+
 func insertForLine(schema string, tableName string, ddl string, line Line, doneChan chan InsertLineResult) {
 	log.Println(fmt.Sprintf("--- Inserting data for line: %s", line.Name))
 
@@ -283,6 +360,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	importPostProcess(keyParam)
 	importStopTimesFull(keyParam)
+	updateAgenciesMetaData(keyParam)
 
 	log.Println("-----------------------------------------------------------------------------------")
 	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
