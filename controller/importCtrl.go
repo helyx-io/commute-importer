@@ -81,6 +81,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 	r.HandleFunc("/{key}", importController.Import)
 	r.HandleFunc("/{key}/stop_times_full", importController.ImportStopTimesFull)
 	r.HandleFunc("/{key}/post_process", importController.ImportPostProcess)
+	r.HandleFunc("/{key}/zone", importController.ImportZone)
 	r.HandleFunc("/{key}/{file}", importController.Import)
 
 	// Init Repository Map
@@ -104,6 +105,25 @@ func (ac *ImportController) ImportPostProcess(w http.ResponseWriter, r *http.Req
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
+func (ac *ImportController) ImportZone(w http.ResponseWriter, r *http.Request) {
+
+	defer utils.RecoverFromError(w)
+
+	sw := stopwatch.Start(0)
+
+	params := mux.Vars(r)
+	keyParam := params["key"]
+
+	err := updateAgenciesMetaData(keyParam)
+	utils.FailOnError(err, fmt.Sprintf("Could update agency zone for agency key: %s", keyParam))
+
+	log.Println("-----------------------------------------------------------------------------------")
+	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
+	log.Println("-----------------------------------------------------------------------------------")
+
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
 func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.Request) {
 
 	defer utils.RecoverFromError(w)
@@ -118,6 +138,7 @@ func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.R
 	log.Println("-----------------------------------------------------------------------------------")
 	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
 	log.Println("-----------------------------------------------------------------------------------")
+
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
