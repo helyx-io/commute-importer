@@ -9,7 +9,7 @@ type Calendars []Calendar
 type Calendar struct {
 	Id int `gorm:"column:id"`
 	AgencyKey string `gorm:"column:agency_key"`
-	ServiceId int `gorm:"column:service_id"`
+	ServiceId string `gorm:"column:service_id"`
 	Monday bool `gorm:"column:monday"`
 	Tuesday bool `gorm:"column:tuesday"`
 	Wednesday bool `gorm:"column:wednesday"`
@@ -23,7 +23,7 @@ type Calendar struct {
 
 type CalendarImportRow struct {
 	AgencyKey string
-	ServiceId int
+	ServiceId string
 	Monday int
 	Tuesday int
 	Wednesday int
@@ -39,7 +39,7 @@ type JSONCalendars []JSONCalendar
 
 type JSONCalendar struct {
 	AgencyKey string `json:"agencyKey"`
-	ServiceId int `json:"serviceId"`
+	ServiceId string `json:"serviceId"`
 	Monday bool `json:"monday"`
 	Tuesday bool `json:"tuesday"`
 	Wednesday bool `json:"wednesday"`

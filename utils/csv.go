@@ -58,7 +58,9 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 		if len(b) >= maxLength {
 			chunk++
 			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
-			channel <- b
+
+			channel <- fixUTF8BomIfNecessary(b)
+
 			i = 0
 			b = []byte{}
 		}
@@ -68,10 +70,22 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 	if len(b) > 0 {
 		chunk++
 		fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
-		channel <- b
+
+		channel <- fixUTF8BomIfNecessary(b)
 	}
 
 }
+
+func fixUTF8BomIfNecessary(data []byte) []byte {
+	if len(data) >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf {
+		return data[3:]
+	} else if len(data) >= 6 && data[0] == 0xc3 && data[1] == 0xaf && data[2] == 0xc2 && data[3] == 0xbb && data[4] == 0xc2 && data[5] == 0xbf {
+		return data[6:]
+	} else {
+		return data
+	}
+}
+
 
 func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 
@@ -89,5 +103,6 @@ func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 		return nil, err
 	}
 
-	return strings.Split(string(headers), ","), nil
+	headerStr := string(fixUTF8BomIfNecessary(headers))
+	return strings.Split(headerStr, ","), nil
 }

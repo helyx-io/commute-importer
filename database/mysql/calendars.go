@@ -81,7 +81,6 @@ func(m MySQLCalendarsImportTask) ConvertModels(headers []string, rs *models.Reco
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		serviceId, _ := strconv.Atoi(record[0])
 		monday, _ := strconv.Atoi(record[1])
 		tuesday, _ := strconv.Atoi(record[2])
 		wednesday, _ := strconv.Atoi(record[3])
@@ -92,7 +91,7 @@ func(m MySQLCalendarsImportTask) ConvertModels(headers []string, rs *models.Reco
 
 		st[i] = models.CalendarImportRow{
 			m.AgencyKey,
-			serviceId,
+			record[0],
 			monday,
 			tuesday,
 			wednesday,

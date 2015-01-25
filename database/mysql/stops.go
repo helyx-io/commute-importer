@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -106,43 +105,6 @@ func (m MySQLStopsImportTask) ConvertModels(headers []string, rs *models.Records
 	}
 
 	return st
-}
-
-func recordValueAsString(record []string, offsets map[string]int, key string) string {
-
-	offset, ok := offsets[key]
-
-	if !ok {
-		return ""
-	}
-
-	return record[offset]
-}
-
-func recordValueAsInt(record []string, offsets map[string]int, key string) int {
-
-	offset, ok := offsets[key]
-
-	if !ok {
-		return 0
-	}
-
-	intValue, _ := strconv.Atoi(record[offset])
-
-	return intValue
-}
-
-func recordValueAsFloat(record []string, offsets map[string]int, key string) float64 {
-
-	offset, ok := offsets[key]
-
-	if !ok {
-		return 0
-	}
-
-	floatValue, _ := strconv.ParseFloat(record[offset], 64)
-
-	return floatValue
 }
 
 func (m MySQLStopsImportTask) ImportModels(headers []string, ss []interface{}) error {

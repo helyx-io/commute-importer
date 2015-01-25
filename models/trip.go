@@ -6,7 +6,7 @@ type Trip struct {
 	Id int `gorm:"column:id"`
 	AgencyKey string `bson:"agency_key" json:"agencyKey" gorm:"column:agency_key"`
 	RouteId string `bson:"route_id" json:"routeId" gorm:"column:route_id"`
-	ServiceId int `bson:"service_id" json:"serviceId" gorm:"column:service_id"`
+	ServiceId string `bson:"service_id" json:"serviceId" gorm:"column:service_id"`
 	TripId string `bson:"trip_id" json:"tripId" gorm:"column:trip_id"`
 	TripHeadsign string `bson:"trip_headsign" json:"tripHeadsign" gorm:"column:trip_headsign"`
 	DirectionId int `bson:"direction_id" json:"directionId" gorm:"column:direction_id"`
@@ -17,7 +17,7 @@ type Trip struct {
 type TripImportRow struct {
 	AgencyKey string
 	RouteId string
-	ServiceId int
+	ServiceId string
 	TripId string
 	TripHeadsign string
 	DirectionId int
@@ -30,7 +30,7 @@ type JSONTrips []JSONTrip
 type JSONTrip struct {
 	AgencyKey string `json:"agencyKey"`
 	RouteId string `json:"routeId"`
-	ServiceId int `json:"serviceId"`
+	ServiceId string `json:"serviceId"`
 	TripId string `json:"tripId"`
 	TripHeadsign string `json:"tripHeadsign"`
 	DirectionId int `json:"directionId"`

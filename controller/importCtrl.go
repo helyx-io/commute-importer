@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"time"
 	"regexp"
 	"net/http"
 	"database/sql"
@@ -337,7 +338,8 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	folderFilename := config.TmpDir + "/" + keyParam
 	url := config.DataResources[keyParam]
-	zipFilename := config.TmpDir + "/" + keyParam + ".zip"
+
+	zipFilename := config.TmpDir + "/" + keyParam + "-" + time.Now().Format("20060102-150405") + ".zip"
 
 	utils.DownloadFile(url, zipFilename)
 	utils.UnzipArchive(zipFilename, folderFilename)

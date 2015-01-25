@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"database/sql"
 	"github.com/jinzhu/gorm"
 	"github.com/helyx-io/gtfs-playground/database"
@@ -82,4 +83,42 @@ func NewMySQLImportTask(importTask tasks.ImportTask, db *gorm.DB, dbInfos *datab
 
 func (it *MySQLImportTask) OpenSqlConnection() (*sql.DB, error) {
 	return sql.Open(it.dbInfos.Dialect, it.dbInfos.URL)
+}
+
+
+func recordValueAsString(record []string, offsets map[string]int, key string) string {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return ""
+	}
+
+	return record[offset]
+}
+
+func recordValueAsInt(record []string, offsets map[string]int, key string) int {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return 0
+	}
+
+	intValue, _ := strconv.Atoi(record[offset])
+
+	return intValue
+}
+
+func recordValueAsFloat(record []string, offsets map[string]int, key string) float64 {
+
+	offset, ok := offsets[key]
+
+	if !ok {
+		return 0
+	}
+
+	floatValue, _ := strconv.ParseFloat(record[offset], 64)
+
+	return floatValue
 }

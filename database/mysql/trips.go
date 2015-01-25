@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"strconv"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
 	"github.com/helyx-io/gtfs-playground/tasks"
@@ -79,19 +78,24 @@ func (m MySQLTripsImportTask) DoWork(_ int) {
 func(m MySQLTripsImportTask) ConvertModels(headers []string, rs *models.Records) []interface{} {
 	var st = make([]interface{}, len(*rs))
 
+	var offsets = make(map[string]int)
+
+	for i, header := range headers {
+		offsets[header] = i
+	}
+
 	for i, record := range *rs {
-		serviceId, _ := strconv.Atoi(record[1])
-		directionId, _ := strconv.Atoi(record[4])
+		directionId := recordValueAsInt(record, offsets, "direction_id")
 
 		st[i] = models.TripImportRow{
 			m.AgencyKey,
-			record[0],
-			serviceId,
-			record[2],
-			record[3],
+			recordValueAsString(record, offsets, "route_id"),
+			recordValueAsString(record, offsets, "service_id"),
+			recordValueAsString(record, offsets, "trip_id"),
+			recordValueAsString(record, offsets, "trip_headsign"),
 			directionId,
-			record[5],
-			record[6],
+			recordValueAsString(record, offsets, "block_id"),
+			recordValueAsString(record, offsets, "shape_id"),
 		}
 	}
 

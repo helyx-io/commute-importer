@@ -132,6 +132,7 @@ func Init() error {
 	 * Région: Ile-de-France
 	 * Agence: INTERCITES
 	 * Site: https://ressources.data.sncf.com/explore/dataset/sncf-intercites-gtfs/?tab=metas
+	 * Import: KO
 	 **/
 	DataResources["INTERCITES"] = "http://ressources.data.sncf.com/api/datasets/1.0/sncf-intercites-gtfs/attachments/export_intercites_gtfs_last_zip/"
 
@@ -139,6 +140,7 @@ func Init() error {
 	 * Région: Ile-de-France
 	 * Agence: TER
 	 * Site: https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/?tab=metas
+	 * Import: KO
 	 **/
 	DataResources["TER"] = "http://ressources.data.sncf.com/api/datasets/1.0/sncf-ter-gtfs/attachments/export_ter_gtfs_last_zip/"
 
@@ -146,6 +148,7 @@ func Init() error {
 	 * Région: Ile-de-France
 	 * Agence: Transilien
 	 * Site: https://ressources.data.sncf.com/explore/dataset/sncf-transilien-gtfs/?tab=metas
+	 * Import: KO
 	 **/
 	DataResources["TRANSILIEN"] = "http://ressources.data.sncf.com/api/datasets/1.0/sncf-transilien-gtfs/attachments/export_tn_gtfs_last_zip/"
 
@@ -153,6 +156,7 @@ func Init() error {
 	 * Région: REnnes
 	 * Agence: STAR (Keolis)
 	 * Site: http://data.keolis-rennes.com/fr/les-donnees/donnees-telechargeables.html
+	 * Import: OK
 	 **/
 	DataResources["STAR"] = "http://data.keolis-rennes.com/fileadmin/OpenDataFiles/GTFS/GTFS-20150120.zip"
 
@@ -160,6 +164,7 @@ func Init() error {
 	 * Ville: Nantes
 	 * Agence: SEMITAN
 	 * Site: http://data.nantes.fr/donnees/detail/arrets-horaires-et-circuits-tan/
+	 * Import: KO
 	 **/
 	DataResources["SEMITAN"] = "http://data.nantes.fr/fileadmin/data/datastore/nm/mobilite/24440040400129_NM_TAN_00005/ARRETS_HORAIRES_CIRCUITS_TAN_gtfs.zip"
 
@@ -167,6 +172,7 @@ func Init() error {
 	 * Département: Loires-Atlantique
 	 * Agence: LILA
 	 * Site: http://data.loire-atlantique.fr/donnees/detail/horaires-et-points-darrets-du-reseau-de-transport-lila-lignes-regulieres/
+	 * Import: KO
 	 **/
 	DataResources["LILA"] = "http://data.loire-atlantique.fr/fileadmin/data/datastore/cg44/mobilite/22440002800011_CG44_MOB_09003/MOB09003_gtfs.zip"
 
@@ -174,6 +180,7 @@ func Init() error {
 	 * Ville: Toulouse
 	 * Agence: Tisseo
 	 * Site: http://data.toulouse-metropole.fr/les-donnees/-/opendata/card/16271-reseau-tisseo-metro-bus-tram-gtfs
+	 * Import: KO
 	 **/
 	DataResources["TISSEO"] = "http://data.toulouse-metropole.fr/les-donnees/-/opendata/card/16271-reseau-tisseo-metro-bus-tram-gtfs/resource/document?p_p_state=exclusive&_5_WAR_opendataportlet_jspPage=%2Fsearch%2Fview_card.jsp"
 
@@ -189,6 +196,7 @@ func Init() error {
 	 * Région: Gironde
 	 * Agence: Transgironde
 	 * Site: http://transgironde.gironde.fr/
+	 * Import: KO
 	 **/
 	DataResources["TRANSGIRONDE"] = "http://catalogue.datalocale.fr/storage/f/2013-03-19T174734/ExportGTFS20130319.zip"
 
@@ -196,6 +204,7 @@ func Init() error {
 	 * Région: Gironde
 	 * Agence: Cub
 	 * Site: http://www.infotbc.com/
+	 * Import: KO
 	 **/
 	DataResources["CUB"] = "http://data.lacub.fr/files.php?gid=67&format=14"
 
@@ -203,13 +212,15 @@ func Init() error {
 	 * Ville: Metz
 	 * Agence: LeMet / Mettis
 	 * Site: https://github.com/ridem/fr.lemet/tree/master/TransportsMetzHelper/src/fr/ybo/transportsrenneshelper/gtfs
+	 * Import: KO
 	 **/
-	DataResources["METZ"] = "https://geo-ws.metzmetropole.fr/services/opendata/gtfs_hiver_nov14_031114-050715.zip"
+	DataResources["LEMET"] = "https://geo-ws.metzmetropole.fr/services/opendata/gtfs_hiver_nov14_031114-050715.zip"
 
 	/**
 	 * Ville: Angers
 	 * Agence: Irigo
 	 * Site: http://data.angers.fr/donnees/mobilite-horaire-de-passage-theorique/
+	 * Import: KO
 	 **/
 	DataResources["IRIGO"] = "http://data.angers.fr/?eID=ics_od_datastoredownload&file=824"
 
@@ -217,6 +228,7 @@ func Init() error {
 	 * Ville: Nancy
 	 * Agence: STAN
 	 * Site: http://opendata.grand-nancy.org/
+	 * Import: KO
 	 **/
 	DataResources["STAN"] = "http://opendata.grand-nancy.org/?eID=ics_od_datastoredownload&file=333"
 

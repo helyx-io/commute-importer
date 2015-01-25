@@ -85,7 +85,7 @@ DROP TABLE IF EXISTS `calendar_dates`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `calendar_dates` (
   `agency_key` varchar(45) NOT NULL,
-  `service_id` int(11) NOT NULL,
+  `service_id` varchar(45) NOT NULL,
   `date` date NOT NULL,
   `exception_type` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -276,7 +276,7 @@ DROP TABLE IF EXISTS `trips`;
 CREATE TABLE `trips` (
   `agency_key` varchar(45) NOT NULL,
   `route_id` varchar(45) DEFAULT NULL,
-  `service_id` int(11) DEFAULT NULL,
+  `service_id` varchar(45) DEFAULT NULL,
   `trip_id` varchar(45) NOT NULL,
   `trip_headsign` varchar(45) DEFAULT NULL,
   `direction_id` int(11) DEFAULT NULL,
