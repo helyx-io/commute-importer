@@ -1,6 +1,6 @@
 CREATE TABLE `gtfs_%s`.`route_stops` (
   `route_id` varchar(45) NOT NULL,
-  `stop_id` varchar(45) NOT NULL,
+  `stop_id` varchar(64) NOT NULL,
   `stop_code` varchar(45) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

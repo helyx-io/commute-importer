@@ -1,6 +1,6 @@
 CREATE TABLE `gtfs_%s`.`station_stops` (
   `station_id` integer(11) NOT NULL,
-  `stop_id` varchar(45) NOT NULL,
+  `stop_id` varchar(64) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`station_id`,`stop_id`),

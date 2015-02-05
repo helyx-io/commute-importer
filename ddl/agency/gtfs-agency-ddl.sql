@@ -45,7 +45,7 @@ DROP TABLE IF EXISTS `line_stops`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `line_stops` (
   `line_id` integer(11) NOT NULL,
-  `stop_id` varchar(45) NOT NULL,
+  `stop_id` varchar(64) NOT NULL,
   `stop_code` varchar(45) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -64,7 +64,7 @@ DROP TABLE IF EXISTS `station_stops`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `station_stops` (
   `station_id` integer(11) NOT NULL,
-  `stop_id` varchar(45) NOT NULL,
+  `stop_id` varchar(64) NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`station_id`,`stop_id`),

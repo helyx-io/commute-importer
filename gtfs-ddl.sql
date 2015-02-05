@@ -23,10 +23,10 @@ DROP TABLE IF EXISTS `RATP_GTFS_FULL_stop_times`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `RATP_GTFS_FULL_stop_times` (
-  `trip_id` varchar(40) DEFAULT NULL,
+  `trip_id` varchar(45) DEFAULT NULL,
   `arrival_time` time DEFAULT NULL,
   `departure_time` time DEFAULT NULL,
-  `stop_id` varchar(32) DEFAULT NULL,
+  `stop_id` varchar(64) DEFAULT NULL,
   `stop_sequence` int(11) DEFAULT NULL,
   `stop_head_sign` varchar(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
@@ -206,10 +206,10 @@ DROP TABLE IF EXISTS `stop_times`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `stop_times` (
-  `trip_id` varchar(40) DEFAULT NULL,
+  `trip_id` varchar(45) DEFAULT NULL,
   `arrival_time` time DEFAULT NULL,
   `departure_time` time DEFAULT NULL,
-  `stop_id` varchar(32) DEFAULT NULL,
+  `stop_id` varchar(64) DEFAULT NULL,
   `stop_sequence` int(11) DEFAULT NULL,
   `stop_head_sign` varchar(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
@@ -228,7 +228,7 @@ DROP TABLE IF EXISTS `stops`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `stops` (
   `agency_key` varchar(45) NOT NULL,
-  `stop_id` varchar(45) NOT NULL,
+  `stop_id` varchar(64) NOT NULL,
   `stop_code` varchar(45) DEFAULT NULL,
   `stop_name` varchar(64) DEFAULT NULL,
   `stop_desc` varchar(128) DEFAULT NULL,
@@ -254,8 +254,8 @@ DROP TABLE IF EXISTS `transfers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `transfers` (
   `agency_key` varchar(45) NOT NULL,
-  `from_stop_id` varchar(45) NOT NULL,
-  `to_stop_id` varchar(45) NOT NULL,
+  `from_stop_id` varchar(64) NOT NULL,
+  `to_stop_id` varchar(64) NOT NULL,
   `transfer_type` int(11) NOT NULL DEFAULT '0',
   `min_transfer_time` int(11) DEFAULT NULL,
   `created_at` varchar(45) NOT NULL DEFAULT 'NOW()',
