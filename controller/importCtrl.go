@@ -100,9 +100,10 @@ func (ac *ImportController) ImportPostProcess(w http.ResponseWriter, r *http.Req
 
 	importPostProcess(keyParam)
 
-	log.Println("-----------------------------------------------------------------------------------")
-	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
-	log.Println("-----------------------------------------------------------------------------------")
+	log.Printf("-----------------------------------------------------------------------------------")
+	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+	log.Printf("-----------------------------------------------------------------------------------")
+
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
@@ -118,9 +119,9 @@ func (ac *ImportController) ImportZone(w http.ResponseWriter, r *http.Request) {
 	err := updateAgenciesMetaData(keyParam)
 	utils.FailOnError(err, fmt.Sprintf("Could update agency zone for agency key: %s", keyParam))
 
-	log.Println("-----------------------------------------------------------------------------------")
-	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
-	log.Println("-----------------------------------------------------------------------------------")
+	log.Printf("-----------------------------------------------------------------------------------")
+	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+	log.Printf("-----------------------------------------------------------------------------------")
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
@@ -136,9 +137,9 @@ func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.R
 
 	importStopTimesFull(keyParam)
 
-	log.Println("-----------------------------------------------------------------------------------")
-	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
-	log.Println("-----------------------------------------------------------------------------------")
+	log.Printf("-----------------------------------------------------------------------------------")
+	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+	log.Printf("-----------------------------------------------------------------------------------")
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
@@ -168,7 +169,7 @@ func importStopTimesFull(schema string) {
 
 	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
 
-	log.Println(fmt.Sprintf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+	log.Printf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
 
 	ddlBytes, err := data.Asset(filePath)
 	ddl := string(ddlBytes)
@@ -184,20 +185,20 @@ func importStopTimesFull(schema string) {
 
 	for _, line := range lines {
 		go insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
-//		log.Println(fmt.Sprintf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl))
+//		log.Printf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl)
 	}
 
 	doneCount := 0
 	for insertLineResult := range insertLineDoneChan {
 		if insertLineResult.Error != nil {
-			log.Println(fmt.Sprintf("Received event on done chan with error: %s", insertLineResult.Error))
+			log.Printf("Received event on done chan with error: %s", insertLineResult.Error)
 		} else {
 			doneCount += 1
 			if len(lines) == doneCount {
-				log.Println(fmt.Sprintf("Closing done chan."))
+				log.Printf("Closing done chan.")
 				close(insertLineDoneChan)
 			} else {
-				log.Println(fmt.Sprintf("Received event on done chan for line %s.", insertLineResult.Line.Name))
+				log.Printf("Received event on done chan for line %s.", insertLineResult.Line.Name)
 			}
 		}
 	}
@@ -212,14 +213,14 @@ func importStopTimesFull(schema string) {
 	doneCount = 0
 	for createIndexResult := range createIndexDoneChan {
 		if createIndexResult.Error != nil {
-			log.Println(fmt.Sprintf("[CREATE_INDEX] Received event on done chan for index :%s with error: %s", createIndexResult.Index, createIndexResult.Error))
+			log.Printf("[CREATE_INDEX] Received event on done chan for index :%s with error: %s", createIndexResult.Index, createIndexResult.Error)
 		} else {
 			doneCount += 1
 			if len(indexes) == doneCount {
-				log.Println(fmt.Sprintf("[CREATE_INDEX] Closing done chan."))
+				log.Printf("[CREATE_INDEX] Closing done chan.")
 				close(createIndexDoneChan)
 			} else {
-				log.Println(fmt.Sprintf("[CREATE_INDEX] Received event on done chan for index %s.", createIndexResult.Index))
+				log.Printf("[CREATE_INDEX] Received event on done chan for index %s.", createIndexResult.Index)
 			}
 		}
 	}
@@ -235,7 +236,7 @@ func updateAgenciesMetaData(schema string) error {
 	defer dbSql.Close()
 
 
-	log.Println(fmt.Sprintf("Updating agency zone for schema: %s", schema))
+	log.Printf("Updating agency zone for schema: %s", schema)
 
 	selectFilePath := "resources/ddl/select-agency-zone.sql"
 	ddlSelect, err := data.Asset(selectFilePath)
@@ -243,7 +244,7 @@ func updateAgenciesMetaData(schema string) error {
 
 	selectStmt := fmt.Sprintf(string(ddlSelect), schema)
 
-	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, selectStmt))
+	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, selectStmt)
 
 	row := config.DB.Raw(selectStmt).Row()
 
@@ -254,13 +255,13 @@ func updateAgenciesMetaData(schema string) error {
 
 	row.Scan(&min_stop_lat, &max_stop_lat, &min_stop_lon, &max_stop_lon)
 
-	log.Println(fmt.Sprintf(" - Min stop lat: %f", min_stop_lat))
-	log.Println(fmt.Sprintf(" - Max stop lat: %f", max_stop_lat))
-	log.Println(fmt.Sprintf(" - Min stop lon: %f", min_stop_lon))
-	log.Println(fmt.Sprintf(" - Max stop lon: %f", max_stop_lon))
+	log.Printf(" - Min stop lat: %f", min_stop_lat)
+	log.Printf(" - Max stop lat: %f", max_stop_lat)
+	log.Printf(" - Min stop lon: %f", min_stop_lon)
+	log.Printf(" - Max stop lon: %f", max_stop_lon)
 
 
-	log.Println(fmt.Sprintf("Updating agency zone for schema: %s", schema))
+	log.Printf("Updating agency zone for schema: %s", schema)
 
 
 	updateFilePath := "resources/ddl/update-agency-zone.sql"
@@ -269,7 +270,7 @@ func updateAgenciesMetaData(schema string) error {
 
 	updateStmt := fmt.Sprintf(string(ddlUpdate), schema)
 
-	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateStmt))
+	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateStmt)
 
 	updateValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon }
 
@@ -288,26 +289,26 @@ func updateAgenciesMetaData(schema string) error {
 
 	updateGtfsStmt := string(ddlUpdateGtfs)
 
-	log.Println(fmt.Sprintf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateGtfsStmt))
+	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateGtfsStmt)
 
 	updateGtfsValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon, schema }
 
 	_, err = dbSql.Exec(updateGtfsStmt, updateGtfsValueArgs...)
 
 	if err != nil {
-		log.Println(fmt.Println("Failed on Error: %v", err))
+		log.Printf("Failed on Error: %v", err)
 	}
 
 	return err
 }
 
 func insertForLine(schema string, tableName string, ddl string, line Line, doneChan chan InsertLineResult) {
-	log.Println(fmt.Sprintf("--- Inserting data for line: %s", line.Name))
+	log.Printf("--- Inserting data for line: %s", line.Name)
 
 	insertStmt := regexp.MustCompile("%s").ReplaceAllString(ddl, schema)
 	insertStmt = regexp.MustCompile("%v").ReplaceAllString(insertStmt, line.Name)
 
-	//		log.Println(fmt.Sprintf("Insert statement: %s", insertStmt))
+	//		log.Printf("Insert statement: %s", insertStmt)
 	err := config.DB.Exec(insertStmt).Error
 	doneChan <- InsertLineResult{line, err}
 }
@@ -323,15 +324,15 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	var fileParam string = params["file"]
 
 	if _, ok := config.DataResources[keyParam]; !ok {
-		log.Println(fmt.Sprintf("Cannot import agencies for Key: '%s'. key does not exist", keyParam))
+		log.Printf("Cannot import agencies for Key: '%s'. key does not exist", keyParam)
 		w.WriteHeader(404)
 		return
 	}
 
-	log.Println(fmt.Sprintf("Importing agencies for Key: %s ...", keyParam))
+	log.Printf("Importing agencies for Key: %s ...", keyParam)
 
 	if fileParam != "" {
-		log.Println(fmt.Sprintf("Processing on for file: %s ...", fileParam))
+		log.Printf("Processing on for file: %s ...", fileParam)
 	}
 
 	w.Header().Set("Content-Type", "text/html")
@@ -354,12 +355,12 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 			gtfsModelRepository := repositoryByFilenameMap[fi.Name()]
 
 			if gtfsModelRepository == nil {
-				log.Println(fmt.Sprintf("Filename '%v' is not available in map", fi.Name()))
+				log.Printf("Filename '%v' is not available in map", fi.Name())
 				continue;
 			}
 
 			if fileParam != "" && fileParam + ".txt" != fi.Name() {
-				log.Println(fmt.Sprintf("Filename '%v' is not filtered - Does not match with: '%v'", fi.Name(), fileParam))
+				log.Printf("Filename '%v' is not filtered - Does not match with: '%v'", fi.Name(), fileParam)
 				continue;
 			}
 
@@ -385,38 +386,39 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	importStopTimesFull(keyParam)
 	updateAgenciesMetaData(keyParam)
 
-	log.Println("-----------------------------------------------------------------------------------")
-	log.Println(fmt.Sprintf("--- All Done. ElapsedTime: %v", sw.ElapsedTime()))
-	log.Println("-----------------------------------------------------------------------------------")
+	log.Printf("-----------------------------------------------------------------------------------")
+	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+	log.Printf("-----------------------------------------------------------------------------------")
+
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
 func createTable(schema string, tableName string) {
 
-	log.Println(fmt.Sprintf("Drop table with name: `gtfs_%s`.`%s`", schema, tableName))
+	log.Printf("Drop table with name: `gtfs_%s`.`%s`", schema, tableName)
 
 	dropStmt := fmt.Sprintf("DROP TABLE IF EXISTS `gtfs_%s`.`%s`", schema, tableName)
-	log.Println(fmt.Sprintf("Create statement: %s", dropStmt))
+	log.Printf("Create statement: %s", dropStmt)
 	err := config.DB.Exec(dropStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not drop '%s' table", tableName))
 
 
 	filePath := fmt.Sprintf("resources/ddl/create-table-%s.sql", tableName)
-	log.Println(fmt.Sprintf("Creating table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+	log.Printf("Creating table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
 
 	dml, err := data.Asset(filePath)
 	utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for create of table `gtfs_%s`.`%s`", filePath, schema, tableName))
 	createStmt := fmt.Sprintf(string(dml), schema)
-	log.Println(fmt.Sprintf("Create statement: %s", createStmt))
+	log.Printf("Create statement: %s", createStmt)
 	err = config.DB.Exec(createStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not create '%s' table", tableName))
 }
 
 func createIndex(schema string, tableName string, indexName string, doneChan chan CreateIndexResult) {
-	log.Println(fmt.Sprintf("Creating index with name: `%s_idx` on field `%s` for table with name: `gtfs_%s`.`%s`", indexName, indexName, schema, tableName))
+	log.Printf("Creating index with name: `%s_idx` on field `%s` for table with name: `gtfs_%s`.`%s`", indexName, indexName, schema, tableName)
 
 	createIndexStmt := fmt.Sprintf("ALTER TABLE `gtfs_%s`.`%s` ADD INDEX `%s_idx` (`%s` ASC);", schema, tableName, indexName, indexName)
-	log.Println(fmt.Sprintf("Create statement: %s", createIndexStmt))
+	log.Printf("Create statement: %s", createIndexStmt)
 	err := config.DB.Exec(createIndexStmt).Error
 	doneChan <- CreateIndexResult{indexName, err}
 }
@@ -425,7 +427,7 @@ func populateTable(schema string, tableName string) {
 
 	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
 
-	log.Println(fmt.Sprintf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath))
+	log.Printf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
 
 	ddl, err := data.Asset(filePath)
 	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table `gtfs_%s`.`%s`", filePath, schema, tableName))
@@ -433,7 +435,7 @@ func populateTable(schema string, tableName string) {
 	re := regexp.MustCompile("%s")
 	insertStmt := re.ReplaceAllString(string(ddl), schema)
 
-	log.Println(fmt.Sprintf("Insert statement: %s", insertStmt))
+	log.Printf("Insert statement: %s", insertStmt)
 	err = config.DB.Exec(insertStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not insert into '%s' table", tableName))
 
