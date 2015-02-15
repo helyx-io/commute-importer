@@ -7,6 +7,7 @@ package utils
 import (
 	"io"
 	"os"
+    "log"
 	"encoding/json"
 	"net/http"
 )
@@ -19,6 +20,7 @@ import (
 func RecoverFromError(w http.ResponseWriter) {
 	if r := recover(); r != nil {
 		err, _ := r.(error)
+        log.Println("Err:", err.Error());
 		http.Error(w, err.Error(), 500)
 		return
 	}
