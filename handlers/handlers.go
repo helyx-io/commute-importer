@@ -6,6 +6,7 @@ package handlers
 
 import(
 	"io"
+    "fmt"
 	"net/http"
 	"time"
 	"log"
@@ -14,7 +15,8 @@ import(
 	"github.com/PuerkitoBio/throttled"
 	"github.com/PuerkitoBio/throttled/store"
 	"github.com/helyx-io/gtfs-playground/session"
-	"github.com/garyburd/redigo/redis"
+    "github.com/helyx-io/gtfs-playground/config"
+    "github.com/garyburd/redigo/redis"
 )
 
 
@@ -40,7 +42,7 @@ func setupRedis() *redis.Pool {
 		MaxIdle:     3,
 		IdleTimeout: 30 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", ":6379")
+			return redis.Dial("tcp", fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port))
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")

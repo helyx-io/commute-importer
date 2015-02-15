@@ -25,6 +25,7 @@ var (
 	GTFS          database.GTFSRepository
 	DataResources map[string]string
 	ConnectInfos  *database.DBConnectInfos
+    RedisInfos    *RedisConfig
 	OAuthInfos    *auth.OAuthInfos
 	Session       *SessionConfig
 	TmpDir        string
@@ -40,7 +41,12 @@ type SessionConfig struct {
 }
 
 type HttpConfig struct {
-	Port int
+    Port int
+}
+
+type RedisConfig struct {
+    Host string
+    Port int
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +74,9 @@ func Init() error {
 		dbDatabase = "gtfs"
 	}
 
-	log.Println("[CONFIG] DB infos - Database :", "'"+dbDatabase+"'")
-	log.Println("[CONFIG] DB infos - Username :", "'"+dbUsername+"'")
-	log.Println("[CONFIG] DB infos - Password :", "'"+"********"+"'")
+	log.Printf("[CONFIG] DB infos - Database : '%s'", dbDatabase)
+	log.Printf("[CONFIG] DB infos - Username : '%s'", dbUsername)
+	log.Printf("[CONFIG] DB infos - Password : '%s'", "********")
 
 	dbURL := fmt.Sprintf("%v:%v@/%v?charset=utf8mb4,utf8&parseTime=true", dbUsername, dbPassword, dbDatabase)
 
@@ -84,8 +90,8 @@ func Init() error {
 		dbMaxCnx = 100
 	}
 
-	log.Println(fmt.Sprintf("[CONFIG] DB infos - Min Connections : %d", dbMinCnx))
-	log.Println(fmt.Sprintf("[CONFIG] DB infos - Max Connections : %d", dbMaxCnx))
+	log.Printf("[CONFIG] DB infos - Min Connections : %d", dbMinCnx)
+	log.Printf("[CONFIG] DB infos - Max Connections : %d", dbMaxCnx)
 
 	ConnectInfos = &database.DBConnectInfos{dbDialect, dbURL, dbMinCnx, dbMaxCnx}
 
@@ -97,22 +103,39 @@ func Init() error {
 	// Init GTFS Repository
 	GTFS = mysql.CreateMySQLGTFSRepository(DB, ConnectInfos)
 
-	OAuthInfos = &auth.OAuthInfos{os.Getenv("GOOGLE_AUTH_CLIENT_ID"), os.Getenv("GOOGLE_AUTH_CLIENT_SECRET")}
+    redisHost := os.Getenv("REDIS_HOST")
 
-	log.Println("[CONFIG] OAuth infos - ClientId :", "'"+OAuthInfos.ClientId+"'")
-	log.Println("[CONFIG] OAuth infos - ClientSecret :", "'"+OAuthInfos.ClientSecret+"'")
+    if redisHost == "" {
+        redisHost = "localhost"
+    }
+
+    redisPort, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
+    if redisPort == 0 {
+        redisPort = 6379
+    }
+
+    RedisInfos = &RedisConfig{redisHost, redisPort}
+
+    log.Printf("[CONFIG] Redis infos - Host : '%s'", RedisInfos.Host)
+    log.Printf("[CONFIG] Redis infos - Port : '%d'", RedisInfos.Port)
+
+
+    OAuthInfos = &auth.OAuthInfos{os.Getenv("GOOGLE_AUTH_CLIENT_ID"), os.Getenv("GOOGLE_AUTH_CLIENT_SECRET")}
+
+	log.Printf("[CONFIG] OAuth infos - ClientId : '%s'", OAuthInfos.ClientId)
+	log.Printf("[CONFIG] OAuth infos - ClientSecret : '%s'", OAuthInfos.ClientSecret)
 
 	Session = &SessionConfig{os.Getenv("SESSION_SECRET")}
 
-	log.Println("[CONFIG] Session - Secret :", "'"+Session.Secret+"'")
+	log.Printf("[CONFIG] Session - Secret :'%s'", Session.Secret)
 
 	TmpDir = os.Getenv("GTFS_TMP_DIR")
 
-	log.Println("[CONFIG] Application - Temp Directory :", "'"+TmpDir+"'")
+	log.Printf("[CONFIG] Application - Temp Directory : '%s'", TmpDir)
 
 	BaseURL = os.Getenv("GTFS_BASE_URL")
 
-	log.Println("[CONFIG] Application - Base URL :", "'"+BaseURL+"'")
+	log.Printf("[CONFIG] Application - Base URL : '%s'", BaseURL)
 
 	DataResources = make(map[string]string)
 
@@ -236,7 +259,7 @@ func Init() error {
 
 	Http = &HttpConfig{httpPort}
 
-	log.Println(fmt.Sprintf("[CONFIG] Application - HTTP Port : %d", Http.Port))
+	log.Printf("[CONFIG] Application - HTTP Port : %d", Http.Port)
 
 	return nil
 }
