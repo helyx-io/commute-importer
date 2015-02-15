@@ -109,7 +109,7 @@ func Init() error {
         redisHost = "localhost"
     }
 
-    redisPort, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
+    redisPort, _ := strconv.Atoi(os.Getenv("REDIS_PORT"))
     if redisPort == 0 {
         redisPort = 6379
     }
