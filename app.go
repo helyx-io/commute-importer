@@ -52,7 +52,7 @@ func main() {
 
 	handlerChain := alice.New(
 		appHandlers.LoggingHandler(logWriter),
-		appHandlers.ThrottleHandler,
+//		appHandlers.ThrottleHandler,
 		appHandlers.TimeoutHandler,
 	).Then(router)
 
