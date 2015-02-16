@@ -189,7 +189,7 @@ func importStopTimesFull(schema string) {
             insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
             //		log.Printf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl)
         }
-    }
+    }()
 
 	doneCount := 0
 	for insertLineResult := range insertLineDoneChan {
@@ -214,7 +214,7 @@ func importStopTimesFull(schema string) {
         for _, index := range indexes {
             createIndex(schema, tableName, index, createIndexDoneChan)
         }
-    }
+    }()
 
 	doneCount = 0
 	for createIndexResult := range createIndexDoneChan {
