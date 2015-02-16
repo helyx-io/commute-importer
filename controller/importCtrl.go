@@ -184,10 +184,12 @@ func importStopTimesFull(schema string) {
 
 	insertLineDoneChan := make(chan InsertLineResult, 8)
 
-    for _, line := range lines {
-        go insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
-        //		log.Printf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl)
-    }
+    go func() {
+        for _, line := range lines {
+            insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
+            //		log.Printf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl)
+        }
+    }()
 
 	doneCount := 0
 	for insertLineResult := range insertLineDoneChan {
@@ -208,9 +210,11 @@ func importStopTimesFull(schema string) {
 	createIndexDoneChan := make(chan CreateIndexResult, 8)
 	indexes := []string{"service_id", "stop_id", "trip_id", "route_id"}
 
-    for _, index := range indexes {
-        go createIndex(schema, tableName, index, createIndexDoneChan)
-    }
+    go func() {
+        for _, index := range indexes {
+            createIndex(schema, tableName, index, createIndexDoneChan)
+        }
+    }()
 
 	doneCount = 0
 	for createIndexResult := range createIndexDoneChan {
