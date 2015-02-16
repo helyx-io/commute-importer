@@ -80,6 +80,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
 	r.HandleFunc("/{key}", importController.Import)
+    r.HandleFunc("/{key}/metadata", importController.ImportMetaData)
 	r.HandleFunc("/{key}/stop_times_full", importController.ImportStopTimesFull)
 	r.HandleFunc("/{key}/post_process", importController.ImportPostProcess)
 	r.HandleFunc("/{key}/zone", importController.ImportZone)
@@ -397,6 +398,28 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
+
+
+func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Request) {
+
+    defer utils.RecoverFromError(w)
+
+    sw := stopwatch.Start(0)
+
+    params := mux.Vars(r)
+    keyParam := params["key"]
+
+    importPostProcess(keyParam)
+    importStopTimesFull(keyParam)
+    updateAgenciesMetaData(keyParam)
+
+    log.Printf("-----------------------------------------------------------------------------------")
+    log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+    log.Printf("-----------------------------------------------------------------------------------")
+
+    w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
 
 func createTable(schema string, tableName string) {
 
