@@ -170,7 +170,7 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
         tripIds = append(tripIds, tripId);
     }
 
-    log.Println("TripIds: %d", len(tripIds))
+    log.Printf("TripIds: %d", len(tripIds))
 
    /* sem := make(chan bool, 64)*/
 
