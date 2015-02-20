@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"net/http"
 	"database/sql"
+    "encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
 	"github.com/helyx-io/gtfs-playground/config"
@@ -19,6 +20,7 @@ import (
 	"github.com/helyx-io/gtfs-playground/service"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/data"
+    "github.com/jiecao-fm/ssdb"
 )
 
 
@@ -50,6 +52,13 @@ type InsertLineResult struct {
 type CreateIndexResult struct {
 	Index string
 	Error error
+}
+
+type StopTime struct {
+    Arrival_time string     `json:"arrival_time"`
+    Departure_time string   `json:"departure_time"`
+    Stop_sequence int       `json:"stop_sequence"`
+    Stop_name string        `json:"stop_name"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +94,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 	r.HandleFunc("/{key}/post_process", importController.ImportPostProcess)
 	r.HandleFunc("/{key}/zone", importController.ImportZone)
 	r.HandleFunc("/{key}/{file}", importController.Import)
+	r.HandleFunc("/{key}/caches/trips", importController.BuildTripsCache)
 
 	// Init Repository Map
 	initRepositoryMap()
@@ -119,6 +129,119 @@ func (ac *ImportController) ImportZone(w http.ResponseWriter, r *http.Request) {
 
 	err := updateAgenciesMetaData(keyParam)
 	utils.FailOnError(err, fmt.Sprintf("Could update agency zone for agency key: %s", keyParam))
+
+	log.Printf("-----------------------------------------------------------------------------------")
+	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+	log.Printf("-----------------------------------------------------------------------------------")
+
+	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Request) {
+
+    log.Printf("Building trips cache ...")
+
+	defer utils.RecoverFromError(w)
+
+	sw := stopwatch.Start(0)
+
+	params := mux.Vars(r)
+	keyParam := params["key"]
+
+    schema := keyParam
+
+    poolconf := ssdb.PoolConfig{Host: config.RedisInfos.Host, Port: config.RedisInfos.Port, Initial_conn_count: 16, Max_idle_count: 64, Max_conn_count: 256}
+    pool, err := ssdb.NewPool(poolconf)
+    if err != nil {
+        return
+    }
+    defer pool.Close()
+
+    tripIds := make([]string, 0)
+
+    tripId := ""
+    tripIdsQuery := fmt.Sprintf("select trip_id from `gtfs_%s`.`trips` order by trip_id", schema)
+    log.Printf("Query: %s", tripIdsQuery)
+    rows, err := config.DB.Raw(tripIdsQuery).Rows()
+    defer rows.Close()
+
+    for rows.Next() {
+        rows.Scan(&tripId)
+        tripIds = append(tripIds, tripId);
+    }
+
+    log.Println("TripIds: %d", len(tripIds))
+
+   /* sem := make(chan bool, 64)*/
+
+    for _, tripId := range tripIds {
+
+        /*sem <- true*/
+        /*go*/ func() {
+
+           /* defer func() { <-sem }()*/
+
+           db, err := pool.GetDB()
+
+            if err != nil {
+                log.Printf("Error: %s", err.Error())
+            }
+
+            defer func() {
+                if db != nil {
+                    pool.ReturnDB(db)
+                } else {
+                    fmt.Printf("Pool idle count: %d\n", pool.IdleCount())
+                }
+            }()
+
+            if db == nil {
+                log.Printf("db is nil for tripId: %s", tripId)
+                return
+            }
+
+            stopTimesQuery := fmt.Sprintf("select st.arrival_time, st.departure_time, st.stop_sequence, s.stop_name from `gtfs_%s`.`stop_times` st inner join `gtfs_%s`.`stops` s on st.stop_id=s.stop_id where st.trip_id='%s' order by st.stop_sequence", schema, schema, tripId)
+
+//            log.Printf("Query: %s", stopTimesQuery)
+
+            stopTimeRows, err := config.DB.Raw(stopTimesQuery).Rows()
+            defer rows.Close()
+
+            if err != nil {
+                panic(err.Error())
+            }
+
+            stopTimes := make([]StopTime, 0)
+
+            for stopTimeRows.Next() {
+                var arrival_time, departure_time, stop_name string
+                var stop_sequence int
+                stopTimeRows.Scan(&arrival_time, &departure_time, &stop_sequence, &stop_name)
+                stopTimes = append(stopTimes, StopTime{arrival_time, departure_time, stop_sequence, stop_name});
+            }
+
+            bytes, err := json.Marshal(stopTimes)
+            if err != nil {
+                log.Printf("Error: '%s' ...", err.Error())
+            }
+
+//            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
+
+            cacheKey := fmt.Sprintf("/agencies/%s/trips/%s/stop-times", keyParam, tripId)
+            stopTimesStr := string(bytes)
+            err = db.Set(cacheKey, stopTimesStr);
+            if err != nil {
+                log.Printf("Error: '%s' ...", err.Error())
+            }
+        }()
+    }
+
+    /*for i := 0; i < cap(sem); i++ {
+        sem <- true
+    }*/
+
+
+	utils.FailOnError(err, fmt.Sprintf("Build trips cache for agency key: %s", keyParam))
 
 	log.Printf("-----------------------------------------------------------------------------------")
 	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())

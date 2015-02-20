@@ -111,7 +111,7 @@ func Init() error {
 
     redisPort, _ := strconv.Atoi(os.Getenv("REDIS_PORT"))
     if redisPort == 0 {
-        redisPort = 6379
+        redisPort = 8888
     }
 
     RedisInfos = &RedisConfig{redisHost, redisPort}
