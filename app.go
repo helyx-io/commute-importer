@@ -65,7 +65,8 @@ func main() {
 
 	log.Println(fmt.Sprintf("Listening on port '%d' ...", config.Http.Port))
 
-	server.ListenAndServe()
+	err = server.ListenAndServe()
+    utils.FailOnError(err, fmt.Sprintf("Could not listen and server"))
 }
 
 

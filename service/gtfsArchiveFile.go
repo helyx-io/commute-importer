@@ -119,7 +119,6 @@ func (gaf *GTFSArchiveFile) importGTFSArchiveFile(agencyKey string, folderFilena
 	}
 
 	// Init WorkPool
-
 	doneChan := make(chan error, 16)
 
 	go func() {

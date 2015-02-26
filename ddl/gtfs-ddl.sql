@@ -4,6 +4,12 @@
 -- ------------------------------------------------------
 -- Server version	5.6.15
 
+DROP SCHEMA IF EXISTS `gtfs`;
+CREATE SCHEMA `gtfs` DEFAULT CHARACTER SET utf8mb4 ;
+
+-- CREATE USER 'gtfs'@'localhost' IDENTIFIED BY 'gtfs';
+-- GRANT ALL PRIVILEGES ON *.* TO 'gtfs'@'localhost';
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;

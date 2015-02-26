@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+    "path"
 	"time"
 	"regexp"
 	"net/http"
@@ -15,7 +16,8 @@ import (
     "encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
-	"github.com/helyx-io/gtfs-playground/config"
+    "github.com/helyx-io/gtfs-playground/models"
+    "github.com/helyx-io/gtfs-playground/config"
 	"github.com/helyx-io/gtfs-playground/utils"
 	"github.com/helyx-io/gtfs-playground/service"
 	"github.com/helyx-io/gtfs-playground/database"
@@ -88,6 +90,7 @@ type ImportController struct { }
 func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
+    r.HandleFunc("/{key}/transform", importController.Transform)
 	r.HandleFunc("/{key}", importController.Import)
     r.HandleFunc("/{key}/metadata", importController.ImportMetaData)
 	r.HandleFunc("/{key}/stop_times_full", importController.ImportStopTimesFull)
@@ -116,6 +119,24 @@ func (ac *ImportController) ImportPostProcess(w http.ResponseWriter, r *http.Req
 	log.Printf("-----------------------------------------------------------------------------------")
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func (ac *ImportController) Transform(w http.ResponseWriter, r *http.Request) {
+
+    defer utils.RecoverFromError(w)
+
+    sw := stopwatch.Start(0)
+
+    params := mux.Vars(r)
+    keyParam := params["key"]
+
+    transform(keyParam)
+
+    log.Printf("-----------------------------------------------------------------------------------")
+    log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+    log.Printf("-----------------------------------------------------------------------------------")
+
+    w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
 func (ac *ImportController) ImportZone(w http.ResponseWriter, r *http.Request) {
@@ -267,6 +288,38 @@ func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.R
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
+
+
+func transform(schema string) error {
+
+    folderName := path.Join(config.TmpDir, schema)
+    fileName := "stop_times.txt"
+    filePath := path.Join(folderName, fileName)
+
+    headers, err := utils.ReadCsvFileHeader(filePath, ",")
+    
+    log.Printf("Headers: %v", headers)
+
+    gtfsFile := models.GTFSFile{filePath}
+
+    offset := 0
+
+    for lines := range gtfsFile.LinesIterator(1024 * 1024) {
+
+        offset++
+
+//        log.Println(fmt.Sprintf(" - Reading chunk of data with offset: '%d' related to file with name: '%v'", offset, filePath))
+
+        records, _ := models.ParseCsv(lines)
+        
+        var recordsAsStr [][]string = (*records)
+
+        log.Printf("[%s][%d] Lines: %d", filePath, offset, len(recordsAsStr))
+    }
+
+    return err
+}
+
 
 func importPostProcess(schema string) {
 
@@ -589,5 +642,4 @@ func populateTable(schema string, tableName string) {
 	log.Printf("Insert statement: %s", insertStmt)
 	err = config.DB.Exec(insertStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not insert into '%s' table", tableName))
-
 }
