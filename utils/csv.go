@@ -103,6 +103,7 @@ func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 		return nil, err
 	}
 
-	headerStr := string(fixUTF8BomIfNecessary(headers))
+    headersFixed := fixUTF8BomIfNecessary(headers)
+	headerStr := string(headersFixed[0:len(headersFixed) - 1])
 	return strings.Split(headerStr, ","), nil
 }

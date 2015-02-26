@@ -5,12 +5,14 @@ package controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
+    "os"
 	"fmt"
 	"log"
 	"sort"
     "path"
 	"time"
 	"regexp"
+    "encoding/csv"
 	"net/http"
 	"database/sql"
     "encoding/json"
@@ -197,10 +199,10 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
 
     for _, tripId := range tripIds {
 
-        /*sem <- true*/
-        /*go*/ func() {
+        /* sem <- true */
+        /* go */ func() {
 
-           /* defer func() { <-sem }()*/
+           /* defer func() { <-sem }() */
 
            db, err := pool.GetDB()
 
@@ -292,33 +294,196 @@ func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.R
 
 func transform(schema string) error {
 
-    folderName := path.Join(config.TmpDir, schema)
-    fileName := "stop_times.txt"
-    filePath := path.Join(folderName, fileName)
+    agencyIndexes, err := getIndexes(schema, "agency.txt", 0)
+    serviceIndexes, err := getIndexes(schema, "trips.txt", 1)
+    tripIndexes, err := getIndexes(schema, "trips.txt", 2)
+    stopIndexes, err := getIndexes(schema, "stops.txt", 0)
+    stopTimesIndexes, err := getIndexes(schema, "stop_times.txt", 3)
+    routeIndexes, err := getIndexes(schema, "routes.txt", 0)
 
-    headers, err := utils.ReadCsvFileHeader(filePath, ",")
-    
-    log.Printf("Headers: %v", headers)
 
-    gtfsFile := models.GTFSFile{filePath}
+    indexes := map[int](map[string]string){ 0: stopIndexes }
+    rewriteCsvFile(schema, "stops.txt", indexes)
 
-    offset := 0
+    indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopTimesIndexes }
+    rewriteCsvFile(schema, "stop_times.txt", indexes)
 
-    for lines := range gtfsFile.LinesIterator(1024 * 1024) {
+    indexes = map[int](map[string]string){ 0: routeIndexes, 1: agencyIndexes }
+    rewriteCsvFile(schema, "routes.txt", indexes)
 
-        offset++
+    indexes = map[int](map[string]string){ 0: agencyIndexes }
+    rewriteCsvFile(schema, "agency.txt", indexes)
 
-//        log.Println(fmt.Sprintf(" - Reading chunk of data with offset: '%d' related to file with name: '%v'", offset, filePath))
+    indexes = map[int](map[string]string){ 0: routeIndexes, 1: serviceIndexes, 2: tripIndexes }
+    rewriteCsvFile(schema, "trips.txt", indexes)
 
-        records, _ := models.ParseCsv(lines)
-        
-        var recordsAsStr [][]string = (*records)
+    indexes = map[int](map[string]string){ 0: serviceIndexes }
+    rewriteCsvFile(schema, "calendar.txt", indexes)
 
-        log.Printf("[%s][%d] Lines: %d", filePath, offset, len(recordsAsStr))
-    }
+    indexes = map[int](map[string]string){ 0: serviceIndexes }
+    rewriteCsvFile(schema, "calendar_dates.txt", indexes)
 
     return err
 }
+
+
+func rewriteCsvFile(schema, filename string, indexes map[int](map[string]string)) error {
+
+    folderName := path.Join(config.TmpDir, schema)
+    filePath := path.Join(folderName, filename)
+
+    gtfsFile := models.GTFSFile{filePath}
+
+
+    outFile, err := os.Create(path.Join(folderName, filename + ".out"))
+    if err != nil {
+        return err
+    }
+
+    writer := csv.NewWriter(outFile)
+    headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
+    log.Printf("headers: %v", headers)
+
+    if err != nil {
+        return err
+    }
+
+    writer.Write(headers)
+
+    resultChan := make(chan [][]string)
+
+    go func() {
+
+        sem := make(chan bool, 8)
+
+        for lines := range gtfsFile.LinesIterator(1024 * 1024) {
+            sem <- true
+            go func() {
+                defer func() { <-sem }()
+                records, _ := models.ParseCsvAsStringArrays(lines)
+
+                for _, record := range *records {
+                    for i, _ := range indexes {
+                        record[i] = indexes[i][record[i]]
+                    }
+                }
+
+                resultChan <- *records
+            }()
+        }
+
+        for i := 0; i < cap(sem); i++ {
+            sem <- true
+        }
+
+        close(resultChan)
+
+    }()
+
+    offset := 0
+
+    for results := range resultChan {
+        offset++
+        log.Printf("[%s][%d] Records write", filePath, offset)
+
+        writer.WriteAll(results)
+    }
+
+    writer.Flush()
+    err = outFile.Close()
+
+    return err
+}
+
+
+
+
+
+
+
+
+
+
+
+func getIndexes(schema, filename string, index int) (map[string]string, error) {
+
+    folderName := path.Join(config.TmpDir, schema)
+    filePath := path.Join(folderName, filename)
+
+    gtfsFile := models.GTFSFile{filePath}
+
+    resultChan := make(chan []string)
+
+    go func() {
+
+        sem := make(chan bool, 8)
+
+        for lines := range gtfsFile.LinesIterator(1024 * 1024) {
+            sem <- true
+            go func() {
+                defer func() { <-sem }()
+                records, _ := models.ParseCsvAsStringArrays(lines)
+
+                keys := []string{}
+                for _, record := range *records {
+                    keys = append(keys, record[index])
+                }
+
+                resultChan <- keys
+            }()
+        }
+
+        for i := 0; i < cap(sem); i++ {
+            sem <- true
+        }
+
+        close(resultChan)
+
+    }()
+
+    offset := 0
+    result := []string{}
+    indexes := map[string]string{}
+    increment := 0
+
+    for results := range resultChan {
+        offset++
+        log.Printf("[%s][%d] Records read", filePath, offset)
+        for _, val := range results {
+            if _, ok := indexes[val]; !ok {
+                increment += 1
+                result = append(result, val)
+                indexes[val] = fmt.Sprintf("%d", increment)
+            }
+        }
+    }
+
+    return indexes, nil
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 func importPostProcess(schema string) {
