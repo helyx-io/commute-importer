@@ -31,9 +31,7 @@ select
     r.route_type,
     r.route_url,
     r.route_color,
-    r.route_text_color,
-    s.created_at,
-    s.updated_at
+    r.route_text_color
 from 
 	`gtfs_%s`.`stops` s inner join
     `gtfs_%s`.`stop_times` st on s.stop_id=st.stop_id inner join
