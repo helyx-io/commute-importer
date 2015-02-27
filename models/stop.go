@@ -3,9 +3,7 @@ package models
 type Stops []Stop
 
 type Stop struct {
-	Id int `gorm:"column:id"`
-	AgencyKey string `gorm:"agency_key"`
-	StopId string `gorm:"stop_id"`
+	StopId int `gorm:"stop_id"`
 	StopName string `gorm:"stop_name"`
 	StopDesc string `gorm:"stop_desc"`
 	StopLat int `gorm:"stop_lat"`
@@ -18,8 +16,7 @@ type Stop struct {
 }
 
 type StopImportRow struct {
-	AgencyKey string
-	StopId string
+	StopId int
 	StopCode string
 	StopName string
 	StopDesc string
@@ -35,8 +32,7 @@ type StopImportRow struct {
 type JSONStops []JSONStop
 
 type JSONStop struct {
-	AgencyKey string `json:"agencyKey"`
-	StopId string `json:"stopId"`
+	StopId int `json:"stopId"`
 	StopName string `json:"stopName"`
 	StopDesc string `json:"stopDesc"`
 	StopLat int `json:"stopLat"`
@@ -50,7 +46,6 @@ type JSONStop struct {
 
 func (s *Stop) ToJSONStop() *JSONStop {
 	js := JSONStop{
-		s.AgencyKey,
 		s.StopId,
 		s.StopName,
 		s.StopDesc,

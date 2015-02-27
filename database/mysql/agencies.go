@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"log"
+    "strconv"
 	"strings"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/models"
@@ -78,9 +79,12 @@ func(m MySQLAgenciesImportTask) ConvertModels(headers []string, rs *models.Recor
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		st[i] = models.AgencyImportRow{
+
+        id, _ := strconv.Atoi(record[0])
+
+        st[i] = models.AgencyImportRow{
 			m.AgencyKey,
-			record[0],
+            id,
 			record[1],
 			record[2],
 			record[3],
@@ -109,7 +113,7 @@ func (m MySQLAgenciesImportTask) ImportModels(headers []string, as []interface{}
 		valueStrings = append(valueStrings, "(?, ?, ?, ?, ?)")
 		valueArgs = append(
 			valueArgs,
-			a.AgencyId,
+			a.Id,
 			a.Name,
 			a.Url,
 			a.Timezone,

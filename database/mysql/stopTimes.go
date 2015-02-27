@@ -97,11 +97,10 @@ func (m MySQLStopTimesImportTask) ConvertModels(headers []string, rs *models.Rec
 		pickup_type := recordValueAsInt(record, offsets, "pickup_type")
 		drop_off_type := recordValueAsInt(record, offsets, "drop_off_type")
 		st[i] = models.StopTimeImportRow{
-			m.AgencyKey,
-			recordValueAsString(record, offsets, "trip_id"),
+			recordValueAsInt(record, offsets, "trip_id"),
 			recordValueAsString(record, offsets, "arrival_time"),
 			recordValueAsString(record, offsets, "departure_time"),
-			recordValueAsString(record, offsets, "stop_id"),
+			recordValueAsInt(record, offsets, "stop_id"),
 			stopSequence,
 			recordValueAsString(record, offsets, "stop_headsign"),
 			pickup_type,

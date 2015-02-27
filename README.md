@@ -32,5 +32,11 @@ REST Resources
 Generate static resources:
 --------------------------
 
+Install go-bindata:
+    
+    go get -u github.com/jteeuwen/go-bindata/...
+    
+Run go-bindata:
+
     go-bindata -o data/data.go -pkg data resources/... 
 

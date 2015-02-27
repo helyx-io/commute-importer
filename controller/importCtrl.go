@@ -92,38 +92,15 @@ type ImportController struct { }
 func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
-    r.HandleFunc("/{key}/transform", importController.Transform)
 	r.HandleFunc("/{key}", importController.Import)
-    r.HandleFunc("/{key}/metadata", importController.ImportMetaData)
-	r.HandleFunc("/{key}/stop_times_full", importController.ImportStopTimesFull)
-	r.HandleFunc("/{key}/post_process", importController.ImportPostProcess)
-	r.HandleFunc("/{key}/zone", importController.ImportZone)
-	r.HandleFunc("/{key}/{file}", importController.Import)
+    r.HandleFunc("/{key}/rewrite", importController.RewriteCsvFiles)
 	r.HandleFunc("/{key}/caches/trips", importController.BuildTripsCache)
 
 	// Init Repository Map
 	initRepositoryMap()
 }
 
-func (ac *ImportController) ImportPostProcess(w http.ResponseWriter, r *http.Request) {
-
-	defer utils.RecoverFromError(w)
-
-	sw := stopwatch.Start(0)
-
-	params := mux.Vars(r)
-	keyParam := params["key"]
-
-	importPostProcess(keyParam)
-
-	log.Printf("-----------------------------------------------------------------------------------")
-	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
-	log.Printf("-----------------------------------------------------------------------------------")
-
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
-}
-
-func (ac *ImportController) Transform(w http.ResponseWriter, r *http.Request) {
+func (ac *ImportController) RewriteCsvFiles(w http.ResponseWriter, r *http.Request) {
 
     defer utils.RecoverFromError(w)
 
@@ -132,32 +109,13 @@ func (ac *ImportController) Transform(w http.ResponseWriter, r *http.Request) {
     params := mux.Vars(r)
     keyParam := params["key"]
 
-    transform(keyParam)
+    rewriteCsvFiles(keyParam, "out")
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
     log.Printf("-----------------------------------------------------------------------------------")
 
     w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
-}
-
-func (ac *ImportController) ImportZone(w http.ResponseWriter, r *http.Request) {
-
-	defer utils.RecoverFromError(w)
-
-	sw := stopwatch.Start(0)
-
-	params := mux.Vars(r)
-	keyParam := params["key"]
-
-	err := updateAgenciesMetaData(keyParam)
-	utils.FailOnError(err, fmt.Sprintf("Could update agency zone for agency key: %s", keyParam))
-
-	log.Printf("-----------------------------------------------------------------------------------")
-	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
-	log.Printf("-----------------------------------------------------------------------------------")
-
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
 func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Request) {
@@ -273,26 +231,7 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
-func (ac *ImportController) ImportStopTimesFull(w http.ResponseWriter, r *http.Request) {
-
-	defer utils.RecoverFromError(w)
-
-	sw := stopwatch.Start(0)
-
-	params := mux.Vars(r)
-	keyParam := params["key"]
-
-	importStopTimesFull(keyParam)
-
-	log.Printf("-----------------------------------------------------------------------------------")
-	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
-	log.Printf("-----------------------------------------------------------------------------------")
-
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
-}
-
-
-func transform(schema string) error {
+func rewriteCsvFiles(schema, outFolderName string) error {
 
     agencyIndexes, err := getIndexes(schema, "agency.txt", 0)
     serviceIndexes, err := getIndexes(schema, "trips.txt", 1)
@@ -303,39 +242,37 @@ func transform(schema string) error {
 
 
     indexes := map[int](map[string]string){ 0: stopIndexes }
-    rewriteCsvFile(schema, "stops.txt", indexes)
+    rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopTimesIndexes }
-    rewriteCsvFile(schema, "stop_times.txt", indexes)
+    rewriteCsvFile(schema, "stop_times.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: routeIndexes, 1: agencyIndexes }
-    rewriteCsvFile(schema, "routes.txt", indexes)
+    rewriteCsvFile(schema, "routes.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: agencyIndexes }
-    rewriteCsvFile(schema, "agency.txt", indexes)
+    rewriteCsvFile(schema, "agency.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: routeIndexes, 1: serviceIndexes, 2: tripIndexes }
-    rewriteCsvFile(schema, "trips.txt", indexes)
+    rewriteCsvFile(schema, "trips.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: serviceIndexes }
-    rewriteCsvFile(schema, "calendar.txt", indexes)
+    rewriteCsvFile(schema, "calendar.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: serviceIndexes }
-    rewriteCsvFile(schema, "calendar_dates.txt", indexes)
+    rewriteCsvFile(schema, "calendar_dates.txt", outFolderName, indexes)
 
     return err
 }
 
-
-func rewriteCsvFile(schema, filename string, indexes map[int](map[string]string)) error {
+func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map[string]string)) error {
 
     folderName := path.Join(config.TmpDir, schema)
     filePath := path.Join(folderName, filename)
 
     gtfsFile := models.GTFSFile{filePath}
-
-
-    outFile, err := os.Create(path.Join(folderName, filename + ".out"))
+    
+    outFile, err := os.Create(path.Join(folderName, path.Join(outFolderName, filename)))
     if err != nil {
         return err
     }
@@ -395,16 +332,6 @@ func rewriteCsvFile(schema, filename string, indexes map[int](map[string]string)
     return err
 }
 
-
-
-
-
-
-
-
-
-
-
 func getIndexes(schema, filename string, index int) (map[string]string, error) {
 
     folderName := path.Join(config.TmpDir, schema)
@@ -460,30 +387,6 @@ func getIndexes(schema, filename string, index int) (map[string]string, error) {
 
     return indexes, nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 func importPostProcess(schema string) {
@@ -668,19 +571,8 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
 	keyParam := params["key"]
-	var fileParam string = params["file"]
-
-	if _, ok := config.DataResources[keyParam]; !ok {
-		log.Printf("Cannot import agencies for Key: '%s'. key does not exist", keyParam)
-		w.WriteHeader(404)
-		return
-	}
 
 	log.Printf("Importing agencies for Key: %s ...", keyParam)
-
-	if fileParam != "" {
-		log.Printf("Processing on for file: %s ...", fileParam)
-	}
 
 	w.Header().Set("Content-Type", "text/html")
 
@@ -691,7 +583,16 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	utils.DownloadFile(url, zipFilename)
 	utils.UnzipArchive(zipFilename, folderFilename)
-	fis := utils.ReadDirectoryFileInfos(folderFilename)
+
+    outFolderFilename := path.Join(folderFilename, "out")
+    
+    if os.MkdirAll(outFolderFilename, 0755) != nil {
+        panic("Unable to create directory for tagfile!")
+    }
+    
+    rewriteCsvFiles(keyParam, "out")
+
+	fis := utils.ReadDirectoryFileInfos(outFolderFilename)
 	sort.Sort(utils.FileInfosBySize(fis))
 
 	err := config.GTFS.CreateSchema(keyParam)
@@ -706,14 +607,9 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 				continue;
 			}
 
-			if fileParam != "" && fileParam + ".txt" != fi.Name() {
-				log.Printf("Filename '%v' is not filtered - Does not match with: '%v'", fi.Name(), fileParam)
-				continue;
-			}
-
 			gaf := service.NewGTFSArchiveFile(fi)
 
-			err := gaf.ImportGTFSArchiveFileWithTableCreation(keyParam, folderFilename, gtfsModelRepository, 512 * 1000)
+			err := gaf.ImportGTFSArchiveFileWithTableCreation(keyParam, outFolderFilename, gtfsModelRepository, 512 * 1000)
 			utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive with table creation for key: '%s'", keyParam, fi.Name()))
 
 			if fi.Name() == "agency.txt" {
@@ -722,7 +618,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 				gtfsAgencyModelRepository := config.GTFS.GtfsAgencies()
 				gaf := service.NewGTFSArchiveFile(fi)
 
-				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, folderFilename, gtfsAgencyModelRepository, 512 * 1000)
+				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, outFolderFilename, gtfsAgencyModelRepository, 512 * 1000)
 				utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive without table creation for key: '%s'", keyParam, fi.Name()))
 			}
 
@@ -739,7 +635,6 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
-
 
 func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Request) {
 
@@ -760,7 +655,6 @@ func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Reques
 
     w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
-
 
 func createTable(schema string, tableName string) {
 

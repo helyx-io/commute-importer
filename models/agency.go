@@ -3,9 +3,8 @@ package models
 type Agencies []Agency
 
 type Agency struct {
-	Id int `gorm:"column:id"`
 	Key string `gorm:"column:agency_key"`
-	AgencyId string `gorm:"column:agency_id"`
+	Id int `gorm:"column:agency_id"`
 	Name string `gorm:"column:agency_name"`
 	Url string `gorm:"column:agency_url"`
 	Timezone string `gorm:"column:agency_timezone"`
@@ -14,7 +13,7 @@ type Agency struct {
 
 type AgencyImportRow struct {
 	Key string
-	AgencyId string
+	Id int
 	Name string
 	Url string
 	Timezone string
@@ -25,7 +24,7 @@ type JSONAgencies []JSONAgency
 
 type JSONAgency struct {
 	Key string `json:"key"`
-	AgencyId string `json:"agencyId"`
+	Id int `json:"agencyId"`
 	Name string `json:"name"`
 	Url string `json:"url"`
 	Timezone string `json:"timezone"`
@@ -35,7 +34,7 @@ type JSONAgency struct {
 func (a *Agency) ToJSONAgency() *JSONAgency {
 	ja := JSONAgency{
 		a.Key,
-		a.AgencyId,
+		a.Id,
 		a.Name,
 		a.Url,
 		a.Timezone,

@@ -81,12 +81,13 @@ func(m MySQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
+        routeId, _ := strconv.Atoi(record[0])
+        agencyId, _ := strconv.Atoi(record[1])
 		routeType, _ := strconv.Atoi(record[5])
 
 		st[i] = models.RouteImportRow{
-			m.AgencyKey,
-			record[0],
-			record[1],
+            routeId,
+            agencyId,
 			record[2],
 			record[3],
 			record[4],

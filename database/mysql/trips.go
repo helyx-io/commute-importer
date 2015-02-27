@@ -88,10 +88,9 @@ func(m MySQLTripsImportTask) ConvertModels(headers []string, rs *models.Records)
 		directionId := recordValueAsInt(record, offsets, "direction_id")
 
 		st[i] = models.TripImportRow{
-			m.AgencyKey,
-			recordValueAsString(record, offsets, "route_id"),
-			recordValueAsString(record, offsets, "service_id"),
-			recordValueAsString(record, offsets, "trip_id"),
+			recordValueAsInt(record, offsets, "route_id"),
+			recordValueAsInt(record, offsets, "service_id"),
+			recordValueAsInt(record, offsets, "trip_id"),
 			recordValueAsString(record, offsets, "trip_headsign"),
 			directionId,
 			recordValueAsString(record, offsets, "block_id"),

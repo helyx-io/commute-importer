@@ -7,12 +7,10 @@ package models
 type StopTimes []StopTime
 
 type StopTime struct {
-	Id int `gorm:"column:id"`
-	AgencyKey string `gorm:"column:agency_key"`
-	TripId string `gorm:"column:trip_id"`
+	TripId int `gorm:"column:trip_id"`
 	ArrivalTime string `gorm:"column:arrival_time"`
 	DepartureTime string `gorm:"column:departure_time"`
-	StopId string `gorm:"column:stop_id"`
+	StopId int `gorm:"column:stop_id"`
 	StopSequence int `gorm:"column:stop_sequence"`
 	StopHeadSign string `gorm:"column:stop_head_sign"`
 	PickupType int `gorm:"column:pickup_time"`
@@ -21,11 +19,10 @@ type StopTime struct {
 }
 
 type StopTimeImportRow struct {
-	AgencyKey string
-	TripId string
+	TripId int
 	ArrivalTime string
 	DepartureTime string
-	StopId string
+	StopId int
 	StopSequence int
 	StopHeadSign string
 	PickupType int
@@ -36,11 +33,10 @@ type StopTimeImportRow struct {
 type JSONStopTimes []JSONStopTime
 
 type JSONStopTime struct {
-	AgencyKey string `json:"agencyKey"`
-	TripId string `json:"tripId"`
+	TripId int `json:"tripId"`
 	ArrivalTime string `json:"arrivalTime"`
 	DepartureTime string `json:"departureTime"`
-	StopId string `json:"stopId"`
+	StopId int `json:"stopId"`
 	StopSequence int `json:"stopSequence"`
 	StopHeadSign string `json:"stopHeadSign"`
 	PickupType int `json:"pickupType"`
@@ -51,7 +47,6 @@ type JSONStopTime struct {
 
 func (st *StopTime) ToJSONStopTime() *JSONStopTime {
 	jst := JSONStopTime{
-		st.AgencyKey,
 		st.TripId,
 		st.ArrivalTime,
 		st.DepartureTime,

@@ -1,5 +1,5 @@
 CREATE TABLE `gtfs_%s`.`stops` (
-  `stop_id` varchar(64) NOT NULL,
+  `stop_id` int(11) NOT NULL,
   `stop_code` varchar(45) DEFAULT NULL,
   `stop_name` varchar(64) DEFAULT NULL,
   `stop_desc` varchar(128) DEFAULT NULL,

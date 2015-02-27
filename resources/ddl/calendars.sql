@@ -1,5 +1,5 @@
 CREATE TABLE `gtfs_%s`.`calendars` (
-  `service_id` varchar(45) NOT NULL,
+  `service_id` int(11) NOT NULL,
   `monday` tinyint(1) DEFAULT NULL,
   `tuesday` tinyint(1) DEFAULT NULL,
   `wednesday` tinyint(1) DEFAULT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE `gtfs_%s`.`calendars` (
   `start_date` date DEFAULT NULL,
   `end_date` date DEFAULT NULL,
   -- PRIMARY KEY (`service_id`),
-  KEY `service_id_idx (`service_id`),
+  KEY `service_id_idx` (`service_id`),
   KEY `start_date_idx` (`start_date`),
   KEY `end_date_idx` (`end_date`),
   KEY `monday_idx` (`monday`),

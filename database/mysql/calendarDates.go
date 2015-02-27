@@ -80,11 +80,11 @@ func(m MySQLCalendarDatesImportTask) ConvertModels(headers []string, rs *models.
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		exceptionType, _ := strconv.Atoi(record[2])
+        serviceId, _ := strconv.Atoi(record[0])
+        exceptionType, _ := strconv.Atoi(record[2])
 
 		st[i] = models.CalendarDateImportRow{
-			m.AgencyKey,
-			record[0],
+            serviceId,
 			record[1],
 			exceptionType,
 		}

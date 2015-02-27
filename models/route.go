@@ -3,10 +3,8 @@ package models
 type Routes []Route
 
 type Route struct {
-	Id int `gorm:"column:id"`
-	AgencyKey string `gorm:"column:agency_key"`
-	RouteId string `gorm:"column:route_id"`
-	AgencyId string `gorm:"column:agency_id"`
+	RouteId int `gorm:"column:route_id"`
+	AgencyId int `gorm:"column:agency_id"`
 	RouteShortName string `gorm:"column:route_short_name"`
 	RouteLongName string `gorm:"column:route_long_name"`
 	RouteDesc string `gorm:"column:route_desc"`
@@ -17,9 +15,8 @@ type Route struct {
 }
 
 type RouteImportRow struct {
-	AgencyKey string
-	RouteId string
-	AgencyId string
+	RouteId int
+	AgencyId int
 	RouteShortName string
 	RouteLongName string
 	RouteDesc string
@@ -32,9 +29,8 @@ type RouteImportRow struct {
 type JSONRoutes []JSONRoute
 
 type JSONRoute struct {
-	AgencyKey string `json:"agencyKey"`
-	RouteId string `json:"routeId"`
-	AgencyId string `json:"agencyId"`
+	RouteId int `json:"routeId"`
+	AgencyId int `json:"agencyId"`
 	RouteShortName string `json:"routeShortName"`
 	RouteLongName string `json:"routeLongName"`
 	RouteDesc string `json:"routeDesc"`
@@ -46,7 +42,6 @@ type JSONRoute struct {
 
 func (r *Route) ToJSONRoute() *JSONRoute {
 	jr := JSONRoute{
-		r.AgencyKey,
 		r.RouteId,
 		r.AgencyId,
 		r.RouteShortName,

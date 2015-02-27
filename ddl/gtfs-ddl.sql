@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS `agencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `agencies` (
-  `agency_key` varchar(45) NOT NULL,
+  `agency_key` int(11) NOT NULL,
   `agency_id` varchar(45) NOT NULL,
   `agency_name` varchar(45) DEFAULT NULL,
   `agency_url` varchar(45) DEFAULT NULL,

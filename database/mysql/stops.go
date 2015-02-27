@@ -90,8 +90,7 @@ func (m MySQLStopsImportTask) ConvertModels(headers []string, rs *models.Records
 		locationType := recordValueAsInt(record, offsets, "location_type")
 		parentStation := recordValueAsInt(record, offsets, "parent_station")
 		st[i] = models.StopImportRow{
-			m.AgencyKey,
-			recordValueAsString(record, offsets, "stop_id"),
+			recordValueAsInt(record, offsets, "stop_id"),
 			recordValueAsString(record, offsets, "stop_code"),
 			recordValueAsString(record, offsets, "stop_name"),
 			recordValueAsString(record, offsets, "stop_desc"),

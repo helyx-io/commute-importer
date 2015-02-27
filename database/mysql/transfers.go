@@ -81,13 +81,14 @@ func(m MySQLTransfersImportTask) ConvertModels(headers []string, rs *models.Reco
 	var st = make([]interface{}, len(*rs))
 
 	for i, record := range *rs {
-		transferType, _ := strconv.Atoi(record[2])
+        fromStopId, _ := strconv.Atoi(record[0])
+        toStopId, _ := strconv.Atoi(record[1])
+        transferType, _ := strconv.Atoi(record[2])
 		minTransferType, _ := strconv.Atoi(record[3])
 
 		st[i] = models.TransferImportRow{
-			m.AgencyKey,
-			record[0],
-			record[1],
+            fromStopId,
+            toStopId,
 			transferType,
 			minTransferType,
 		}
