@@ -93,44 +93,12 @@ func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
 	r.HandleFunc("/{key}", importController.Import)
-    r.HandleFunc("/{key}/rewrite", importController.RewriteCsvFiles)
-	r.HandleFunc("/{key}/caches/trips", importController.BuildTripsCache)
 
 	// Init Repository Map
 	initRepositoryMap()
 }
 
-func (ac *ImportController) RewriteCsvFiles(w http.ResponseWriter, r *http.Request) {
-
-    defer utils.RecoverFromError(w)
-
-    sw := stopwatch.Start(0)
-
-    params := mux.Vars(r)
-    keyParam := params["key"]
-
-    rewriteCsvFiles(keyParam, "out")
-
-    log.Printf("-----------------------------------------------------------------------------------")
-    log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
-    log.Printf("-----------------------------------------------------------------------------------")
-
-    w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
-}
-
-func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Request) {
-
-    log.Printf("Building trips cache ...")
-
-	defer utils.RecoverFromError(w)
-
-	sw := stopwatch.Start(0)
-
-	params := mux.Vars(r)
-	keyParam := params["key"]
-
-    schema := keyParam
-
+func buildTripCache(schema string) {
     poolconf := ssdb.PoolConfig{Host: config.RedisInfos.Host, Port: config.RedisInfos.Port, Initial_conn_count: 16, Max_idle_count: 64, Max_conn_count: 256}
     pool, err := ssdb.NewPool(poolconf)
     if err != nil {
@@ -153,16 +121,16 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
 
     log.Printf("TripIds: %d", len(tripIds))
 
-   /* sem := make(chan bool, 64)*/
+    /* sem := make(chan bool, 64)*/
 
     for _, tripId := range tripIds {
 
         /* sem <- true */
         /* go */ func() {
 
-           /* defer func() { <-sem }() */
+            /* defer func() { <-sem }() */
 
-           db, err := pool.GetDB()
+            db, err := pool.GetDB()
 
             if err != nil {
                 log.Printf("Error: %s", err.Error())
@@ -183,7 +151,7 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
 
             stopTimesQuery := fmt.Sprintf("select st.arrival_time, st.departure_time, st.stop_sequence, s.stop_name from `gtfs_%s`.`stop_times` st inner join `gtfs_%s`.`stops` s on st.stop_id=s.stop_id where st.trip_id='%s' order by st.stop_sequence", schema, schema, tripId)
 
-//            log.Printf("Query: %s", stopTimesQuery)
+            //            log.Printf("Query: %s", stopTimesQuery)
 
             stopTimeRows, err := config.DB.Raw(stopTimesQuery).Rows()
             defer rows.Close()
@@ -206,9 +174,9 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
                 log.Printf("Error: '%s' ...", err.Error())
             }
 
-//            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
+            //            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
 
-            cacheKey := fmt.Sprintf("/agencies/%s/trips/%s/stop-times", keyParam, tripId)
+            cacheKey := fmt.Sprintf("/agencies/%s/trips/%s/stop-times", schema, tripId)
             stopTimesStr := string(bytes)
             err = db.Set(cacheKey, stopTimesStr);
             if err != nil {
@@ -222,13 +190,7 @@ func (ac *ImportController) BuildTripsCache(w http.ResponseWriter, r *http.Reque
     }*/
 
 
-	utils.FailOnError(err, fmt.Sprintf("Build trips cache for agency key: %s", keyParam))
-
-	log.Printf("-----------------------------------------------------------------------------------")
-	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
-	log.Printf("-----------------------------------------------------------------------------------")
-
-	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+    utils.FailOnError(err, fmt.Sprintf("Build trips cache for agency key: %s", schema))
 }
 
 func rewriteCsvFiles(schema, outFolderName string) error {
@@ -639,6 +601,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	importPostProcess(keyParam)
 	importStopTimesFull(keyParam)
 	updateAgenciesMetaData(keyParam)
+    buildTripCache(keyParam)
 
 	log.Printf("-----------------------------------------------------------------------------------")
 	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())

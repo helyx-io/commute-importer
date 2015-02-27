@@ -159,7 +159,7 @@ func Init() error {
 	 * Région: Ile-de-France
 	 * Agence: TER
 	 * Site: https://ressources.data.sncf.com/explore/dataset/sncf-ter-gtfs/?tab=metas
-	 * Import: KO - Duplicate Key
+	 * Import: OK
 	 **/
 	DataResources["TER"] = "http://ressources.data.sncf.com/api/datasets/1.0/sncf-ter-gtfs/attachments/export_ter_gtfs_last_zip/"
 
