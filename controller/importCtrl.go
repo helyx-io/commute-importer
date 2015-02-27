@@ -240,6 +240,12 @@ func rewriteCsvFiles(schema, outFolderName string) error {
     stopTimesIndexes, err := getIndexes(schema, "stop_times.txt", 3)
     routeIndexes, err := getIndexes(schema, "routes.txt", 0)
 
+    folderFilename := config.TmpDir + "/" + schema
+    outFolderFilename := path.Join(folderFilename, outFolderName)
+
+    if os.MkdirAll(outFolderFilename, 0755) != nil {
+        panic("Unable to create directory for tagfile!")
+    }
 
     indexes := map[int](map[string]string){ 0: stopIndexes }
     rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
@@ -274,14 +280,18 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
     
     outFile, err := os.Create(path.Join(folderName, path.Join(outFolderName, filename)))
     if err != nil {
+        log.Printf("Error: %v", err.Error())
         return err
     }
+
+    log.Printf("Writing to file: %v", outFile)
 
     writer := csv.NewWriter(outFile)
     headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
     log.Printf("headers: %v", headers)
 
     if err != nil {
+        log.Printf("Error: %v", err.Error())
         return err
     }
 
@@ -291,12 +301,12 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
 
     go func() {
 
-        sem := make(chan bool, 8)
+//        sem := make(chan bool, 8)
 
         for lines := range gtfsFile.LinesIterator(1024 * 1024) {
-            sem <- true
-            go func() {
-                defer func() { <-sem }()
+//            sem <- true
+//            go func() {
+//                defer func() { <-sem }()
                 records, _ := models.ParseCsvAsStringArrays(lines)
 
                 for _, record := range *records {
@@ -306,12 +316,12 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
                 }
 
                 resultChan <- *records
-            }()
+//            }()
         }
 
-        for i := 0; i < cap(sem); i++ {
-            sem <- true
-        }
+//        for i := 0; i < cap(sem); i++ {
+//            sem <- true
+//        }
 
         close(resultChan)
 
@@ -343,12 +353,12 @@ func getIndexes(schema, filename string, index int) (map[string]string, error) {
 
     go func() {
 
-        sem := make(chan bool, 8)
+//        sem := make(chan bool, 8)
 
         for lines := range gtfsFile.LinesIterator(1024 * 1024) {
-            sem <- true
-            go func() {
-                defer func() { <-sem }()
+//            sem <- true
+//            go func() {
+//                defer func() { <-sem }()
                 records, _ := models.ParseCsvAsStringArrays(lines)
 
                 keys := []string{}
@@ -357,12 +367,12 @@ func getIndexes(schema, filename string, index int) (map[string]string, error) {
                 }
 
                 resultChan <- keys
-            }()
+//            }()
         }
 
-        for i := 0; i < cap(sem); i++ {
-            sem <- true
-        }
+//        for i := 0; i < cap(sem); i++ {
+//            sem <- true
+//        }
 
         close(resultChan)
 
@@ -376,11 +386,12 @@ func getIndexes(schema, filename string, index int) (map[string]string, error) {
     for results := range resultChan {
         offset++
         log.Printf("[%s][%d] Records read", filePath, offset)
-        for _, val := range results {
-            if _, ok := indexes[val]; !ok {
-                increment += 1
-                result = append(result, val)
-                indexes[val] = fmt.Sprintf("%d", increment)
+        for _, key := range results {
+            if _, ok := indexes[key]; !ok {
+                increment++
+                result = append(result, key)
+                index :=  fmt.Sprintf("%d", increment)
+                indexes[key] = index
             }
         }
     }
@@ -585,11 +596,11 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	utils.UnzipArchive(zipFilename, folderFilename)
 
     outFolderFilename := path.Join(folderFilename, "out")
-    
+
     if os.MkdirAll(outFolderFilename, 0755) != nil {
         panic("Unable to create directory for tagfile!")
     }
-    
+
     rewriteCsvFiles(keyParam, "out")
 
 	fis := utils.ReadDirectoryFileInfos(outFolderFilename)

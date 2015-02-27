@@ -10,6 +10,5 @@ CREATE TABLE `gtfs_%s`.`stops` (
   `stop_url` varchar(45) DEFAULT NULL,
   `location_type` int(11) DEFAULT NULL,
   `parent_station` varchar(45) DEFAULT NULL,
-  -- PRIMARY KEY (`stop_id`),
-    KEY `stop_id_idx` (`stop_id`)
+  PRIMARY KEY (`stop_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

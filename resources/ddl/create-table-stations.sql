@@ -4,8 +4,7 @@ CREATE TABLE `gtfs_%s`.`stations` (
   `station_lat` float DEFAULT NULL,
   `station_lon` float DEFAULT NULL,
   `station_geo` geometry NOT NULL,
-  -- PRIMARY KEY (`station_id`),
-  KEY `station_id_idx` (`station_id`),
+  PRIMARY KEY (`station_id`),
   KEY `station_name_idx` (`station_name`),
   SPATIAL KEY `station_geo_idx` (`station_geo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

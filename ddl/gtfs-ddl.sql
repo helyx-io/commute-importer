@@ -21,6 +21,8 @@ CREATE SCHEMA `gtfs` DEFAULT CHARACTER SET utf8mb4 ;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+use gtfs;
+
 --
 -- Table structure for table `accessTokens`
 --
@@ -48,8 +50,8 @@ DROP TABLE IF EXISTS `agencies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `agencies` (
-  `agency_key` int(11) NOT NULL,
-  `agency_id` varchar(45) NOT NULL,
+  `agency_key` varchar(45) NOT NULL,
+  `agency_id` int(11) NOT NULL,
   `agency_name` varchar(45) DEFAULT NULL,
   `agency_url` varchar(45) DEFAULT NULL,
   `agency_timezone` varchar(45) DEFAULT NULL,
