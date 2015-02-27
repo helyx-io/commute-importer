@@ -30,5 +30,5 @@ CREATE TABLE `gtfs_%s`.`stop_times_full` (
   `route_type` int(11) DEFAULT NULL,
   `route_url` varchar(45) DEFAULT NULL,
   `route_color` varchar(45) DEFAULT NULL,
-  `route_text_color` varchar(45) DEFAULT NULL,
+  `route_text_color` varchar(45) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
