@@ -92,7 +92,7 @@ type ImportController struct { }
 func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
-	r.HandleFunc("/{key}", importController.Import)
+    r.HandleFunc("/{key}", importController.Import)
 
 	// Init Repository Map
 	initRepositoryMap()
@@ -199,8 +199,11 @@ func rewriteCsvFiles(schema, outFolderName string) error {
     serviceIndexes, err := getIndexes(schema, "trips.txt", 1)
     tripIndexes, err := getIndexes(schema, "trips.txt", 2)
     stopIndexes, err := getIndexes(schema, "stops.txt", 0)
-    stopTimesIndexes, err := getIndexes(schema, "stop_times.txt", 3)
     routeIndexes, err := getIndexes(schema, "routes.txt", 0)
+
+    writeIndexes(schema, "routes.indexes.txt", outFolderName, routeIndexes);
+    writeIndexes(schema, "trip.indexes.txt", outFolderName, tripIndexes);
+    writeIndexes(schema, "stop.indexes.txt", outFolderName, stopIndexes);
 
     folderFilename := config.TmpDir + "/" + schema
     outFolderFilename := path.Join(folderFilename, outFolderName)
@@ -212,7 +215,7 @@ func rewriteCsvFiles(schema, outFolderName string) error {
     indexes := map[int](map[string]string){ 0: stopIndexes }
     rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
 
-    indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopTimesIndexes }
+    indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopIndexes }
     rewriteCsvFile(schema, "stop_times.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: routeIndexes, 1: agencyIndexes }
@@ -232,6 +235,32 @@ func rewriteCsvFiles(schema, outFolderName string) error {
 
     return err
 }
+
+
+func writeIndexes(schema, filename, outFolderName string, indexes map[string]string) error {
+
+    folderName := path.Join(config.TmpDir, schema)
+
+    outFile, err := os.Create(path.Join(folderName, path.Join(outFolderName, filename)))
+    if err != nil {
+        log.Printf("Error: %v", err.Error())
+        return err
+    }
+
+    log.Printf("Writing to file: %v", outFile)
+
+    writer := csv.NewWriter(outFile)
+
+    for key, value := range indexes {
+        writer.Write([]string{key, value})
+    }
+
+    writer.Flush()
+    err = outFile.Close()
+
+    return err
+}
+
 
 func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map[string]string)) error {
 
