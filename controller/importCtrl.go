@@ -93,6 +93,7 @@ func (importController *ImportController) Init(r *mux.Router) {
 
 	// Init Router
     r.HandleFunc("/{key}", importController.Import)
+    r.HandleFunc("/{key}/caches/trips", importController.BuildTripCache)
 
 	// Init Repository Map
 	initRepositoryMap()
@@ -151,7 +152,7 @@ func buildTripCache(schema string) {
 
             stopTimesQuery := fmt.Sprintf("select st.arrival_time, st.departure_time, st.stop_sequence, s.stop_name from `gtfs_%s`.`stop_times` st inner join `gtfs_%s`.`stops` s on st.stop_id=s.stop_id where st.trip_id='%s' order by st.stop_sequence", schema, schema, tripId)
 
-            //            log.Printf("Query: %s", stopTimesQuery)
+//            log.Printf("Query: %s", stopTimesQuery)
 
             stopTimeRows, err := config.DB.Raw(stopTimesQuery).Rows()
             defer rows.Close()
@@ -181,6 +182,23 @@ func buildTripCache(schema string) {
             err = db.Set(cacheKey, stopTimesStr);
             if err != nil {
                 log.Printf("Error: '%s' ...", err.Error())
+            }
+
+            stopTimesLength := len(stopTimes)
+
+            if stopTimesLength >= 2 {
+                stopTimes = []StopTime{ stopTimes[0], stopTimes[len(stopTimes) - 1]}
+                bytes, err = json.Marshal(stopTimes)
+                if err != nil {
+                    log.Printf("Error: '%s' ...", err.Error())
+                }
+
+                cacheKey = fmt.Sprintf("/agencies/%s/trips/%s/stop-times/first-last", schema, tripId)
+                stopTimesStr = string(bytes)
+                err = db.Set(cacheKey, stopTimesStr);
+                if err != nil {
+                    log.Printf("Error: '%s' ...", err.Error())
+                }
             }
         }()
     }
@@ -651,6 +669,24 @@ func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Reques
     importPostProcess(keyParam)
     importStopTimesFull(keyParam)
     updateAgenciesMetaData(keyParam)
+
+    log.Printf("-----------------------------------------------------------------------------------")
+    log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
+    log.Printf("-----------------------------------------------------------------------------------")
+
+    w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
+}
+
+func (ac *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Request) {
+
+    defer utils.RecoverFromError(w)
+
+    sw := stopwatch.Start(0)
+
+    params := mux.Vars(r)
+    keyParam := params["key"]
+
+    buildTripCache(keyParam)
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
