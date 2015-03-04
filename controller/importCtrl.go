@@ -59,10 +59,10 @@ type CreateIndexResult struct {
 }
 
 type StopTime struct {
-    Arrival_time string     `json:"arrival_time"`
-    Departure_time string   `json:"departure_time"`
-    Stop_sequence int       `json:"stop_sequence"`
-    Stop_name string        `json:"stop_name"`
+    Arrival_time string     `json:"a"`
+    Departure_time string   `json:"d"`
+    Stop_sequence int       `json:"s"`
+    Stop_name string        `json:"n"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ func buildTripCache(schema string) {
 
             //            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
 
-            cacheKey := fmt.Sprintf("/agencies/%s/trips/%s/stop-times", schema, tripId)
+            cacheKey := fmt.Sprintf("/%s/t/st/%s", schema, tripId)
             stopTimesStr := string(bytes)
             err = db.Set(cacheKey, stopTimesStr);
             if err != nil {
@@ -193,7 +193,7 @@ func buildTripCache(schema string) {
                     log.Printf("Error: '%s' ...", err.Error())
                 }
 
-                cacheKey = fmt.Sprintf("/agencies/%s/trips/%s/stop-times/first-last", schema, tripId)
+                cacheKey = fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
                 stopTimesStr = string(bytes)
                 err = db.Set(cacheKey, stopTimesStr);
                 if err != nil {
