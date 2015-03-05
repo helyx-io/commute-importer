@@ -88,13 +88,13 @@ func(m MySQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records
 		st[i] = models.RouteImportRow{
             routeId,
             agencyId,
-			record[2],
-			record[3],
+			strings.ToUpper(record[2]),
+            strings.ToUpper(record[3]),
 			record[4],
 			routeType,
 			record[6],
-			record[7],
-			record[8],
+            strings.ToUpper(record[7]),
+            strings.ToUpper(record[8]),
 		}
 	}
 

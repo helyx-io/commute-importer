@@ -92,7 +92,7 @@ func (m MySQLStopsImportTask) ConvertModels(headers []string, rs *models.Records
 		st[i] = models.StopImportRow{
 			recordValueAsInt(record, offsets, "stop_id"),
 			recordValueAsString(record, offsets, "stop_code"),
-			recordValueAsString(record, offsets, "stop_name"),
+            strings.ToUpper(recordValueAsString(record, offsets, "stop_name")),
 			recordValueAsString(record, offsets, "stop_desc"),
 			stopLat,
 			stopLon,
