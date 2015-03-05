@@ -472,7 +472,7 @@ func importStopTimesFull(schema string) {
 
 
 	createIndexDoneChan := make(chan CreateIndexResult, 8)
-	indexes := []string{"service_id", "stop_id", "trip_id", "route_id"}
+	indexes := []string{"service_id", "stop_id", "trip_id"/*, "route_id"*/}
 
     go func() {
         for _, index := range indexes {
