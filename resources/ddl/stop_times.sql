@@ -4,7 +4,7 @@ CREATE TABLE `gtfs_%s`.`stop_times` (
   `departure_time` time DEFAULT NULL,
   `stop_id` int(11) NOT NULL,
   `stop_sequence` int(11) DEFAULT NULL,
-  `stop_head_sign` varchar(8) DEFAULT NULL,
+  `stop_head_sign` char(8) DEFAULT NULL,
   `pickup_type` int(11) DEFAULT NULL,
   `drop_off_type` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

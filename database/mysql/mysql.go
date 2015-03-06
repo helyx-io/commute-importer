@@ -7,6 +7,7 @@ package mysql
 import (
 	"fmt"
 	"log"
+    "time"
 	"strconv"
 	"database/sql"
 	"github.com/jinzhu/gorm"
@@ -99,15 +100,29 @@ func recordValueAsString(record []string, offsets map[string]int, key string) st
 
 func recordValueAsInt(record []string, offsets map[string]int, key string) int {
 
-	offset, ok := offsets[key]
+    offset, ok := offsets[key]
 
-	if !ok {
-		return 0
-	}
+    if !ok {
+        return 0
+    }
 
-	intValue, _ := strconv.Atoi(record[offset])
+    intValue, _ := strconv.Atoi(record[offset])
 
-	return intValue
+    return intValue
+}
+
+func recordValueAsTimeInt(record []string, offsets map[string]int, key string) int {
+
+    offset, ok := offsets[key]
+
+    if !ok {
+        return 0
+    }
+
+    tc, _ := time.Parse("15:04:05", record[offset])
+    intValue := tc.Hour() * 60 + tc.Minute()
+
+    return intValue
 }
 
 func recordValueAsFloat(record []string, offsets map[string]int, key string) float64 {
