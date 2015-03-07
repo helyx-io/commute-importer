@@ -1,7 +1,7 @@
 CREATE TABLE `gtfs_%s`.`routes` (
   `route_id` int(11) NOT NULL,
   `agency_id` int(11) NOT NULL,
-  `route_short_name` varchar(45) DEFAULT NULL,
+  `route_short_name` varchar(32) DEFAULT NULL,
   `route_long_name` varchar(128) DEFAULT NULL,
   `route_desc` varchar(64) DEFAULT NULL,
   `route_type` int(11) DEFAULT NULL,
