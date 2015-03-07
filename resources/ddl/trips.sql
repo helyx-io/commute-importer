@@ -4,8 +4,8 @@ CREATE TABLE `gtfs_%s`.`trips` (
   `trip_id` int(11) NOT NULL,
   `trip_headsign` varchar(45) DEFAULT NULL,
   `direction_id` int(11) DEFAULT NULL,
-  `block_id` int(11) DEFAULT NULL,
-  `shape_id` int(11) DEFAULT NULL,
+  `block_id` varchar(45) DEFAULT NULL,
+  `shape_id` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`trip_id`),
   KEY `route_id_idx` (`route_id`),
   KEY `service_id_idx` (`service_id`)
