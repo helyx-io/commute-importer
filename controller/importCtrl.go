@@ -24,7 +24,7 @@ import (
 	"github.com/helyx-io/gtfs-playground/service"
 	"github.com/helyx-io/gtfs-playground/database"
 	"github.com/helyx-io/gtfs-playground/data"
-    "github.com/jiecao-fm/ssdb"
+    "gopkg.in/redis.v2"
 )
 
 
@@ -100,12 +100,14 @@ func (importController *ImportController) Init(r *mux.Router) {
 }
 
 func buildTripCache(schema string) {
-    poolconf := ssdb.PoolConfig{Host: config.RedisInfos.Host, Port: config.RedisInfos.Port, Initial_conn_count: 16, Max_idle_count: 64, Max_conn_count: 256}
-    pool, err := ssdb.NewPool(poolconf)
-    if err != nil {
-        return
-    }
-    defer pool.Close()
+
+
+    client := redis.NewTCPClient(&redis.Options{
+        Addr: fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port),
+        Password: "", // no password set
+        DB:       0,  // use default DB
+        PoolSize: 16,
+    })
 
     tripIds := make([]string, 0)
 
@@ -130,25 +132,6 @@ func buildTripCache(schema string) {
         /* go */ func() {
 
             /* defer func() { <-sem }() */
-
-            db, err := pool.GetDB()
-
-            if err != nil {
-                log.Printf("Error: %s", err.Error())
-            }
-
-            defer func() {
-                if db != nil {
-                    pool.ReturnDB(db)
-                } else {
-                    fmt.Printf("Pool idle count: %d\n", pool.IdleCount())
-                }
-            }()
-
-            if db == nil {
-                log.Printf("db is nil for tripId: %s", tripId)
-                return
-            }
 
             stopTimesQuery := fmt.Sprintf("select st.arrival_time, st.departure_time, st.stop_sequence, s.stop_name from `gtfs_%s`.`stop_times` st inner join `gtfs_%s`.`stops` s on st.stop_id=s.stop_id where st.trip_id='%s' order by st.stop_sequence", schema, schema, tripId)
 
@@ -179,9 +162,9 @@ func buildTripCache(schema string) {
 
             cacheKey := fmt.Sprintf("/%s/t/st/%s", schema, tripId)
             stopTimesStr := string(bytes)
-            err = db.Set(cacheKey, stopTimesStr);
-            if err != nil {
-                log.Printf("Error: '%s' ...", err.Error())
+            statusCmd := client.Set(cacheKey, stopTimesStr);
+            if statusCmd.Err() != nil {
+                log.Printf("Error: '%s' ...", statusCmd.Err().Error())
             }
 
             stopTimesLength := len(stopTimes)
@@ -195,9 +178,9 @@ func buildTripCache(schema string) {
 
                 cacheKey = fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
                 stopTimesStr = string(bytes)
-                err = db.Set(cacheKey, stopTimesStr);
-                if err != nil {
-                    log.Printf("Error: '%s' ...", err.Error())
+                statusCmd := client.Set(cacheKey, stopTimesStr);
+                if statusCmd.Err() != nil {
+                    log.Printf("Error: '%s' ...", statusCmd.Err().Error())
                 }
             }
         }()
