@@ -65,6 +65,7 @@ type StopTime struct {
     Stop_name string        `json:"n"`
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +130,7 @@ func buildTripCache(schema string) {
     for _, tripId := range tripIds {
 
         /* sem <- true */
-        /* go */ func() {
+//        /* go */ func() {
 
             /* defer func() { <-sem }() */
 
@@ -153,37 +154,38 @@ func buildTripCache(schema string) {
                 stopTimes = append(stopTimes, StopTime{arrival_time, departure_time, stop_sequence, stop_name});
             }
 
-            bytes, err := json.Marshal(stopTimes)
-            if err != nil {
-                log.Printf("Error: '%s' ...", err.Error())
-            }
+//            bytes, err := json.Marshal(stopTimes)
+//            if err != nil {
+//                log.Printf("Error: '%s' ...", err.Error())
+//            }
 
             //            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
 
-            cacheKey := fmt.Sprintf("/%s/t/st/%s", schema, tripId)
-            stopTimesStr := string(bytes)
-            statusCmd := client.Set(cacheKey, stopTimesStr);
-            if statusCmd.Err() != nil {
-                log.Printf("Error: '%s' ...", statusCmd.Err().Error())
-            }
+//            cacheKey := fmt.Sprintf("/%s/t/st/%s", schema, tripId)
+//            stopTimesStr := string(bytes)
+//            statusCmd := client.Set(cacheKey, stopTimesStr);
+//            if statusCmd.Err() != nil {
+//                log.Printf("Error: '%s' ...", statusCmd.Err().Error())
+//            }
 
             stopTimesLength := len(stopTimes)
 
             if stopTimesLength >= 2 {
-                stopTimes = []StopTime{ stopTimes[0], stopTimes[len(stopTimes) - 1]}
-                bytes, err = json.Marshal(stopTimes)
+                tripFirstLast := []string{ stopTimes[0].Stop_name, stopTimes[len(stopTimes) - 1].Stop_name }
+
+                bytes, err := json.Marshal(tripFirstLast)
                 if err != nil {
                     log.Printf("Error: '%s' ...", err.Error())
                 }
 
-                cacheKey = fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
-                stopTimesStr = string(bytes)
-                statusCmd := client.Set(cacheKey, stopTimesStr);
+                cacheKey := fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
+                tripFirstLastStr := string(bytes)
+                statusCmd := client.Set(cacheKey, tripFirstLastStr);
                 if statusCmd.Err() != nil {
                     log.Printf("Error: '%s' ...", statusCmd.Err().Error())
                 }
             }
-        }()
+//        }()
     }
 
     /*for i := 0; i < cap(sem); i++ {
