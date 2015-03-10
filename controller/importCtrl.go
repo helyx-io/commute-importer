@@ -101,8 +101,6 @@ func (importController *ImportController) Init(r *mux.Router) {
 }
 
 func buildTripCache(schema string) {
-
-
     client := redis.NewTCPClient(&redis.Options{
         Addr: fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port),
         Password: "", // no password set
