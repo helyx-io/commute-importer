@@ -27,11 +27,14 @@ type Stop struct {
     Id int
     Name string
     Distance float64
-    Lines []Line
+    Routes []Route
 }
 
-type Line struct {
+type Route struct {
     Name string
+    TripId int
+    FirstStopName string
+    LastStopName string
     StopTimesFull []StopTimeFull
 }
 
@@ -54,7 +57,7 @@ type StopTimeFull struct {
 }
 
 type FirstLastStopNamesByTripId struct {
-    TripId string
+    TripId int
     FirstStopName string
     LastStopName string
 }
@@ -66,7 +69,7 @@ type JsonStop struct {
     LocationType int `json:"location_type"`
     GeoLocation JsonGeoLocation `json:"geo_location"`
     StopIds []string `json:"stop_ids"`
-    Lines []JsonLine `json:"lines"`
+    Routes []JsonRoute `json:"routes"`
 }
 
 type JsonGeoLocation struct {
@@ -74,7 +77,7 @@ type JsonGeoLocation struct {
     Lon string `json:"lon"`
 }
 
-type JsonLine struct {
+type JsonRoute struct {
     Name string `json:"lat"`
     StopTimes []string `json:"stop_times"`
     TripId int `json:"trip_id"`
@@ -91,7 +94,7 @@ type JsonLine struct {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-    client redis.Client
+    redisClient *redis.Client
 )
 
 
@@ -102,7 +105,7 @@ var (
 type AgencyController struct { }
 
 func (ac *AgencyController) Init(r *mux.Router) {
-    client = redis.NewTCPClient(&redis.Options{
+    redisClient = redis.NewTCPClient(&redis.Options{
         Addr: fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port),
         Password: "", // no password set
         DB:       0,  // use default DB
@@ -140,13 +143,13 @@ func (ac *AgencyController) NearestStops(w http.ResponseWriter, r *http.Request)
     log.Printf("Date: %s", date)
 
 
-    stops := fetchStopsByDate(agencyKey, date, distance)
+    stops := fetchStopsByDate(agencyKey, date, lat, lon, distance)
 
     tripIds := extractTripIds(stops)
 
     flStopNamesByTripId := fetchFirstAndLastStopNamesByTripIds(agencyKey, tripIds)
 
-    // mergeFlStopNamesByTripIdWithStopLines(stops, flStopNamesByTripId)
+    mergeFlStopNamesByTripIdWithStopRoutes(stops, flStopNamesByTripId)
 
     log.Printf("Resulting flStopNamesByTripId: %v", flStopNamesByTripId)
 
@@ -159,7 +162,18 @@ func (ac *AgencyController) NearestStops(w http.ResponseWriter, r *http.Request)
     w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
-func fetchFirstAndLastStopNamesByTripIds(agencyKey string, tripIds []string) map[string][]string {
+func mergeFlStopNamesByTripIdWithStopRoutes(stops []Stop, flStopNamesByTripId map[int]FirstLastStopNamesByTripId) {
+
+    for _, stop := range stops {
+        for _, route := range stop.Routes {
+            route.FirstStopName = flStopNamesByTripId[route.TripId].FirstStopName
+            route.LastStopName = flStopNamesByTripId[route.TripId].LastStopName
+        }
+    }
+
+}
+
+func fetchFirstAndLastStopNamesByTripIds(agencyKey string, tripIds []int) map[int]FirstLastStopNamesByTripId {
 
     flStopNamesByTripIdChan := make(chan FirstLastStopNamesByTripId)
 
@@ -170,54 +184,54 @@ func fetchFirstAndLastStopNamesByTripIds(agencyKey string, tripIds []string) map
 
             sem <- true
 
-            go func(tripIds string) {
+            go func(tripId int) {
                 defer func() { <-sem }()
 
-                tripPayload := client.Get(fmt.Sprintf("/%s/s/t/fl/%s", agencyKey, tripId))
+                tripPayload := redisClient.Get(fmt.Sprintf("/%s/s/t/fl/%s", agencyKey, tripId))
 
                 tripFirstLast := make([]string, 2)
 
-                err := json.Unmarshal([]byte(tripPayload), tripFirstLast)
+                err := json.Unmarshal([]byte(tripPayload.String()), tripFirstLast)
                 if err != nil {
                     log.Printf("Error: '%s' ...", err.Error())
                 }
 
-                flStopNamesByTripIdChan <- FirstLastStopNamesByTripId{tripId}
+                flStopNamesByTripIdChan <- FirstLastStopNamesByTripId{tripId, tripFirstLast[0], tripFirstLast[1]}
             }(tripId)
         }
 
         close(flStopNamesByTripIdChan)
     }()
 
-    flStopNamesByTripIds := make(map[string][]string)
+    flStopNamesByTripIds := make(map[int]FirstLastStopNamesByTripId)
 
     for flStopNamesByTripId := range flStopNamesByTripIdChan {
-        flStopNamesByTripIds[flStopNamesByTripId.TripId] = []string{flStopNamesByTripId.FirstStopName, flStopNamesByTripId.LastStopName}
+        flStopNamesByTripIds[flStopNamesByTripId.TripId] = flStopNamesByTripId
     }
 
     return flStopNamesByTripIds
 }
 
-func extractTripIds(stops []Stop) []string {
-    tripIdMap := make(map[string]bool)
+func extractTripIds(stops []Stop) []int {
+    tripIdMap := make(map[int]bool)
 
-    for stop := range stops {
-       for line := range stop.Lines {
-           if len(line) > 0 {
-               tripIdMap[line.StopTimesFull.TripId] = true
+    for _, stop := range stops {
+       for _, route := range stop.Routes {
+           if len(route.StopTimesFull) > 0 {
+               tripIdMap[route.StopTimesFull[0].TripId] = true
            }
        }
     }
 
     tripIds := make([]int, 0, len(tripIdMap))
-    for k := range tripIdMap {
-        tripIds = append(tripIds, k)
+    for tripId := range tripIdMap {
+        tripIds = append(tripIds, tripId)
     }
 
     return tripIds
 }
 
-func fetchStopsByDate(agencyKey, date, distance string) []Stop {
+func fetchStopsByDate(agencyKey, date, lat, lon, distance string) []Stop {
 
     query := fmt.Sprintf("select s.stop_id, s.stop_name, 111195 * st_distance(point(%s, %s), s.stop_geo) as stop_distance from gtfs_%s.stops s where 111195 * st_distance(point(%s, %s), s.stop_geo) < %s order by stop_distance asc", lat, lon, agencyKey, lat, lon, distance)
 
@@ -229,7 +243,7 @@ func fetchStopsByDate(agencyKey, date, distance string) []Stop {
 
     sem := make(chan bool, 512)
 
-    stopChan := make(chan StopTimeFull)
+    stopChan := make(chan Stop)
 
     go func() {
         for rows.Next() {
@@ -238,7 +252,7 @@ func fetchStopsByDate(agencyKey, date, distance string) []Stop {
             distance := 0.0
             rows.Scan(&id, &name, &distance)
 
-            stop := Stop{id, name, distance}
+            stop := Stop{id, name, distance, nil}
             //        log.Printf("Stop: %v", stop)
 
             sem <- true
@@ -246,7 +260,7 @@ func fetchStopsByDate(agencyKey, date, distance string) []Stop {
             go func(stop Stop) {
                 defer func() { <-sem }()
 
-                stop.Lines = fetchLinesForDateAndStop(agencyKey, date, stop)
+                stop.Routes = fetchRoutesForDateAndStop(agencyKey, date, stop)
 
                 stopChan <- stop
             }(stop)
@@ -259,40 +273,40 @@ func fetchStopsByDate(agencyKey, date, distance string) []Stop {
         sem <- true
     }
 
-    stops := make(chan Stop)
+    stops := make([]Stop, 0)
 
-    for _, stop := range stopChan {
+    for stop := range stopChan {
         stops = append(stops, stop)
     }
 
     return stops
 }
 
-func fetchLinesForDateAndStop(agencyKey, date string, stop Stop) []Line {
+func fetchRoutesForDateAndStop(agencyKey, date string, stop Stop) []Route {
     stfs := fetchStopTimesFullForDateAndStop(agencyKey, date, stop)
 
-    groupStopTimesFullByLine := func (stfs []StopTimeFull) []Line {
+    groupStopTimesFullByRoute := func (stfs []StopTimeFull) []Route {
 
-        stfByRouteShortName := make(map[string]StopTimeFull, 0)
+        stfsByRouteShortName := make(map[string][]StopTimeFull, 0)
 
         for _, stf := range stfs {
-            if _, ok := stfByRouteShortName[stf.RouteShortName]; !ok {
-                stfByRouteShortName[stf.RouteShortName] = make([]StopTimeFull, 0)
+            if _, ok := stfsByRouteShortName[stf.RouteShortName]; !ok {
+                stfsByRouteShortName[stf.RouteShortName] = make([]StopTimeFull, 0)
             }
 
-            stfByRouteShortName[stf.RouteShortName] = append(stfByRouteShortName[stf.RouteShortName], stf)
+            stfsByRouteShortName[stf.RouteShortName] = append(stfsByRouteShortName[stf.RouteShortName], stf)
         }
 
-        lines := make([]Lines, len(stfByRouteShortName))
+        routes := make([]Route, len(stfsByRouteShortName))
 
-        for rsn, stf := range stfByRouteShortName {
-            lines = append(lines, Line{rsn, stf})
+        for rsn, stfs := range stfsByRouteShortName {
+            routes = append(routes, Route{rsn, 0, "", "", stfs})
         }
 
-        return lines
+        return routes
     }
 
-    return groupStopTimesFullByLine(stfs)
+    return groupStopTimesFullByRoute(stfs)
 }
 
 func fetchStopTimesFullForDateAndStop(agencyKey, date string, stop Stop) []StopTimeFull {
