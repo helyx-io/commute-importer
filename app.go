@@ -53,7 +53,7 @@ func main() {
 	handlerChain := alice.New(
 		appHandlers.LoggingHandler(logWriter),
 //		appHandlers.ThrottleHandler,
-		appHandlers.TimeoutHandler,
+//		appHandlers.TimeoutHandler,
 	).Then(router)
 
 	// Init HTTP Server
@@ -79,8 +79,9 @@ func initRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
-	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
+//	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
+	new(controller.AgencyController).Init(r.PathPrefix("/api/agencies").Subrouter())
 
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))

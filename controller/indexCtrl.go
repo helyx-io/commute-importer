@@ -6,7 +6,7 @@ package controller
 
 import (
 	"fmt"
-	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
+//	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"net/http"
@@ -27,7 +27,7 @@ func (c *IndexController) Init(r *mux.Router) {
 	router.HandleFunc("/", c.indexHandler)
 
 	handlerChain := alice.New(
-		appHandlers.LoggedInHandler,
+//		appHandlers.LoggedInHandler,
 	).Then(router)
 
 	r.Handle("/", http.Handler(handlerChain))
