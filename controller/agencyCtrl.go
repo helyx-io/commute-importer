@@ -143,12 +143,17 @@ func (ac *AgencyController) NearestStops(w http.ResponseWriter, r *http.Request)
     log.Printf("Date: %s", date)
 
 
+    log.Printf("Fetching stops by date ...")
     stops := fetchStopsByDate(agencyKey, date, lat, lon, distance)
 
+    log.Printf("Extracting Trip Ids ...")
     tripIds := extractTripIds(stops)
 
+
+    log.Printf("Fetching First And Last StopNames By Trip Ids ...")
     flStopNamesByTripId := fetchFirstAndLastStopNamesByTripIds(agencyKey, tripIds)
 
+    log.Printf("Merge First and Last StopNames By TripId With Stop Routes ...")
     mergeFlStopNamesByTripIdWithStopRoutes(stops, flStopNamesByTripId)
 
     log.Printf("Resulting flStopNamesByTripId: %v", flStopNamesByTripId)
@@ -235,7 +240,8 @@ func fetchStopsByDate(agencyKey, date, lat, lon, distance string) []Stop {
 
     query := fmt.Sprintf("select s.stop_id, s.stop_name, 111195 * st_distance(point(%s, %s), s.stop_geo) as stop_distance from gtfs_%s.stops s where 111195 * st_distance(point(%s, %s), s.stop_geo) < %s order by stop_distance asc", lat, lon, agencyKey, lat, lon, distance)
 
-    //    log.Printf("Query: %s", query)
+
+    log.Printf("Query: %s", query)
     rows, err := config.DB.Raw(query).Rows()
     defer rows.Close()
 
@@ -246,14 +252,15 @@ func fetchStopsByDate(agencyKey, date, lat, lon, distance string) []Stop {
     stopChan := make(chan Stop)
 
     go func() {
+        id := 0
+        name := ""
+        distance := 0.0
+
         for rows.Next() {
-            id := 0
-            name := ""
-            distance := 0.0
             rows.Scan(&id, &name, &distance)
 
             stop := Stop{id, name, distance, nil}
-            //        log.Printf("Stop: %v", stop)
+            log.Printf("Stop: %v", stop)
 
             sem <- true
 
@@ -283,6 +290,8 @@ func fetchStopsByDate(agencyKey, date, lat, lon, distance string) []Stop {
 }
 
 func fetchRoutesForDateAndStop(agencyKey, date string, stop Stop) []Route {
+    log.Printf("Fetching routes for stop: %v", stop)
+
     stfs := fetchStopTimesFullForDateAndStop(agencyKey, date, stop)
 
     groupStopTimesFullByRoute := func (stfs []StopTimeFull) []Route {
@@ -310,6 +319,8 @@ func fetchRoutesForDateAndStop(agencyKey, date string, stop Stop) []Route {
 }
 
 func fetchStopTimesFullForDateAndStop(agencyKey, date string, stop Stop) []StopTimeFull {
+    log.Printf("Fetching stop times full for date: %s & stop: %v", date, stop)
+
     day, _ := time.Parse("2006-01-02", date)
     dayOfWeek := day.Weekday().String()
 
