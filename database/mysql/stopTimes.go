@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"github.com/helyx-io/gtfs-playground/models"
-	"github.com/helyx-io/gtfs-playground/database"
-	"github.com/helyx-io/gtfs-playground/tasks"
-	"github.com/helyx-io/gtfs-playground/utils"
-	"github.com/helyx-io/gtfs-playground/data"
+	"github.com/helyx-io/gtfs-importer/models"
+	"github.com/helyx-io/gtfs-importer/database"
+	"github.com/helyx-io/gtfs-importer/tasks"
+	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/gtfs-importer/data"
 	_ "github.com/go-sql-driver/mysql"
 )
 

@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"github.com/gorilla/sessions"
 	"code.google.com/p/goauth2/oauth"
-	"github.com/helyx-io/gtfs-playground/config"
+	"github.com/helyx-io/gtfs-importer/config"
 )
 
 

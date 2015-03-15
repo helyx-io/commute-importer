@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/helyx-io/gtfs-playground/utils"
+	"github.com/helyx-io/gtfs-importer/utils"
 )
 
 type GTFSFile struct {

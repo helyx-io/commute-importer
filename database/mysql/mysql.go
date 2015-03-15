@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"database/sql"
 	"github.com/jinzhu/gorm"
-	"github.com/helyx-io/gtfs-playground/database"
-	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-importer/database"
+	"github.com/helyx-io/gtfs-importer/tasks"
 	_ "github.com/go-sql-driver/mysql"
 )
 

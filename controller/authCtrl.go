@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 //	jwt "github.com/dgrijalva/jwt-go"
 	"code.google.com/p/goauth2/oauth"
-	"github.com/helyx-io/gtfs-playground/config"
-	"github.com/helyx-io/gtfs-playground/session"
+	"github.com/helyx-io/gtfs-importer/config"
+	"github.com/helyx-io/gtfs-importer/session"
 	"net/http"
 	"log"
 )

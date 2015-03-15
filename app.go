@@ -6,11 +6,11 @@ package main
 
 import (
 	"fmt"
-	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
-	"github.com/helyx-io/gtfs-playground/config"
-	"github.com/helyx-io/gtfs-playground/controller"
-	"github.com/helyx-io/gtfs-playground/utils"
-	"github.com/helyx-io/gtfs-playground/session"
+	appHandlers "github.com/helyx-io/gtfs-importer/handlers"
+	"github.com/helyx-io/gtfs-importer/config"
+	"github.com/helyx-io/gtfs-importer/controller"
+	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/gtfs-importer/session"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 

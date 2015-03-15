@@ -6,7 +6,7 @@ package controller
 
 import (
 	"fmt"
-//	appHandlers "github.com/helyx-io/gtfs-playground/handlers"
+//	appHandlers "github.com/helyx-io/gtfs-importer/handlers"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"net/http"

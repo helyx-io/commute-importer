@@ -6,9 +6,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/helyx-io/gtfs-playground/auth"
-	"github.com/helyx-io/gtfs-playground/database"
-	"github.com/helyx-io/gtfs-playground/database/mysql"
+	"github.com/helyx-io/gtfs-importer/auth"
+	"github.com/helyx-io/gtfs-importer/database"
+	"github.com/helyx-io/gtfs-importer/database/mysql"
 	"github.com/jinzhu/gorm"
 	"log"
 	"os"

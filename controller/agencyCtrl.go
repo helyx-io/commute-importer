@@ -15,8 +15,8 @@ import (
     "gopkg.in/redis.v2"
     "github.com/gorilla/mux"
     "github.com/fatih/stopwatch"
-    "github.com/helyx-io/gtfs-playground/config"
-    "github.com/helyx-io/gtfs-playground/utils"
+    "github.com/helyx-io/gtfs-importer/config"
+    "github.com/helyx-io/gtfs-importer/utils"
 )
 
 

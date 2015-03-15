@@ -18,12 +18,12 @@ import (
     "encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
-    "github.com/helyx-io/gtfs-playground/models"
-    "github.com/helyx-io/gtfs-playground/config"
-	"github.com/helyx-io/gtfs-playground/utils"
-	"github.com/helyx-io/gtfs-playground/service"
-	"github.com/helyx-io/gtfs-playground/database"
-	"github.com/helyx-io/gtfs-playground/data"
+    "github.com/helyx-io/gtfs-importer/models"
+    "github.com/helyx-io/gtfs-importer/config"
+	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/gtfs-importer/service"
+	"github.com/helyx-io/gtfs-importer/database"
+	"github.com/helyx-io/gtfs-importer/data"
     "gopkg.in/redis.v2"
 )
 

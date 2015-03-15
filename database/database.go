@@ -5,7 +5,7 @@ package database
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"github.com/helyx-io/gtfs-playground/tasks"
+	"github.com/helyx-io/gtfs-importer/tasks"
 )
 
 

@@ -14,8 +14,8 @@ import(
 	"github.com/gorilla/handlers"
 	"github.com/PuerkitoBio/throttled"
 	"github.com/PuerkitoBio/throttled/store"
-	"github.com/helyx-io/gtfs-playground/session"
-    "github.com/helyx-io/gtfs-playground/config"
+	"github.com/helyx-io/gtfs-importer/session"
+    "github.com/helyx-io/gtfs-importer/config"
     "github.com/garyburd/redigo/redis"
 )
 

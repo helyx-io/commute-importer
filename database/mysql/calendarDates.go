@@ -9,11 +9,11 @@ import (
 	"log"
 	"strings"
 	"strconv"
-	"github.com/helyx-io/gtfs-playground/database"
-	"github.com/helyx-io/gtfs-playground/models"
-	"github.com/helyx-io/gtfs-playground/tasks"
-	"github.com/helyx-io/gtfs-playground/data"
-	"github.com/helyx-io/gtfs-playground/utils"
+	"github.com/helyx-io/gtfs-importer/database"
+	"github.com/helyx-io/gtfs-importer/models"
+	"github.com/helyx-io/gtfs-importer/tasks"
+	"github.com/helyx-io/gtfs-importer/data"
+	"github.com/helyx-io/gtfs-importer/utils"
 	_ "github.com/go-sql-driver/mysql"
 )
 
