@@ -35,7 +35,7 @@ func main() {
 	//	defer profile.Start(profile.CPUProfile).Stop()
 
 	// Init Logger
-	logWriter, err := os.Create("/var/log/import-gtfs-helyx-io/access.log")
+	logWriter, err := os.Create("/var/log/gtfs-importer/access.log")
 	utils.FailOnError(err, fmt.Sprintf("Could not access log"))
 	defer logWriter.Close()
 
@@ -81,7 +81,6 @@ func initRouter() *mux.Router {
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
 //	new(controller.AuthController).Init(r.PathPrefix("/auth").Subrouter())
 	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter())
-	new(controller.AgencyController).Init(r.PathPrefix("/api/agencies").Subrouter())
 
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
