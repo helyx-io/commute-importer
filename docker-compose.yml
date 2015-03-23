@@ -1,0 +1,9 @@
+webapp:
+  build: .
+  command: go-wrapper run
+  ports:
+    - "3000:3000"
+  external_links:
+   - ssdb-gtfs:ssdb
+  env_file:
+    - 'webapp.env'
