@@ -248,7 +248,7 @@ func writeIndexes(schema, filename, outFolderName string, indexes map[string]str
         return err
     }
 
-    log.Printf("Writing to file: %v", outFile)
+    log.Printf("Writing to file: %v", outFile.Name())
 
     writer := csv.NewWriter(outFile)
 
@@ -276,7 +276,7 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
         return err
     }
 
-    log.Printf("Writing to file: %v", outFile)
+    log.Printf("Writing to file: %v", outFile.Name())
 
     writer := csv.NewWriter(outFile)
     headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
