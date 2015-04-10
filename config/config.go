@@ -9,11 +9,13 @@ import (
     "github.com/helyx-io/gtfs-importer/auth"
     "github.com/helyx-io/gtfs-importer/database"
     "github.com/helyx-io/gtfs-importer/database/mysql"
+    _ "github.com/lib/pq"
     "github.com/jinzhu/gorm"
     "log"
     "os"
     "strconv"
 )
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Variables
@@ -57,7 +59,10 @@ func Init() error {
 
     var err error
 
-    dbDialect := "mysql"
+    dbDialect := os.Getenv("GTFS_DB_DIALECT")
+    if dbDialect == "" {
+        dbDialect = "mysql"
+    }
 
     dbHostname := os.Getenv("GTFS_DB_HOSTNAME")
     if dbHostname == "" {
@@ -84,13 +89,24 @@ func Init() error {
         dbDatabase = "gtfs"
     }
 
-    log.Printf("[CONFIG] DB infos - Hostname : '%s'", dbHostname)
-    log.Printf("[CONFIG] DB infos - Port : '%s'", dbPort)
-    log.Printf("[CONFIG] DB infos - Database : '%s'", dbDatabase)
-    log.Printf("[CONFIG] DB infos - Username : '%s'", dbUsername)
-    log.Printf("[CONFIG] DB infos - Password : '%s'", "********")
+    dbURL := os.Getenv("GTFS_DB_URL")
+    if dbURL == "" {
+        log.Printf("[CONFIG] DB infos - Dialect : '%s'", dbDialect)
+        log.Printf("[CONFIG] DB infos - Hostname : '%s'", dbHostname)
+        log.Printf("[CONFIG] DB infos - Port : '%s'", dbPort)
+        log.Printf("[CONFIG] DB infos - Database : '%s'", dbDatabase)
+        log.Printf("[CONFIG] DB infos - Username : '%s'", dbUsername)
+        log.Printf("[CONFIG] DB infos - Password : '%s'", "********")
 
-    dbURL := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4,utf8&parseTime=true", dbUsername, dbPassword, dbHostname, dbPort, dbDatabase)
+        if dbDialect == "mysql" {
+
+            dbURL = fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?charset=utf8mb4,utf8&parseTime=true", dbUsername, dbPassword, dbHostname, dbPort, dbDatabase)
+        } else if dbDialect == "postgres" {
+            dbURL = fmt.Sprintf("user=%v dbname=%v sslmode=disable", dbUsername, dbDatabase)
+        }
+    }
+
+    log.Printf("[CONFIG] DB infos - URL : '%s'", dbURL)
 
     dbMinCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
     if dbMinCnx == 0 {
