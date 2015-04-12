@@ -28,9 +28,9 @@ var (
 /// Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func Init() {
-	log.Println("[SESSION] Initializing cookie store with secret: ", "'" + config.Session.Secret + "'");
-	store = sessions.NewCookieStore([]byte(config.Session.Secret))
+func Init(sessionConfig *config.SessionConfig) {
+	log.Println("[SESSION] Initializing cookie store with secret: ", "'" + sessionConfig.Secret + "'");
+	store = sessions.NewCookieStore([]byte(sessionConfig.Secret))
 }
 
 func Get(r *http.Request) (*sessions.Session, error) {

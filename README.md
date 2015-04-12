@@ -1,7 +1,7 @@
 gtfs-importer
-===============
+=============
 
-This project aims to be an playground to explore General Transit Feed Specification Reference by enabling import GTFS data sets into a MySQL database and exposing an API to query data.
+This project aims to be an playground to explore General Transit Feed Specification Reference by enabling import GTFS data sets into a SQL database and exposing an API to query data.
 
 [![Build Status](https://travis-ci.org/helyx-io/gtfs-importer.svg?branch=master)](https://travis-ci.org/helyx-io/gtfs-importer)
 [![Coverage Status](https://coveralls.io/repos/helyx-io/gtfs-importer/badge.png)](https://coveralls.io/r/helyx-io/gtfs-importer)

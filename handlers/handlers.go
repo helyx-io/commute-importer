@@ -37,12 +37,12 @@ func LoggedInHandler(h http.Handler) http.Handler  {
 	}))
 }
 
-func setupRedis() *redis.Pool {
+func setupRedis(redisInfos *config.RedisConfig) *redis.Pool {
 	pool := &redis.Pool{
 		MaxIdle:     3,
 		IdleTimeout: 30 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			return redis.Dial("tcp", fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port))
+			return redis.Dial("tcp", fmt.Sprintf("%s:%d", redisInfos.Host, redisInfos.Port))
 		},
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
@@ -54,7 +54,7 @@ func setupRedis() *redis.Pool {
 }
 
 
-func ThrottleHandler(h http.Handler) http.Handler {
+func ThrottleHandler(h http.Handler, redisInfos *config.RedisConfig) http.Handler {
 
 	var mu sync.Mutex
 	var ok, ko int
@@ -63,7 +63,7 @@ func ThrottleHandler(h http.Handler) http.Handler {
 
 	quota := throttled.Q{Requests: 100, Window: time.Minute}
 	varyBy := throttled.VaryBy{Path: true}
-	st := store.NewRedisStore(setupRedis(), "throttled:", 0)
+	st := store.NewRedisStore(setupRedis(redisInfos), "throttled:", 0)
 
 	t := throttled.RateLimit(quota, &varyBy, st)
 

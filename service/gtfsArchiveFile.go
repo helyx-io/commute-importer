@@ -74,7 +74,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey str
 	log.Println(fmt.Sprintf("Indexes created for file: '%v'", gaf.Name()))
 
 
-	log.Println(fmt.Sprintf("All done in for file: '%v' - Duration: %v", gaf.Name(), sw.ElapsedTime()))
+    log.Println(fmt.Sprintf("All done in for file: '%v' - Duration: %v - Err: %v", gaf.Name(), sw.ElapsedTime(), err))
 
 	return err
 }

@@ -15,7 +15,9 @@ import (
     "encoding/csv"
 	"net/http"
 	"database/sql"
-    "encoding/json"
+
+    "gopkg.in/redis.v2"
+    "github.com/jinzhu/gorm"
 	"github.com/gorilla/mux"
 	"github.com/fatih/stopwatch"
     "github.com/helyx-io/gtfs-importer/models"
@@ -24,7 +26,6 @@ import (
 	"github.com/helyx-io/gtfs-importer/service"
 	"github.com/helyx-io/gtfs-importer/database"
 	"github.com/helyx-io/gtfs-importer/data"
-    "gopkg.in/redis.v2"
 )
 
 
@@ -58,155 +59,70 @@ type CreateIndexResult struct {
 	Error error
 }
 
-type StopTime struct {
-    Arrival_time string     `json:"a"`
-    Departure_time string   `json:"d"`
-    Stop_sequence int       `json:"s"`
-    Stop_name string        `json:"n"`
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Helper functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func initRepositoryMap() {
+func initRepositoryMap(gtfs database.GTFSRepository) {
 	repositoryByFilenameMap = make(map[string]database.GTFSCreatedModelRepository)
 
-	repositoryByFilenameMap["agency.txt"] = config.GTFS.Agencies()
-	repositoryByFilenameMap["calendar_dates.txt"] = config.GTFS.CalendarDates()
-	repositoryByFilenameMap["calendar.txt"] = config.GTFS.Calendars()
-	repositoryByFilenameMap["routes.txt"] = config.GTFS.Routes()
-	repositoryByFilenameMap["stops.txt"] = config.GTFS.Stops()
-	repositoryByFilenameMap["stop_times.txt"] = config.GTFS.StopTimes()
-	repositoryByFilenameMap["transfers.txt"] = config.GTFS.Transfers()
-	repositoryByFilenameMap["trips.txt"] = config.GTFS.Trips()
+	repositoryByFilenameMap["agency.txt"] = gtfs.Agencies()
+	repositoryByFilenameMap["calendar_dates.txt"] = gtfs.CalendarDates()
+	repositoryByFilenameMap["calendar.txt"] = gtfs.Calendars()
+	repositoryByFilenameMap["routes.txt"] = gtfs.Routes()
+	repositoryByFilenameMap["stops.txt"] = gtfs.Stops()
+	repositoryByFilenameMap["stop_times.txt"] = gtfs.StopTimes()
+	repositoryByFilenameMap["transfers.txt"] = gtfs.Transfers()
+	repositoryByFilenameMap["trips.txt"] = gtfs.Trips()
 
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Import Controller
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-type ImportController struct { }
+type ImportController struct {
+    db *gorm.DB
+    gtfs database.GTFSRepository
+    redis *redis.Client
+    connectInfos *config.DBConnectInfos
+    dataResources map[string]string
+    tmpDir string
+}
 
-func (importController *ImportController) Init(r *mux.Router) {
+func (ic *ImportController) Init(r *mux.Router, dataResources map[string]string, tmpDir string, redis *redis.Client, db *gorm.DB, connectInfos *config.DBConnectInfos, gtfs database.GTFSRepository) {
+
+    ic.gtfs = gtfs
+    ic.db = db
+    ic.connectInfos = connectInfos
+    ic.redis = redis
+    ic.tmpDir = tmpDir
+    ic.dataResources = dataResources
+
 
 	// Init Router
-    r.HandleFunc("/{key}", importController.Import)
-    r.HandleFunc("/{key}/caches/trips", importController.BuildTripCache)
+    r.HandleFunc("/{key}", ic.Import)
+    r.HandleFunc("/{key}/caches/trips", ic.BuildTripCache)
 
 	// Init Repository Map
-	initRepositoryMap()
+	initRepositoryMap(gtfs)
 }
 
-func buildTripCache(schema string) {
-    client := redis.NewTCPClient(&redis.Options{
-        Addr: fmt.Sprintf("%s:%d", config.RedisInfos.Host, config.RedisInfos.Port),
-        Password: "", // no password set
-        DB:       0,  // use default DB
-        PoolSize: 16,
-    })
+func (ic *ImportController) rewriteCsvFiles(schema, outFolderName string) error {
 
-    tripIds := make([]string, 0)
+    agencyIndexes, err := ic.getIndexes(schema, "agency.txt", 0)
+    serviceIndexes, err := ic.getIndexes(schema, "trips.txt", 1)
+    tripIndexes, err := ic.getIndexes(schema, "trips.txt", 2)
+    stopIndexes, err := ic.getIndexes(schema, "stops.txt", 0)
+    routeIndexes, err := ic.getIndexes(schema, "routes.txt", 0)
 
-    tripId := ""
-    tripIdsQuery := fmt.Sprintf("select trip_id from `gtfs_%s`.`trips` order by trip_id", schema)
-    log.Printf("Query: %s", tripIdsQuery)
-    rows, err := config.DB.Raw(tripIdsQuery).Rows()
-    defer rows.Close()
+    ic.writeIndexes(schema, "routes.indexes.txt", outFolderName, routeIndexes);
+    ic.writeIndexes(schema, "trip.indexes.txt", outFolderName, tripIndexes);
+    ic.writeIndexes(schema, "stop.indexes.txt", outFolderName, stopIndexes);
 
-    for rows.Next() {
-        rows.Scan(&tripId)
-        tripIds = append(tripIds, tripId);
-    }
-
-    log.Printf("TripIds: %d", len(tripIds))
-
-    /* sem := make(chan bool, 64)*/
-
-    for _, tripId := range tripIds {
-
-        /* sem <- true */
-//        /* go */ func() {
-
-            /* defer func() { <-sem }() */
-
-            stopTimesQuery := fmt.Sprintf("select st.arrival_time, st.departure_time, st.stop_sequence, s.stop_name from `gtfs_%s`.`stop_times` st inner join `gtfs_%s`.`stops` s on st.stop_id=s.stop_id where st.trip_id='%s' order by st.stop_sequence", schema, schema, tripId)
-
-//            log.Printf("Query: %s", stopTimesQuery)
-
-            stopTimeRows, err := config.DB.Raw(stopTimesQuery).Rows()
-            defer rows.Close()
-
-            if err != nil {
-                panic(err.Error())
-            }
-
-            stopTimes := make([]StopTime, 0)
-
-            for stopTimeRows.Next() {
-                var arrival_time, departure_time, stop_name string
-                var stop_sequence int
-                stopTimeRows.Scan(&arrival_time, &departure_time, &stop_sequence, &stop_name)
-                stopTimes = append(stopTimes, StopTime{arrival_time, departure_time, stop_sequence, stop_name});
-            }
-
-//            bytes, err := json.Marshal(stopTimes)
-//            if err != nil {
-//                log.Printf("Error: '%s' ...", err.Error())
-//            }
-
-            //            log.Printf("Selecting stop-times (%d) for tripId: '%s' ...", len(stopTimes), tripId)
-
-//            cacheKey := fmt.Sprintf("/%s/t/st/%s", schema, tripId)
-//            stopTimesStr := string(bytes)
-//            statusCmd := client.Set(cacheKey, stopTimesStr);
-//            if statusCmd.Err() != nil {
-//                log.Printf("Error: '%s' ...", statusCmd.Err().Error())
-//            }
-
-            stopTimesLength := len(stopTimes)
-
-            if stopTimesLength >= 2 {
-                tripFirstLast := []string{ stopTimes[0].Stop_name, stopTimes[len(stopTimes) - 1].Stop_name }
-
-                bytes, err := json.Marshal(tripFirstLast)
-                if err != nil {
-                    log.Printf("Error: '%s' ...", err.Error())
-                }
-
-                cacheKey := fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
-                tripFirstLastStr := string(bytes)
-                statusCmd := client.Set(cacheKey, tripFirstLastStr);
-                if statusCmd.Err() != nil {
-                    log.Printf("Error: '%s' ...", statusCmd.Err().Error())
-                }
-            }
-//        }()
-    }
-
-    /*for i := 0; i < cap(sem); i++ {
-        sem <- true
-    }*/
-
-
-    utils.FailOnError(err, fmt.Sprintf("Build trips cache for agency key: %s", schema))
-}
-
-func rewriteCsvFiles(schema, outFolderName string) error {
-
-    agencyIndexes, err := getIndexes(schema, "agency.txt", 0)
-    serviceIndexes, err := getIndexes(schema, "trips.txt", 1)
-    tripIndexes, err := getIndexes(schema, "trips.txt", 2)
-    stopIndexes, err := getIndexes(schema, "stops.txt", 0)
-    routeIndexes, err := getIndexes(schema, "routes.txt", 0)
-
-    writeIndexes(schema, "routes.indexes.txt", outFolderName, routeIndexes);
-    writeIndexes(schema, "trip.indexes.txt", outFolderName, tripIndexes);
-    writeIndexes(schema, "stop.indexes.txt", outFolderName, stopIndexes);
-
-    folderFilename := config.TmpDir + "/" + schema
+    folderFilename := ic.tmpDir + "/" + schema
     outFolderFilename := path.Join(folderFilename, outFolderName)
 
     if os.MkdirAll(outFolderFilename, 0755) != nil {
@@ -214,41 +130,41 @@ func rewriteCsvFiles(schema, outFolderName string) error {
     }
 
     indexes := map[int](map[string]string){ 0: stopIndexes }
-    rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopIndexes }
-    rewriteCsvFile(schema, "stop_times.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "stop_times.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: routeIndexes, 1: agencyIndexes }
-    rewriteCsvFile(schema, "routes.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "routes.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: agencyIndexes }
-    rewriteCsvFile(schema, "agency.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "agency.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: routeIndexes, 1: serviceIndexes, 2: tripIndexes }
-    rewriteCsvFile(schema, "trips.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "trips.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: serviceIndexes }
-    rewriteCsvFile(schema, "calendar.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "calendar.txt", outFolderName, indexes)
 
     indexes = map[int](map[string]string){ 0: serviceIndexes }
-    rewriteCsvFile(schema, "calendar_dates.txt", outFolderName, indexes)
+    ic.rewriteCsvFile(schema, "calendar_dates.txt", outFolderName, indexes)
 
     return err
 }
 
 
-func writeIndexes(schema, filename, outFolderName string, indexes map[string]string) error {
+func (ic *ImportController) writeIndexes(schema, filename, outFolderName string, indexes map[string]string) error {
 
-    folderName := path.Join(config.TmpDir, schema)
+    folderName := path.Join(ic.tmpDir, schema)
 
     outFile, err := os.Create(path.Join(folderName, path.Join(outFolderName, filename)))
     if err != nil {
-        log.Printf("Error: %v", err.Error())
+        log.Printf("Error: '%v'", err.Error())
         return err
     }
 
-    log.Printf("Writing to file: %v", outFile.Name())
+    log.Printf("Writing to file: '%v'", outFile.Name())
 
     writer := csv.NewWriter(outFile)
 
@@ -263,9 +179,9 @@ func writeIndexes(schema, filename, outFolderName string, indexes map[string]str
 }
 
 
-func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map[string]string)) error {
+func (ic *ImportController) rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map[string]string)) error {
 
-    folderName := path.Join(config.TmpDir, schema)
+    folderName := path.Join(ic.tmpDir, schema)
     filePath := path.Join(folderName, filename)
 
     gtfsFile := models.GTFSFile{filePath}
@@ -276,14 +192,14 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
         return err
     }
 
-    log.Printf("Writing to file: %v", outFile.Name())
+    log.Printf("Writing to file: '%v'", outFile.Name())
 
     writer := csv.NewWriter(outFile)
     headers, err := utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
-    log.Printf("headers: %v", headers)
+    log.Printf("headers: '%v'", headers)
 
     if err != nil {
-        log.Printf("Error: %v", err.Error())
+        log.Printf("Error: '%v'", err.Error())
         return err
     }
 
@@ -334,9 +250,9 @@ func rewriteCsvFile(schema, filename, outFolderName string, indexes map[int](map
     return err
 }
 
-func getIndexes(schema, filename string, index int) (map[string]string, error) {
+func (ic *ImportController) getIndexes(schema, filename string, index int) (map[string]string, error) {
 
-    folderName := path.Join(config.TmpDir, schema)
+    folderName := path.Join(ic.tmpDir, schema)
     filePath := path.Join(folderName, filename)
 
     gtfsFile := models.GTFSFile{filePath}
@@ -392,48 +308,98 @@ func getIndexes(schema, filename string, index int) (map[string]string, error) {
 }
 
 
-func importPostProcess(schema string) {
+func (ic *ImportController) importPostProcess(schema string) {
 
-	createTable(schema, "lines")
-	createTable(schema, "line_stops")
-	createTable(schema, "stations")
-	createTable(schema, "station_stops")
-	createTable(schema, "station_lines")
-	createTable(schema, "route_stops")
+    log.Printf("ic.db: %v", ic.db)
+    log.Printf("ic.connectInfos: %v", ic.connectInfos)
 
-	populateTable(schema, "lines")
-	populateTable(schema, "line_stops")
-	populateTable(schema, "stations")
-	populateTable(schema, "station_stops")
-	populateTable(schema, "station_lines")
-	populateTable(schema, "route_stops")
+	err := database.CreateTable(ic.db, ic.connectInfos, schema, "lines", true)
+    utils.FailOnError(err, "Could not create 'lines' table")
+
+    err = database.CreateTable(ic.db, ic.connectInfos, schema, "line_stops", true)
+    utils.FailOnError(err, "Could not create 'line_stops' table")
+
+    err = database.CreateTable(ic.db, ic.connectInfos, schema, "stations", true)
+    utils.FailOnError(err, "Could not create 'stations' table")
+
+    err = database.CreateTable(ic.db, ic.connectInfos, schema, "station_stops", true)
+    utils.FailOnError(err, "Could not create 'station_stops' table")
+
+    err = database.CreateTable(ic.db, ic.connectInfos, schema, "station_lines", true)
+    utils.FailOnError(err, "Could not create 'station_lines' table")
+
+    err = database.CreateTable(ic.db, ic.connectInfos, schema, "route_stops", true)
+    utils.FailOnError(err, "Could not create 'route_stops' table")
+
+
+    ic.populateTable(schema, "lines")
+    ic.populateTable(schema, "line_stops")
+    ic.populateTable(schema, "stations")
+    ic.populateTable(schema, "station_stops")
+    ic.populateTable(schema, "station_lines")
+    ic.populateTable(schema, "route_stops")
+
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "lines", "line_name")
+    utils.FailOnError(err, "Could not create index 'line_name' for table 'lines'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "line_stops", "line_id")
+    utils.FailOnError(err, "Could not create index 'line_id' for table 'line_stops'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "line_stops", "stop_id")
+    utils.FailOnError(err, "Could not create index 'stop_id' for table 'line_stops'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "stations", "station_name")
+    utils.FailOnError(err, "Could not create index 'station_name' for table 'stations'")
+
+    err = database.CreateSpatialIndex(ic.db, ic.connectInfos, schema, "stations", "station_geo")
+    utils.FailOnError(err, "Could not create index 'station_geo' for table 'stations'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "station_stops", "station_id")
+    utils.FailOnError(err, "Could not create index 'station_id' for table 'station_stops'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "station_stops", "stop_id")
+    utils.FailOnError(err, "Could not create index 'stop_id' for table 'station_stops'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "station_lines", "station_id")
+    utils.FailOnError(err, "Could not create index 'station_id' for table 'station_lines'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "station_lines", "line_id")
+    utils.FailOnError(err, "Could not create index 'line_id' for table 'station_lines'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "route_stops", "route_id")
+    utils.FailOnError(err, "Could not create index 'route_id' for table 'route_stops'")
+
+    err = database.CreateIndex(ic.db, ic.connectInfos, schema, "route_stops", "stop_id")
+    utils.FailOnError(err, "Could not create index 'stop_id' for table 'route_stops'")
 }
 
-func importStopTimesFull(schema string) {
+
+func (ic *ImportController) importStopTimesFull(schema string) {
 //	config.DB.LogMode(true)
 
 	tableName := "stop_times_full"
-	createTable(schema, tableName)
+    database.CreateTable(ic.db, ic.connectInfos, schema, tableName, true)
 
-	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
+	filePath := fmt.Sprintf("resources/ddl/%s/insert-%s.sql", ic.connectInfos.Dialect, tableName)
 
-	log.Printf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
+	log.Printf("Inserting data into table with name: '%s.%s' with query from file path: '%s'", schema, tableName, filePath)
 
 	ddlBytes, err := data.Asset(filePath)
 	ddl := string(ddlBytes)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table `gtfs_%s`.`%s`", filePath, schema, tableName))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table '%s.%s'", filePath, schema, tableName))
 
 	var lines Lines
 
-	fullTableName := fmt.Sprintf("`gtfs_%s`.`%s`", schema, "lines")
-	err = config.DB.Table(fullTableName).Find(&lines).Error
-	utils.FailOnError(err, fmt.Sprintf("Could get lines from table %s", fullTableName))
+	fullTableName := fmt.Sprintf("%s.%s", schema, "lines")
+	err = ic.db.Table(fullTableName).Find(&lines).Error
+	utils.FailOnError(err, fmt.Sprintf("Could get lines from table '%s'", fullTableName))
 
 	insertLineDoneChan := make(chan InsertLineResult, 8)
 
     go func() {
         for _, line := range lines {
-            insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
+            ic.insertForLine(schema, tableName, ddl, line, insertLineDoneChan)
             //		log.Printf("--- Inserting data for line: %s [%s, %s, %s]", line.Name, schema, tableName, ddl)
         }
     }()
@@ -441,14 +407,14 @@ func importStopTimesFull(schema string) {
 	doneCount := 0
 	for insertLineResult := range insertLineDoneChan {
 		if insertLineResult.Error != nil {
-			log.Printf("Received event on done chan with error: %s", insertLineResult.Error)
+			log.Printf("Received event on done chan with error: '%s'", insertLineResult.Error)
 		} else {
 			doneCount += 1
 			if len(lines) == doneCount {
 				log.Printf("Closing done chan.")
 				close(insertLineDoneChan)
 			} else {
-				log.Printf("Received event on done chan for line %s.", insertLineResult.Line.Name)
+				log.Printf("Received event on done chan for line '%s'", insertLineResult.Line.Name)
 			}
 		}
 	}
@@ -459,28 +425,29 @@ func importStopTimesFull(schema string) {
 
     go func() {
         for _, index := range indexes {
-            createIndex(schema, tableName, index, createIndexDoneChan)
+            ic.createIndex(schema, tableName, index, createIndexDoneChan)
         }
     }()
 
 	doneCount = 0
 	for createIndexResult := range createIndexDoneChan {
 		if createIndexResult.Error != nil {
-			log.Printf("[CREATE_INDEX] Received event on done chan for index :%s with error: %s", createIndexResult.Index, createIndexResult.Error)
+			log.Printf("[CREATE_INDEX] Received event on done chan for index :%s with error: '%s'", createIndexResult.Index, createIndexResult.Error)
 		} else {
 			doneCount += 1
 			if len(indexes) == doneCount {
-				log.Printf("[CREATE_INDEX] Closing done chan.")
+				log.Printf("[CREATE_INDEX] Closing done chan")
 				close(createIndexDoneChan)
 			} else {
-				log.Printf("[CREATE_INDEX] Received event on done chan for index %s.", createIndexResult.Index)
+				log.Printf("[CREATE_INDEX] Received event on done chan for index '%s'", createIndexResult.Index)
 			}
 		}
 	}
 }
 
-func updateAgenciesMetaData(schema string) error {
-	dbSql, err := sql.Open(config.ConnectInfos.Dialect, config.ConnectInfos.URL)
+
+func (ic *ImportController) updateAgenciesMetaData(schema string) error {
+	dbSql, err := sql.Open(ic.connectInfos.Dialect, ic.connectInfos.URL)
 
 	if err != nil {
 		panic(err.Error())
@@ -491,15 +458,15 @@ func updateAgenciesMetaData(schema string) error {
 
 	log.Printf("Updating agency zone for schema: %s", schema)
 
-	selectFilePath := "resources/ddl/select-agency-zone.sql"
+	selectFilePath := fmt.Sprintf("resources/ddl/%s/select-agency-zone.sql", ic.connectInfos.Dialect)
 	ddlSelect, err := data.Asset(selectFilePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for fetching agency zone: `%s`", selectFilePath, schema))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for fetching agency zone: '%s'", selectFilePath, schema))
 
 	selectStmt := fmt.Sprintf(string(ddlSelect), schema)
 
 	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, selectStmt)
 
-	row := config.DB.Raw(selectStmt).Row()
+	row := ic.db.Raw(selectStmt).Row()
 
 	var min_stop_lat float64;
 	var max_stop_lat float64;
@@ -517,9 +484,9 @@ func updateAgenciesMetaData(schema string) error {
 	log.Printf("Updating agency zone for schema: %s", schema)
 
 
-	updateFilePath := "resources/ddl/update-agency-zone.sql"
+	updateFilePath := fmt.Sprintf("resources/ddl/%s/update-agency-zone.sql", ic.connectInfos.Dialect)
 	ddlUpdate, err := data.Asset(updateFilePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: `%s`", updateFilePath, schema))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: '%s'", updateFilePath, schema))
 
 	updateStmt := fmt.Sprintf(string(ddlUpdate), schema)
 
@@ -531,14 +498,14 @@ func updateAgenciesMetaData(schema string) error {
 	_, err = dbSql.Exec(updateStmt, updateValueArgs...)
 
 	if err != nil {
-		log.Println(fmt.Println("Failed on Error: %v", err))
+		log.Println(fmt.Println("Failed on Error: '%v'", err))
 		return err
 	}
 
 
-	updateGtfsFilePath := "resources/ddl/update-gtfs-agency-zone.sql"
+	updateGtfsFilePath := fmt.Sprintf("resources/ddl/%s/update-gtfs-agency-zone.sql", ic.connectInfos.Dialect)
 	ddlUpdateGtfs, err := data.Asset(updateGtfsFilePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: `%s`", updateGtfsFilePath, schema))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: '%s'", updateGtfsFilePath, schema))
 
 	updateGtfsStmt := string(ddlUpdateGtfs)
 
@@ -549,24 +516,26 @@ func updateAgenciesMetaData(schema string) error {
 	_, err = dbSql.Exec(updateGtfsStmt, updateGtfsValueArgs...)
 
 	if err != nil {
-		log.Printf("Failed on Error: %v", err)
+		log.Printf("Failed on Error: '%v'", err)
 	}
 
 	return err
 }
 
-func insertForLine(schema string, tableName string, ddl string, line Line, doneChan chan InsertLineResult) {
-	log.Printf("--- Inserting data for line: %s", line.Name)
+
+func (ic *ImportController) insertForLine(schema string, tableName string, ddl string, line Line, doneChan chan InsertLineResult) {
+	log.Printf("--- Inserting data for line: '%s'", line.Name)
 
 	insertStmt := regexp.MustCompile("%s").ReplaceAllString(ddl, schema)
 	insertStmt = regexp.MustCompile("%v").ReplaceAllString(insertStmt, line.Name)
 
 	//		log.Printf("Insert statement: %s", insertStmt)
-	err := config.DB.Exec(insertStmt).Error
+	err := ic.db.Exec(insertStmt).Error
 	doneChan <- InsertLineResult{line, err}
 }
 
-func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
+
+func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	defer utils.RecoverFromError(w)
 
@@ -575,14 +544,14 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	keyParam := params["key"]
 
-	log.Printf("Importing agencies for Key: %s ...", keyParam)
+	log.Printf("Importing agencies for Key: '%s' ...", keyParam)
 
 	w.Header().Set("Content-Type", "text/html")
 
-	folderFilename := config.TmpDir + "/" + keyParam
-	url := config.DataResources[keyParam]
+	folderFilename := ic.tmpDir + "/" + keyParam
+	url := ic.dataResources[keyParam]
 
-	zipFilename := config.TmpDir + "/" + keyParam + "-" + time.Now().Format("20060102-150405") + ".zip"
+	zipFilename := ic.tmpDir + "/" + keyParam + "-" + time.Now().Format("20060102-150405") + ".zip"
 
 	utils.DownloadFile(url, zipFilename)
 	utils.UnzipArchive(zipFilename, folderFilename)
@@ -593,12 +562,12 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
         panic("Unable to create directory for tagfile!")
     }
 
-    rewriteCsvFiles(keyParam, "out")
+    ic.rewriteCsvFiles(keyParam, "out")
 
 	fis := utils.ReadDirectoryFileInfos(outFolderFilename)
 	sort.Sort(utils.FileInfosBySize(fis))
 
-	err := config.GTFS.CreateSchema(keyParam)
+	err := ic.gtfs.CreateSchema(keyParam)
 	utils.FailOnError(err, fmt.Sprintf("Could not create schema for key: '%s'", keyParam))
 
 	for _, fi := range fis {
@@ -618,7 +587,7 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 			if fi.Name() == "agency.txt" {
 				log.Println("Importing agencies in GTFS agencies table ...")
 
-				gtfsAgencyModelRepository := config.GTFS.GtfsAgencies()
+				gtfsAgencyModelRepository := ic.gtfs.GtfsAgencies()
 				gaf := service.NewGTFSArchiveFile(fi)
 
 				err:= gaf.ImportGTFSArchiveFileWithoutTableCreation(keyParam, outFolderFilename, gtfsAgencyModelRepository, 512 * 1000)
@@ -628,10 +597,13 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	importPostProcess(keyParam)
-	importStopTimesFull(keyParam)
-	updateAgenciesMetaData(keyParam)
-    buildTripCache(keyParam)
+    agencyKey := keyParam
+    schema := fmt.Sprintf("gtfs_%s", agencyKey)
+
+	ic.importPostProcess(schema)
+	ic.importStopTimesFull(schema)
+	ic.updateAgenciesMetaData(schema)
+    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, schema)
 
 	log.Printf("-----------------------------------------------------------------------------------")
 	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
@@ -640,7 +612,8 @@ func (ac *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
-func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Request) {
+
+func (ic *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Request) {
 
     defer utils.RecoverFromError(w)
 
@@ -649,9 +622,9 @@ func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Reques
     params := mux.Vars(r)
     keyParam := params["key"]
 
-    importPostProcess(keyParam)
-    importStopTimesFull(keyParam)
-    updateAgenciesMetaData(keyParam)
+    ic.importPostProcess(keyParam)
+    ic.importStopTimesFull(keyParam)
+    ic.updateAgenciesMetaData(keyParam)
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
@@ -660,7 +633,8 @@ func (ac *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Reques
     w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
-func (ac *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Request) {
+
+func (ic *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Request) {
 
     defer utils.RecoverFromError(w)
 
@@ -669,7 +643,11 @@ func (ac *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Reques
     params := mux.Vars(r)
     keyParam := params["key"]
 
-    buildTripCache(keyParam)
+    agencyKey := keyParam
+
+    schema := fmt.Sprintf("gtfs_%s", agencyKey)
+
+    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, schema)
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
@@ -678,49 +656,29 @@ func (ac *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Reques
     w.Write([]byte(fmt.Sprintf("ElapsedTime: %v", sw.ElapsedTime())))
 }
 
-func createTable(schema string, tableName string) {
 
-	log.Printf("Drop table with name: `gtfs_%s`.`%s`", schema, tableName)
+func (ic *ImportController) createIndex(schema string, tableName string, indexName string, doneChan chan CreateIndexResult) {
+	log.Printf("Creating index with name: '%s_idx' on field '%s' for table with name: '%s.%s'", indexName, indexName, schema, tableName)
 
-	dropStmt := fmt.Sprintf("DROP TABLE IF EXISTS `gtfs_%s`.`%s`", schema, tableName)
-	log.Printf("Create statement: %s", dropStmt)
-	err := config.DB.Exec(dropStmt).Error
-	utils.FailOnError(err, fmt.Sprintf("Could not drop '%s' table", tableName))
+    err := database.CreateIndex(ic.db, ic.connectInfos, schema, tableName, indexName)
 
-
-	filePath := fmt.Sprintf("resources/ddl/create-table-%s.sql", tableName)
-	log.Printf("Creating table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
-
-	dml, err := data.Asset(filePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for create of table `gtfs_%s`.`%s`", filePath, schema, tableName))
-	createStmt := fmt.Sprintf(string(dml), schema)
-	log.Printf("Create statement: %s", createStmt)
-	err = config.DB.Exec(createStmt).Error
-	utils.FailOnError(err, fmt.Sprintf("Could not create '%s' table", tableName))
-}
-
-func createIndex(schema string, tableName string, indexName string, doneChan chan CreateIndexResult) {
-	log.Printf("Creating index with name: `%s_idx` on field `%s` for table with name: `gtfs_%s`.`%s`", indexName, indexName, schema, tableName)
-
-	createIndexStmt := fmt.Sprintf("ALTER TABLE `gtfs_%s`.`%s` ADD INDEX `%s_idx` (`%s` ASC);", schema, tableName, indexName, indexName)
-	log.Printf("Create statement: %s", createIndexStmt)
-	err := config.DB.Exec(createIndexStmt).Error
 	doneChan <- CreateIndexResult{indexName, err}
 }
 
-func populateTable(schema string, tableName string) {
 
-	filePath := fmt.Sprintf("resources/ddl/insert-%s.sql", tableName)
+func (ic *ImportController) populateTable(schema string, tableName string) {
 
-	log.Printf("Inserting data into table with name: `gtfs_%s`.`%s` with query from file path: '%s'", schema, tableName, filePath)
+	filePath := fmt.Sprintf("resources/ddl/%s/insert-%s.sql", ic.connectInfos.Dialect, tableName)
+
+	log.Printf("Inserting data into table with name: '%s.%s' with query from file path: '%s'", schema, tableName, filePath)
 
 	ddl, err := data.Asset(filePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table `gtfs_%s`.`%s`", filePath, schema, tableName))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for inserts into table '%s.%s'", filePath, schema, tableName))
 
 	re := regexp.MustCompile("%s")
 	insertStmt := re.ReplaceAllString(string(ddl), schema)
 
 	log.Printf("Insert statement: %s", insertStmt)
-	err = config.DB.Exec(insertStmt).Error
+	err = ic.db.Exec(insertStmt).Error
 	utils.FailOnError(err, fmt.Sprintf("Could not insert into '%s' table", tableName))
 }

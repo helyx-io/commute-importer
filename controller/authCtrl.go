@@ -31,15 +31,15 @@ var (
 
 type AuthController struct { }
 
-func (ac *AuthController) Init(r *mux.Router) {
+func (ac *AuthController) Init(r *mux.Router, oauthInfos *config.OAuthInfos) {
 
 	// Init Router
 	r.HandleFunc("/google", ac.AuthGoogle)
 	r.HandleFunc("/google/callback", ac.AuthGoogleCallback)
 
 	client = &oauth.Config{
-		ClientId:     config.OAuthInfos.ClientId,
-		ClientSecret: config.OAuthInfos.ClientSecret,
+		ClientId:     oauthInfos.ClientId,
+		ClientSecret: oauthInfos.ClientSecret,
 		RedirectURL:  "http://localhost:3000/auth/google/callback",
 		Scope:		  "https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
 		AuthURL:      "https://accounts.google.com/o/oauth2/auth",

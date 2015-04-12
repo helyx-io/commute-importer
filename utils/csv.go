@@ -7,7 +7,7 @@ package utils
 import (
 	"io"
 	"os"
-	"fmt"
+	"log"
 	"bufio"
 	"strings"
 )
@@ -57,7 +57,7 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 
 		if len(b) >= maxLength {
 			chunk++
-			fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
+            log.Printf("Chunk Index: %d - Number of lines : %d", chunk, i)
 
 			channel <- fixUTF8BomIfNecessary(b)
 
@@ -69,7 +69,7 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 
 	if len(b) > 0 {
 		chunk++
-		fmt.Println("Chunk Index: ", chunk, "Number of lines :", i)
+		log.Printf("Chunk Index: %d - Number of lines : %d", chunk, i)
 
 		channel <- fixUTF8BomIfNecessary(b)
 	}

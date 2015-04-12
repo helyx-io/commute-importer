@@ -1,0 +1,1 @@
+DELETE FROM gtfs.agencies WHERE agency_key=$1;

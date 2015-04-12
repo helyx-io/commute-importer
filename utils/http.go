@@ -10,6 +10,7 @@ import (
     "log"
 	"encoding/json"
 	"net/http"
+    "runtime/debug"
 )
 
 
@@ -21,6 +22,7 @@ func RecoverFromError(w http.ResponseWriter) {
 	if r := recover(); r != nil {
 		err, _ := r.(error)
         log.Println("Err:", err.Error());
+        debug.PrintStack()
 		http.Error(w, err.Error(), 500)
 		return
 	}
