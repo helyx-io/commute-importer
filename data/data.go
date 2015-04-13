@@ -76,7 +76,7 @@ func resources_ddl_mysql_agencies_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/agencies.sql", size: 459, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/agencies.sql", size: 459, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -96,7 +96,7 @@ func resources_ddl_mysql_calendar_dates_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/calendar_dates.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/calendar_dates.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -116,7 +116,7 @@ func resources_ddl_mysql_calendars_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/calendars.sql", size: 461, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/calendars.sql", size: 461, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -136,7 +136,7 @@ func resources_ddl_mysql_create_index_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-index.sql", size: 55, mode: os.FileMode(420), modTime: time.Unix(1428841220, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-index.sql", size: 55, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -156,7 +156,7 @@ func resources_ddl_mysql_create_schema_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-schema.sql", size: 63, mode: os.FileMode(420), modTime: time.Unix(1428769497, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-schema.sql", size: 63, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -176,7 +176,7 @@ func resources_ddl_mysql_create_spatial_index_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-spatial-index.sql", size: 60, mode: os.FileMode(420), modTime: time.Unix(1428843207, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-spatial-index.sql", size: 60, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -196,7 +196,7 @@ func resources_ddl_mysql_create_table_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-line_stops.sql", size: 206, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-line_stops.sql", size: 206, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -216,7 +216,7 @@ func resources_ddl_mysql_create_table_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-lines.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-lines.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -236,7 +236,7 @@ func resources_ddl_mysql_create_table_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-route_stops.sql", size: 209, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-route_stops.sql", size: 209, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -256,7 +256,7 @@ func resources_ddl_mysql_create_table_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-station_lines.sql", size: 180, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-station_lines.sql", size: 180, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -276,7 +276,7 @@ func resources_ddl_mysql_create_table_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-station_stops.sql", size: 179, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-station_stops.sql", size: 179, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -296,7 +296,7 @@ func resources_ddl_mysql_create_table_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stations.sql", size: 295, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stations.sql", size: 295, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -316,7 +316,7 @@ func resources_ddl_mysql_create_table_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stop_times_full.sql", size: 1351, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stop_times_full.sql", size: 1351, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -336,7 +336,7 @@ func resources_ddl_mysql_delete_agency_by_key_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/delete-agency-by-key.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1428764323, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/delete-agency-by-key.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -356,7 +356,7 @@ func resources_ddl_mysql_drop_table_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/drop-table.sql", size: 30, mode: os.FileMode(420), modTime: time.Unix(1428838644, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/drop-table.sql", size: 30, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -376,7 +376,7 @@ func resources_ddl_mysql_insert_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-line_stops.sql", size: 404, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-line_stops.sql", size: 404, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -396,7 +396,7 @@ func resources_ddl_mysql_insert_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-lines.sql", size: 147, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-lines.sql", size: 147, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -416,7 +416,7 @@ func resources_ddl_mysql_insert_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-route_stops.sql", size: 316, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-route_stops.sql", size: 316, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -436,7 +436,7 @@ func resources_ddl_mysql_insert_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-station_lines.sql", size: 312, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-station_lines.sql", size: 312, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -456,7 +456,7 @@ func resources_ddl_mysql_insert_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-station_stops.sql", size: 193, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-station_stops.sql", size: 193, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -476,7 +476,7 @@ func resources_ddl_mysql_insert_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-stations.sql", size: 282, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-stations.sql", size: 282, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -496,7 +496,7 @@ func resources_ddl_mysql_insert_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/insert-stop_times_full.sql", size: 886, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/insert-stop_times_full.sql", size: 886, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -516,7 +516,7 @@ func resources_ddl_mysql_routes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/routes.sql", size: 453, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/routes.sql", size: 453, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -536,7 +536,7 @@ func resources_ddl_mysql_select_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/select-agency-zone.sql", size: 101, mode: os.FileMode(420), modTime: time.Unix(1428844054, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/select-agency-zone.sql", size: 101, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -556,7 +556,7 @@ func resources_ddl_mysql_select_trip_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/select_trip_stop_times.sql", size: 196, mode: os.FileMode(420), modTime: time.Unix(1428844618, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/select_trip_stop_times.sql", size: 196, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -576,7 +576,7 @@ func resources_ddl_mysql_select_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/select_trips.sql", size: 49, mode: os.FileMode(420), modTime: time.Unix(1428844415, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/select_trips.sql", size: 49, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -596,7 +596,7 @@ func resources_ddl_mysql_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/stop_times.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/stop_times.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -616,7 +616,7 @@ func resources_ddl_mysql_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/stops.sql", size: 510, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/stops.sql", size: 510, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -636,7 +636,7 @@ func resources_ddl_mysql_transfers_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/transfers.sql", size: 308, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/transfers.sql", size: 308, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -656,7 +656,7 @@ func resources_ddl_mysql_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/trips.sql", size: 350, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/trips.sql", size: 350, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -676,7 +676,7 @@ func resources_ddl_mysql_update_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/update-agency-zone.sql", size: 106, mode: os.FileMode(420), modTime: time.Unix(1428844054, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/update-agency-zone.sql", size: 106, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -696,7 +696,7 @@ func resources_ddl_mysql_update_gtfs_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/update-gtfs-agency-zone.sql", size: 129, mode: os.FileMode(420), modTime: time.Unix(1421882593, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/update-gtfs-agency-zone.sql", size: 129, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -716,7 +716,7 @@ func resources_ddl_postgres_agencies_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/agencies.sql", size: 397, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/agencies.sql", size: 397, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -736,7 +736,7 @@ func resources_ddl_postgres_calendar_dates_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/calendar_dates.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/calendar_dates.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -756,7 +756,7 @@ func resources_ddl_postgres_calendars_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/calendars.sql", size: 377, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/calendars.sql", size: 377, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -776,7 +776,7 @@ func resources_ddl_postgres_create_index_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-index.sql", size: 37, mode: os.FileMode(420), modTime: time.Unix(1428841220, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-index.sql", size: 37, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -796,7 +796,7 @@ func resources_ddl_postgres_create_schema_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-schema.sql", size: 31, mode: os.FileMode(420), modTime: time.Unix(1428769497, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-schema.sql", size: 31, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -816,7 +816,7 @@ func resources_ddl_postgres_create_spatial_index_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-spatial-index.sql", size: 48, mode: os.FileMode(420), modTime: time.Unix(1428843207, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-spatial-index.sql", size: 48, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -836,7 +836,7 @@ func resources_ddl_postgres_create_table_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-line_stops.sql", size: 154, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-line_stops.sql", size: 154, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -856,7 +856,7 @@ func resources_ddl_postgres_create_table_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-lines.sql", size: 103, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-lines.sql", size: 103, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -876,7 +876,7 @@ func resources_ddl_postgres_create_table_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-route_stops.sql", size: 157, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-route_stops.sql", size: 157, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -896,7 +896,7 @@ func resources_ddl_postgres_create_table_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-station_lines.sql", size: 130, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-station_lines.sql", size: 130, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -916,7 +916,7 @@ func resources_ddl_postgres_create_table_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-station_stops.sql", size: 129, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-station_stops.sql", size: 129, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -936,7 +936,7 @@ func resources_ddl_postgres_create_table_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stations.sql", size: 217, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stations.sql", size: 217, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -956,7 +956,7 @@ func resources_ddl_postgres_create_table_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stop_times_full.sql", size: 1245, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stop_times_full.sql", size: 1245, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -976,7 +976,7 @@ func resources_ddl_postgres_delete_agency_by_key_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/delete-agency-by-key.sql", size: 46, mode: os.FileMode(420), modTime: time.Unix(1428764533, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/delete-agency-by-key.sql", size: 46, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -996,7 +996,7 @@ func resources_ddl_postgres_drop_table_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/drop-table.sql", size: 26, mode: os.FileMode(420), modTime: time.Unix(1428838644, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/drop-table.sql", size: 26, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1016,7 +1016,7 @@ func resources_ddl_postgres_insert_line_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-line_stops.sql", size: 380, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-line_stops.sql", size: 380, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1036,7 +1036,7 @@ func resources_ddl_postgres_insert_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-lines.sql", size: 139, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-lines.sql", size: 139, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1056,7 +1056,7 @@ func resources_ddl_postgres_insert_route_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-route_stops.sql", size: 296, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-route_stops.sql", size: 296, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1076,7 +1076,7 @@ func resources_ddl_postgres_insert_station_lines_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-station_lines.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-station_lines.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1096,7 +1096,7 @@ func resources_ddl_postgres_insert_station_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-station_stops.sql", size: 181, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-station_stops.sql", size: 181, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1116,7 +1116,7 @@ func resources_ddl_postgres_insert_stations_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-stations.sql", size: 260, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-stations.sql", size: 260, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1136,7 +1136,7 @@ func resources_ddl_postgres_insert_stop_times_full_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/insert-stop_times_full.sql", size: 866, mode: os.FileMode(420), modTime: time.Unix(1428839374, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/insert-stop_times_full.sql", size: 866, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1156,7 +1156,7 @@ func resources_ddl_postgres_routes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/routes.sql", size: 391, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/routes.sql", size: 391, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1176,7 +1176,7 @@ func resources_ddl_postgres_select_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/select-agency-zone.sql", size: 89, mode: os.FileMode(420), modTime: time.Unix(1428844054, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/select-agency-zone.sql", size: 89, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1196,7 +1196,7 @@ func resources_ddl_postgres_select_trip_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/select_trip_stop_times.sql", size: 188, mode: os.FileMode(420), modTime: time.Unix(1428844696, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/select_trip_stop_times.sql", size: 188, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1216,7 +1216,7 @@ func resources_ddl_postgres_select_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/select_trips.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1428844415, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/select_trips.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1236,7 +1236,7 @@ func resources_ddl_postgres_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/stop_times.sql", size: 316, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/stop_times.sql", size: 316, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1256,7 +1256,7 @@ func resources_ddl_postgres_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/stops.sql", size: 444, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/stops.sql", size: 444, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1276,7 +1276,7 @@ func resources_ddl_postgres_transfers_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/transfers.sql", size: 251, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/transfers.sql", size: 251, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1296,7 +1296,7 @@ func resources_ddl_postgres_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/trips.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1428838701, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/trips.sql", size: 292, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1316,7 +1316,7 @@ func resources_ddl_postgres_update_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/update-agency-zone.sql", size: 98, mode: os.FileMode(420), modTime: time.Unix(1428844054, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/update-agency-zone.sql", size: 98, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1336,7 +1336,7 @@ func resources_ddl_postgres_update_gtfs_agency_zone_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/update-gtfs-agency-zone.sql", size: 120, mode: os.FileMode(420), modTime: time.Unix(1428767139, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/update-gtfs-agency-zone.sql", size: 120, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }

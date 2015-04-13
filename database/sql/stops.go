@@ -143,7 +143,7 @@ func (m SQLStopsImportTask) ImportModels(headers []string, ss []interface{}) err
 
         var args string
         if m.dbInfos.Dialect == "postgres" {
-            args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9, i + 10, i + 11)
+            args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, ST_GeomFromText($%d), $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9, i + 10, i + 11)
         } else {
             args = "(?, ?, ?, ?, ?, ?, GeomFromText(?), ?, ?, ?, ?)"
         }

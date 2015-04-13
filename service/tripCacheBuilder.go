@@ -49,7 +49,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
     selectTripStopTimesDdl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/select_trip_stop_times.sql", connectInfos.Dialect))
     selectTripStopTimesQuery := string(selectTripStopTimesDdl)
 
-    keyValues := make(chan StringKeyValue, 32)
+    keyValues := make(chan StringKeyValue, 16)
 
     go func() {
 
@@ -61,7 +61,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
         rows, _ := db.Raw(tripIdsQuery).Rows()
         defer rows.Close()
 
-        tasks := make(chan Task, 128)
+        tasks := make(chan Task, 64)
         quit := make(chan bool)
         var wg sync.WaitGroup
 
