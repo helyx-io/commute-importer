@@ -446,7 +446,7 @@ func (ic *ImportController) importStopTimesFull(schema string) {
 }
 
 
-func (ic *ImportController) updateAgenciesMetaData(schema string) error {
+func (ic *ImportController) updateAgenciesMetaData(agencyKey, schema string) error {
 	dbSql, err := sql.Open(ic.connectInfos.Dialect, ic.connectInfos.URL)
 
 	if err != nil {
@@ -490,10 +490,9 @@ func (ic *ImportController) updateAgenciesMetaData(schema string) error {
 
 	updateStmt := fmt.Sprintf(string(ddlUpdate), schema)
 
-	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateStmt)
-
 	updateValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon }
 
+    log.Printf("Fetch agency zone infos for schema: '%s': '%s' - Args: %v", schema, updateStmt, updateValueArgs)
 
 	_, err = dbSql.Exec(updateStmt, updateValueArgs...)
 
@@ -505,13 +504,13 @@ func (ic *ImportController) updateAgenciesMetaData(schema string) error {
 
 	updateGtfsFilePath := fmt.Sprintf("resources/ddl/%s/update-gtfs-agency-zone.sql", ic.connectInfos.Dialect)
 	ddlUpdateGtfs, err := data.Asset(updateGtfsFilePath)
-	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: '%s'", updateGtfsFilePath, schema))
+	utils.FailOnError(err, fmt.Sprintf("Could get ddl resource at path '%s' for updating agency zone: '%s'", updateGtfsFilePath, agencyKey))
 
 	updateGtfsStmt := string(ddlUpdateGtfs)
 
-	log.Printf("Fetch agency zone infos for schema: '%s': '%s'", schema, updateGtfsStmt)
+	updateGtfsValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon, agencyKey }
 
-	updateGtfsValueArgs := []interface{}{ min_stop_lat, max_stop_lat, min_stop_lon, max_stop_lon, schema }
+    log.Printf("Fetch agency zone infos for schema: '%s': '%s' - Args: %v", schema, updateGtfsStmt, updateGtfsValueArgs)
 
 	_, err = dbSql.Exec(updateGtfsStmt, updateGtfsValueArgs...)
 
@@ -602,8 +601,8 @@ func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 	ic.importPostProcess(schema)
 	ic.importStopTimesFull(schema)
-	ic.updateAgenciesMetaData(schema)
-    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, schema)
+	ic.updateAgenciesMetaData(agencyKey, schema)
+    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, agencyKey, schema)
 
 	log.Printf("-----------------------------------------------------------------------------------")
 	log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
@@ -621,10 +620,12 @@ func (ic *ImportController) ImportMetaData(w http.ResponseWriter, r *http.Reques
 
     params := mux.Vars(r)
     keyParam := params["key"]
+    agencyKey := keyParam
+    schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    ic.importPostProcess(keyParam)
-    ic.importStopTimesFull(keyParam)
-    ic.updateAgenciesMetaData(keyParam)
+    ic.importPostProcess(schema)
+    ic.importStopTimesFull(schema)
+    ic.updateAgenciesMetaData(agencyKey, keyParam)
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())
@@ -647,7 +648,7 @@ func (ic *ImportController) BuildTripCache(w http.ResponseWriter, r *http.Reques
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, schema)
+    service.BuildTripCache(ic.db, ic.connectInfos, ic.redis, agencyKey, schema)
 
     log.Printf("-----------------------------------------------------------------------------------")
     log.Printf("--- All Done. ElapsedTime: %v", sw.ElapsedTime())

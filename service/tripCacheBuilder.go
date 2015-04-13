@@ -42,7 +42,7 @@ type StopTime struct {
 /// Trip Cache Builder
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *redis.Client, schema string) {
+func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *redis.Client, agencyKey, schema string) {
 
     sw := stopwatch.Start(0)
 
@@ -68,7 +68,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
         // spawn 8 workers
         for i := 0; i < 8; i++ {
             wg.Add(1)
-            go worker(db, selectTripStopTimesQuery, schema, keyValues, tasks, quit, &wg)
+            go worker(db, selectTripStopTimesQuery, agencyKey, schema, keyValues, tasks, quit, &wg)
         }
 
         tripId := ""
@@ -125,7 +125,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
 }
 
 
-func worker(db *gorm.DB, query, schema string, keyValues chan StringKeyValue, tripIds <-chan Task, quit <-chan bool, wg *sync.WaitGroup) {
+func worker(db *gorm.DB, query, agencyKey, schema string, keyValues chan StringKeyValue, tripIds <-chan Task, quit <-chan bool, wg *sync.WaitGroup) {
     defer wg.Done()
     for {
         select {
@@ -134,7 +134,7 @@ func worker(db *gorm.DB, query, schema string, keyValues chan StringKeyValue, tr
                 return
             }
 
-            processTripId(db, query, schema, string(tripId), keyValues)
+            processTripId(db, query, agencyKey, schema, string(tripId), keyValues)
         case <-quit:
             return
         }
@@ -142,7 +142,7 @@ func worker(db *gorm.DB, query, schema string, keyValues chan StringKeyValue, tr
 }
 
 
-func processTripId(db *gorm.DB, query, schema, tripId string, keyValues chan StringKeyValue) {
+func processTripId(db *gorm.DB, query, agencyKey, schema, tripId string, keyValues chan StringKeyValue) {
 
     stopTimesQuery := fmt.Sprintf(query, schema, schema, tripId)
 
@@ -172,7 +172,7 @@ func processTripId(db *gorm.DB, query, schema, tripId string, keyValues chan Str
             log.Printf("Error: '%s' ...", err.Error())
         }
 
-        cacheKey := fmt.Sprintf("/%s/t/st/fl/%s", schema, tripId)
+        cacheKey := fmt.Sprintf("/%s/t/st/fl/%s", agencyKey, tripId)
         tripFirstLastStr := string(bytes)
 
         keyValues <- StringKeyValue{cacheKey, tripFirstLastStr}

@@ -216,12 +216,12 @@ func createConnectInfos() *DBConnectInfos {
 
     dbMinCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MIN_CNX"))
     if dbMinCnx == 0 {
-        dbMinCnx = 2
+        dbMinCnx = 128
     }
 
     dbMaxCnx, _ := strconv.Atoi(os.Getenv("GTFS_DB_MAX_CNX"))
     if dbMaxCnx == 0 {
-        dbMaxCnx = 100
+        dbMaxCnx = 1000
     }
 
     log.Printf("[CONFIG] DB infos - Min Connections : %d", dbMinCnx)

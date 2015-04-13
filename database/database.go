@@ -59,7 +59,7 @@ func InitDB(dbInfos *config.DBConnectInfos) (*gorm.DB, error) {
 
 func Exec(db *gorm.DB, connectInfos *config.DBConnectInfos, filename string, params ...string) error {
     filePath := fmt.Sprintf("resources/ddl/%s/%s.sql", connectInfos.Dialect, filename)
-    log.Printf("Executing query query from file path: '%s'", filePath)
+    log.Printf("Executing query from file path: '%s'", filePath)
 
     dml, err := data.Asset(filePath)
     utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for exec", filePath))
