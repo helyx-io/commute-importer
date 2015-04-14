@@ -26,13 +26,13 @@ type SQLStopTimeRepository struct {
 
 func (r SQLGTFSRepository) StopTimes() database.GTFSCreatedModelRepository {
 	return SQLStopTimeRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
 func (s SQLStopTimeRepository) RemoveAllByAgencyKey(agencyKey string) error {
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    return database.DropTable(s.db, s.dbInfos, schema, "stop_times")
+    return s.driver.DropTable(schema, "stop_times")
 }
 
 func (s SQLStopTimeRepository) CreateTableByAgencyKey(agencyKey string) error {
@@ -42,27 +42,27 @@ func (s SQLStopTimeRepository) CreateTableByAgencyKey(agencyKey string) error {
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
-    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/stop_times.sql", s.dbInfos.Dialect))
+    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/stop_times.sql", s.driver.ConnectInfos.Dialect))
 	stmt := fmt.Sprintf(string(ddl), schema);
 
     log.Printf("Query: %s", stmt)
 
-	return s.db.Exec(stmt).Error
+	return s.driver.ExecQuery(stmt)
 }
 
 func (s SQLStopTimeRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    err := database.CreateIndex(s.db, s.dbInfos, schema, "stop_times", "trip_id")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "stop_times", "stop_id")
+    err := s.driver.CreateIndex(schema, "stop_times", "trip_id")
+    err = s.driver.CreateIndex(schema, "stop_times", "stop_id")
 
     return err
 }
 
 func (r SQLStopTimeRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLStopTimesImportTask{mysqlImportTask}
 }
 
@@ -141,7 +141,7 @@ func (m SQLStopTimesImportTask) ImportModels(headers []string, sts []interface{}
 		st := entry.(models.StopTimeImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8)
         } else {
             args = "(?, ?, ?, ?, ?, ?, ?, ?)"

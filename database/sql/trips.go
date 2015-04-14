@@ -22,7 +22,7 @@ import (
 
 func (r SQLGTFSRepository) Trips() database.GTFSCreatedModelRepository {
 	return SQLTripRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
@@ -32,12 +32,12 @@ type SQLTripRepository struct {
 
 func (s SQLTripRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    return database.DropTable(s.db, s.dbInfos, schema, "trips")
+    return s.driver.DropTable(schema, "trips")
 }
 
 func (r SQLTripRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLTripsImportTask{mysqlImportTask}
 }
 
@@ -48,20 +48,20 @@ func (s SQLTripRepository) CreateTableByAgencyKey(agencyKey string) error {
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
-    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/trips.sql", s.dbInfos.Dialect))
+    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/trips.sql", s.driver.ConnectInfos.Dialect))
 	stmt := fmt.Sprintf(string(ddl), schema);
 
     log.Printf("Query: %s", stmt)
 
-	return s.db.Exec(stmt).Error
+	return s.driver.ExecQuery(stmt)
 }
 
 func (s SQLTripRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    err := database.CreateIndex(s.db, s.dbInfos, schema, "trips", "route_id")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "trips", "service_id")
+    err := s.driver.CreateIndex(schema, "trips", "route_id")
+    err = s.driver.CreateIndex(schema, "trips", "service_id")
 
     return err
 }
@@ -137,7 +137,7 @@ func (m SQLTripsImportTask) ImportModels(headers []string, as []interface{}) err
 		t := entry.(models.TripImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7)
         } else {
             args = "(?, ?, ?, ?, ?, ?, ?)"

@@ -11,7 +11,6 @@ import (
     "runtime"
     "net/http"
 
-    "github.com/jinzhu/gorm"
     "github.com/gorilla/mux"
     "github.com/justinas/alice"
 
@@ -31,9 +30,9 @@ import (
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-    DB              *gorm.DB
-    GTFS            database.GTFSRepository
+    Driver          *database.Driver
     RedisClient     *redis.Client
+    GTFS            database.GTFSRepository
 )
 
 
@@ -59,11 +58,13 @@ func main() {
     utils.FailOnError(err, fmt.Sprintf("Could not access log"))
     defer logWriter.Close()
 
-    DB, err = database.InitDB(config.ConnectInfos)
+    db, err := database.InitDB(config.ConnectInfos)
     utils.FailOnError(err, fmt.Sprintf("Could not init Database"))
 
+    Driver = database.NewDriver(db, config.ConnectInfos)
+
     // Init GTFS Repository
-    GTFS = sql.CreateSQLGTFSRepository(DB, config.ConnectInfos)
+    GTFS = sql.CreateSQLGTFSRepository(Driver)
 
 
     RedisClient = redis.NewTCPClient(&redis.Options{
@@ -101,8 +102,8 @@ func main() {
 }
 
 func Close() {
-    if DB != nil {
-        defer DB.Close()
+    if Driver != nil {
+        defer Driver.Close()
     }
 }
 
@@ -115,7 +116,7 @@ func initRouter(config *config.Config) *mux.Router {
 	r := mux.NewRouter()
 
 	new(controller.IndexController).Init(r.PathPrefix("/").Subrouter())
-	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter(), config.DataResources, config.TmpDir, RedisClient, DB, config.ConnectInfos, GTFS)
+	new(controller.ImportController).Init(r.PathPrefix("/import").Subrouter(), config.DataResources, config.TmpDir, Driver, RedisClient, GTFS)
 
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))

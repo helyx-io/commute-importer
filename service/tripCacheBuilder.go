@@ -1,6 +1,5 @@
 package service
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Imports
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -10,18 +9,26 @@ import (
     "log"
     "encoding/json"
     "gopkg.in/redis.v2"
-    "github.com/jinzhu/gorm"
     "github.com/helyx-io/gtfs-importer/utils"
     "github.com/helyx-io/gtfs-importer/data"
-    "github.com/helyx-io/gtfs-importer/config"
     "github.com/fatih/stopwatch"
     "sync"
+    "github.com/helyx-io/gtfs-importer/database"
 )
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /// Structures
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+type TripCacheBuilder struct {
+    driver *database.Driver
+    redis *redis.Client
+}
+
+func NewTripCacheBuilder(driver *database.Driver, redis *redis.Client) *TripCacheBuilder {
+    return &TripCacheBuilder{driver, redis}
+}
 
 type Task string
 
@@ -42,23 +49,23 @@ type StopTime struct {
 /// Trip Cache Builder
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *redis.Client, agencyKey, schema string) {
+func (tcb *TripCacheBuilder) BuildTripCache(agencyKey, schema string) {
 
     sw := stopwatch.Start(0)
 
-    selectTripStopTimesDdl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/select_trip_stop_times.sql", connectInfos.Dialect))
+    selectTripStopTimesDdl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/select_trip_stop_times.sql", tcb.driver.ConnectInfos.Dialect))
     selectTripStopTimesQuery := string(selectTripStopTimesDdl)
 
     keyValues := make(chan StringKeyValue, 16)
 
     go func() {
 
-        ddl, err := data.Asset(fmt.Sprintf("resources/ddl/%s/select_trips.sql", connectInfos.Dialect))
+        ddl, err := data.Asset(fmt.Sprintf("resources/ddl/%s/select_trips.sql", tcb.driver.ConnectInfos.Dialect))
         utils.FailOnError(err, fmt.Sprintf("Build trips cache for agency key: %s", schema))
 
         tripIdsQuery := fmt.Sprintf(string(ddl), schema)
         log.Printf("Query: %s", tripIdsQuery)
-        rows, _ := db.Raw(tripIdsQuery).Rows()
+        rows, _ := tcb.driver.Raw(tripIdsQuery).Rows()
         defer rows.Close()
 
         tasks := make(chan Task, 64)
@@ -68,7 +75,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
         // spawn 8 workers
         for i := 0; i < 8; i++ {
             wg.Add(1)
-            go worker(db, selectTripStopTimesQuery, agencyKey, schema, keyValues, tasks, quit, &wg)
+            go tcb.worker(selectTripStopTimesQuery, agencyKey, schema, keyValues, tasks, quit, &wg)
         }
 
         tripId := ""
@@ -98,7 +105,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
         if len(entries) > 2048 { // 2 entries ... => 1024
             flushCount += 1
 
-            statusCmd := redis.MSet(entries...);
+            statusCmd := tcb.redis.MSet(entries...);
             if statusCmd.Err() != nil {
                 log.Printf("Error: '%s' ...", statusCmd.Err().Error())
             }
@@ -113,7 +120,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
         flushCount += 1
         log.Printf("Flush Count: %d", flushCount)
 
-        statusCmd := redis.MSet(entries...);
+        statusCmd := tcb.redis.MSet(entries...);
         if statusCmd.Err() != nil {
             log.Printf("Error: '%s' ...", statusCmd.Err().Error())
         }
@@ -125,7 +132,7 @@ func BuildTripCache(db *gorm.DB, connectInfos *config.DBConnectInfos, redis *red
 }
 
 
-func worker(db *gorm.DB, query, agencyKey, schema string, keyValues chan StringKeyValue, tripIds <-chan Task, quit <-chan bool, wg *sync.WaitGroup) {
+func (tcb *TripCacheBuilder) worker(query, agencyKey, schema string, keyValues chan StringKeyValue, tripIds <-chan Task, quit <-chan bool, wg *sync.WaitGroup) {
     defer wg.Done()
     for {
         select {
@@ -134,7 +141,7 @@ func worker(db *gorm.DB, query, agencyKey, schema string, keyValues chan StringK
                 return
             }
 
-            processTripId(db, query, agencyKey, schema, string(tripId), keyValues)
+            tcb.processTripId(query, agencyKey, schema, string(tripId), keyValues)
         case <-quit:
             return
         }
@@ -142,11 +149,11 @@ func worker(db *gorm.DB, query, agencyKey, schema string, keyValues chan StringK
 }
 
 
-func processTripId(db *gorm.DB, query, agencyKey, schema, tripId string, keyValues chan StringKeyValue) {
+func (tcb *TripCacheBuilder) processTripId(query, agencyKey, schema, tripId string, keyValues chan StringKeyValue) {
 
     stopTimesQuery := fmt.Sprintf(query, schema, schema, tripId)
 
-    stopTimeRows, err := db.Raw(stopTimesQuery).Rows()
+    stopTimeRows, err := tcb.driver.Raw(stopTimesQuery).Rows()
     defer stopTimeRows.Close()
 
     if err != nil {

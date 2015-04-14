@@ -21,7 +21,7 @@ import (
 
 func (r SQLGTFSRepository) GtfsAgencies() database.GTFSModelRepository {
 	return SQLGtfsAgencyRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
@@ -30,12 +30,12 @@ type SQLGtfsAgencyRepository struct {
 }
 
 func (s SQLGtfsAgencyRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
-	return database.Exec(s.db, s.dbInfos, "delete-agency-by-key", agencyKey)
+	return s.driver.Exec("delete-agency-by-key", agencyKey)
 }
 
 func (r SQLGtfsAgencyRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLGtfsAgenciesImportTask{mysqlImportTask}
 }
 
@@ -93,7 +93,7 @@ func (m SQLGtfsAgenciesImportTask) ImportModels(headers []string, as []interface
 		a := entry.(models.AgencyImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6)
         } else {
             args = "(?, ?, ?, ?, ?, ?)"

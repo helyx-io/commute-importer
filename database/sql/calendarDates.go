@@ -23,7 +23,7 @@ import (
 
 func (r SQLGTFSRepository) CalendarDates() database.GTFSCreatedModelRepository {
 	return SQLCalendarDateRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
@@ -33,12 +33,12 @@ type SQLCalendarDateRepository struct {
 
 func (s SQLCalendarDateRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    return database.DropTable(s.db, s.dbInfos, schema, "calendar_dates")
+    return s.driver.DropTable(schema, "calendar_dates")
 }
 
 func (r SQLCalendarDateRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLCalendarDatesImportTask{mysqlImportTask}
 }
 
@@ -49,19 +49,19 @@ func (s SQLCalendarDateRepository) CreateTableByAgencyKey(agencyKey string) erro
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
-	ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/calendar_dates.sql", s.dbInfos.Dialect))
+	ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/calendar_dates.sql", s.driver.ConnectInfos.Dialect))
 	stmt := fmt.Sprintf(string(ddl), schema);
 
     log.Printf("Query: %s", stmt)
 
-	return s.db.Exec(stmt).Error
+	return s.driver.ExecQuery(stmt)
 }
 
 func (s SQLCalendarDateRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    err := database.CreateIndex(s.db, s.dbInfos, schema, "calendar_dates", "date")
+    err := s.driver.CreateIndex(schema, "calendar_dates", "date")
 
     return err
 }
@@ -126,7 +126,7 @@ func (m SQLCalendarDatesImportTask) ImportModels(headers []string, as []interfac
 		cd := entry.(models.CalendarDateImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d)", i + 1, i + 2, i + 3)
         } else {
             args = "(?, ?, ?)"

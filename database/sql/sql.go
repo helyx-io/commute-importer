@@ -11,11 +11,9 @@ import (
     "time"
 	"strconv"
 	"database/sql"
-	"github.com/jinzhu/gorm"
     "github.com/helyx-io/gtfs-importer/data"
     "github.com/helyx-io/gtfs-importer/tasks"
     "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/config"
     "github.com/helyx-io/gtfs-importer/database"
 
     _ "github.com/lib/pq"
@@ -27,18 +25,16 @@ import (
 /// SQL
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func CreateSQLGTFSRepository(db *gorm.DB, dbInfos *config.DBConnectInfos) database.GTFSRepository {
-	return SQLGTFSRepository{db, dbInfos}
+func CreateSQLGTFSRepository(driver *database.Driver) database.GTFSRepository {
+	return SQLGTFSRepository{driver}
 }
 
 type SQLGTFSRepository struct {
-	db *gorm.DB
-	dbInfos *config.DBConnectInfos
+    driver *database.Driver
 }
 
 type SQLGTFSModelRepository struct {
-	db *gorm.DB
-	dbInfos *config.DBConnectInfos
+	driver *database.Driver
 }
 
 type SQLConnectionProvider interface {
@@ -47,13 +43,12 @@ type SQLConnectionProvider interface {
 
 type SQLImportTask struct {
 	tasks.ImportTask
-	db *gorm.DB
-	dbInfos *config.DBConnectInfos
+	driver *database.Driver
 }
 
 func (r SQLGTFSRepository) CreateSchema(agencyKey string) error {
 
-    filePath := fmt.Sprintf("resources/ddl/%s/create-schema.sql", r.dbInfos.Dialect)
+    filePath := fmt.Sprintf("resources/ddl/%s/create-schema.sql", r.driver.ConnectInfos.Dialect)
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
@@ -68,7 +63,7 @@ func (r SQLGTFSRepository) CreateSchema(agencyKey string) error {
 	query := fmt.Sprintf(ddl, schema)
 	log.Printf("Query: %s", query)
 
-    err = r.db.Exec(query).Error
+    err = r.driver.ExecQuery(query)
 
 	if err == nil {
 		log.Println(fmt.Sprintf("Created schema: '%s' with success", schema))
@@ -78,7 +73,7 @@ func (r SQLGTFSRepository) CreateSchema(agencyKey string) error {
 }
 
 func (it *SQLImportTask) OpenSqlConnection() (*sql.DB, error) {
-	return sql.Open(it.dbInfos.Dialect, it.dbInfos.URL)
+	return it.driver.Open()
 }
 
 

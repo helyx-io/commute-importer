@@ -23,7 +23,7 @@ import (
 
 func (r SQLGTFSRepository) Routes() database.GTFSCreatedModelRepository {
 	return SQLRouteRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
@@ -33,13 +33,13 @@ type SQLRouteRepository struct {
 
 func (s SQLRouteRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    return database.DropTable(s.db, s.dbInfos, schema, "routes")
+    return s.driver.DropTable(schema, "routes")
 }
 
 
 func (r SQLRouteRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLRoutesImportTask{mysqlImportTask}
 }
 
@@ -50,19 +50,19 @@ func (s SQLRouteRepository) CreateTableByAgencyKey(agencyKey string) error {
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
-    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/routes.sql", s.dbInfos.Dialect))
+    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/routes.sql", s.driver.ConnectInfos.Dialect))
 	stmt := fmt.Sprintf(string(ddl), schema);
 
     log.Printf("Query: %s", stmt)
 
-	return s.db.Exec(stmt).Error
+	return s.driver.ExecQuery(stmt)
 }
 
 func (s SQLRouteRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    err := database.CreateIndex(s.db, s.dbInfos, schema, "routes", "agency_id")
+    err := s.driver.CreateIndex(schema, "routes", "agency_id")
 
     return err
 }
@@ -140,7 +140,7 @@ func (m SQLRoutesImportTask) ImportModels(headers []string, as []interface{}) er
 		r := entry.(models.RouteImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9)
         } else {
             args = "(?, ?, ?, ?, ?, ?, ?, ?, ?)"

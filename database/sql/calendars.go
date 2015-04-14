@@ -23,7 +23,7 @@ import (
 
 func (r SQLGTFSRepository) Calendars() database.GTFSCreatedModelRepository {
 	return SQLCalendarRepository{
-		SQLGTFSModelRepository{r.db,r.dbInfos},
+		SQLGTFSModelRepository{r.driver},
 	}
 }
 
@@ -33,13 +33,13 @@ type SQLCalendarRepository struct {
 
 func (s SQLCalendarRepository) RemoveAllByAgencyKey(agencyKey string) (error) {
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    return database.DropTable(s.db, s.dbInfos, schema, "calendars")
+    return s.driver.DropTable(schema, "calendars")
 }
 
 
 func (r SQLCalendarRepository) CreateImportTask(taskName string, jobIndex int, fileName, agencyKey string, headers []string, lines []byte, done chan error) tasks.Task {
 	importTask := tasks.ImportTask{taskName, jobIndex, fileName, agencyKey, headers, lines, done}
-	mysqlImportTask := SQLImportTask{importTask, r.db, r.dbInfos}
+	mysqlImportTask := SQLImportTask{importTask, r.driver}
 	return SQLCalendarsImportTask{mysqlImportTask}
 }
 
@@ -50,27 +50,27 @@ func (s SQLCalendarRepository) CreateTableByAgencyKey(agencyKey string) error {
 
 	log.Println(fmt.Sprintf("Creating table: '%s'", table))
 
-    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/calendars.sql", s.dbInfos.Dialect))
+    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/calendars.sql", s.driver.ConnectInfos.Dialect))
 	stmt := fmt.Sprintf(string(ddl), schema);
 
     log.Printf("Query: %s", stmt)
 
-	return s.db.Exec(stmt).Error
+	return s.driver.ExecQuery(stmt)
 }
 
 func (s SQLCalendarRepository) AddIndexesByAgencyKey(agencyKey string) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-    err := database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "start_date")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "end_date")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "monday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "tuesday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "wednesday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "thursday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "friday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "saturday")
-    err = database.CreateIndex(s.db, s.dbInfos, schema, "calendars", "sunday")
+    err := s.driver.CreateIndex(schema, "calendars", "start_date")
+    err = s.driver.CreateIndex(schema, "calendars", "end_date")
+    err = s.driver.CreateIndex(schema, "calendars", "monday")
+    err = s.driver.CreateIndex(schema, "calendars", "tuesday")
+    err = s.driver.CreateIndex(schema, "calendars", "wednesday")
+    err = s.driver.CreateIndex(schema, "calendars", "thursday")
+    err = s.driver.CreateIndex(schema, "calendars", "friday")
+    err = s.driver.CreateIndex(schema, "calendars", "saturday")
+    err = s.driver.CreateIndex(schema, "calendars", "sunday")
 
     return err
 }
@@ -156,7 +156,7 @@ func (m SQLCalendarsImportTask) ImportModels(headers []string, as []interface{})
 		c := entry.(models.CalendarImportRow)
 
         var args string
-        if m.dbInfos.Dialect == "postgres" {
+        if m.driver.ConnectInfos.Dialect == "postgres" {
             args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4, i + 5, i + 6, i + 7, i + 8, i + 9, i + 10)
         } else {
             args = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
