@@ -66,7 +66,7 @@ var _resources_ddl_mysql_agencies_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88
 func resources_ddl_mysql_agencies_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_agencies_sql,
-		"resources/ddl/mysql/agencies.sql",
+		"resources/ddl/mysql/create-table-agencies.sql",
 	)
 }
 
@@ -76,7 +76,7 @@ func resources_ddl_mysql_agencies_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/agencies.sql", size: 459, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-agencies.sql", size: 459, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -86,7 +86,7 @@ var _resources_ddl_mysql_calendar_dates_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x
 func resources_ddl_mysql_calendar_dates_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_calendar_dates_sql,
-		"resources/ddl/mysql/calendar_dates.sql",
+		"resources/ddl/mysql/create-table-calendar_dates.sql",
 	)
 }
 
@@ -96,7 +96,7 @@ func resources_ddl_mysql_calendar_dates_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/calendar_dates.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-calendar_dates.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -106,7 +106,7 @@ var _resources_ddl_mysql_calendars_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x8
 func resources_ddl_mysql_calendars_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_calendars_sql,
-		"resources/ddl/mysql/calendars.sql",
+		"resources/ddl/mysql/create-table-calendars.sql",
 	)
 }
 
@@ -116,7 +116,7 @@ func resources_ddl_mysql_calendars_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/calendars.sql", size: 461, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-calendars.sql", size: 461, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -506,7 +506,7 @@ var _resources_ddl_mysql_routes_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x
 func resources_ddl_mysql_routes_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_routes_sql,
-		"resources/ddl/mysql/routes.sql",
+		"resources/ddl/mysql/create-table-routes.sql",
 	)
 }
 
@@ -516,7 +516,7 @@ func resources_ddl_mysql_routes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/routes.sql", size: 453, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-routes.sql", size: 453, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -586,7 +586,7 @@ var _resources_ddl_mysql_stop_times_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x
 func resources_ddl_mysql_stop_times_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_stop_times_sql,
-		"resources/ddl/mysql/stop_times.sql",
+		"resources/ddl/mysql/create-table-stop_times.sql",
 	)
 }
 
@@ -596,7 +596,7 @@ func resources_ddl_mysql_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/stop_times.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stop_times.sql", size: 366, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -606,7 +606,7 @@ var _resources_ddl_mysql_stops_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x0
 func resources_ddl_mysql_stops_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_stops_sql,
-		"resources/ddl/mysql/stops.sql",
+		"resources/ddl/mysql/create-table-stops.sql",
 	)
 }
 
@@ -616,7 +616,7 @@ func resources_ddl_mysql_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/stops.sql", size: 510, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-stops.sql", size: 510, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -626,7 +626,7 @@ var _resources_ddl_mysql_transfers_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x8
 func resources_ddl_mysql_transfers_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_transfers_sql,
-		"resources/ddl/mysql/transfers.sql",
+		"resources/ddl/mysql/create-table-transfers.sql",
 	)
 }
 
@@ -636,7 +636,7 @@ func resources_ddl_mysql_transfers_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/transfers.sql", size: 308, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-transfers.sql", size: 308, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -646,7 +646,7 @@ var _resources_ddl_mysql_trips_sql = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x0
 func resources_ddl_mysql_trips_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_mysql_trips_sql,
-		"resources/ddl/mysql/trips.sql",
+		"resources/ddl/mysql/create-table-trips.sql",
 	)
 }
 
@@ -656,7 +656,7 @@ func resources_ddl_mysql_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/mysql/trips.sql", size: 350, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/mysql/create-table-trips.sql", size: 350, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -766,7 +766,7 @@ var _resources_ddl_postgres_create_table_agencies_sql = []byte("\x1f\x8b\x08\x00
 func resources_ddl_postgres_create_table_agencies_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_agencies_sql,
-		"resources/ddl/postgres/create-table-agencies.sql",
+		"resources/ddl/postgres/create-table-create-table-agencies.sql",
 	)
 }
 
@@ -776,7 +776,7 @@ func resources_ddl_postgres_create_table_agencies_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-agencies.sql", size: 445, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-agencies.sql", size: 445, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -786,7 +786,7 @@ var _resources_ddl_postgres_create_table_calendar_dates_sql = []byte("\x1f\x8b\x
 func resources_ddl_postgres_create_table_calendar_dates_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_calendar_dates_sql,
-		"resources/ddl/postgres/create-table-calendar_dates.sql",
+		"resources/ddl/postgres/create-table-create-table-calendar_dates.sql",
 	)
 }
 
@@ -796,7 +796,7 @@ func resources_ddl_postgres_create_table_calendar_dates_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-calendar_dates.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-calendar_dates.sql", size: 161, mode: os.FileMode(420), modTime: time.Unix(1428878138, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -866,7 +866,7 @@ var _resources_ddl_postgres_create_table_routes_sql = []byte("\x1f\x8b\x08\x00\x
 func resources_ddl_postgres_create_table_routes_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_routes_sql,
-		"resources/ddl/postgres/create-table-routes.sql",
+		"resources/ddl/postgres/create-table-create-table-routes.sql",
 	)
 }
 
@@ -876,7 +876,7 @@ func resources_ddl_postgres_create_table_routes_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-routes.sql", size: 436, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-routes.sql", size: 436, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -946,7 +946,7 @@ var _resources_ddl_postgres_create_table_stop_times_sql = []byte("\x1f\x8b\x08\x
 func resources_ddl_postgres_create_table_stop_times_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_stop_times_sql,
-		"resources/ddl/postgres/create-table-stop_times.sql",
+		"resources/ddl/postgres/create-table-create-table-stop_times.sql",
 	)
 }
 
@@ -956,7 +956,7 @@ func resources_ddl_postgres_create_table_stop_times_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stop_times.sql", size: 333, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-stop_times.sql", size: 333, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -986,7 +986,7 @@ var _resources_ddl_postgres_create_table_stops_sql = []byte("\x1f\x8b\x08\x00\x0
 func resources_ddl_postgres_create_table_stops_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_stops_sql,
-		"resources/ddl/postgres/create-table-stops.sql",
+		"resources/ddl/postgres/create-table-create-table-stops.sql",
 	)
 }
 
@@ -996,7 +996,7 @@ func resources_ddl_postgres_create_table_stops_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-stops.sql", size: 496, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-stops.sql", size: 496, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1006,7 +1006,7 @@ var _resources_ddl_postgres_create_table_transfers_sql = []byte("\x1f\x8b\x08\x0
 func resources_ddl_postgres_create_table_transfers_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_transfers_sql,
-		"resources/ddl/postgres/create-table-transfers.sql",
+		"resources/ddl/postgres/create-table-create-table-transfers.sql",
 	)
 }
 
@@ -1016,7 +1016,7 @@ func resources_ddl_postgres_create_table_transfers_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-transfers.sql", size: 271, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-transfers.sql", size: 271, mode: os.FileMode(420), modTime: time.Unix(1429130069, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1026,7 +1026,7 @@ var _resources_ddl_postgres_create_table_trips_sql = []byte("\x1f\x8b\x08\x00\x0
 func resources_ddl_postgres_create_table_trips_sql_bytes() ([]byte, error) {
 	return bindata_read(
 		_resources_ddl_postgres_create_table_trips_sql,
-		"resources/ddl/postgres/create-table-trips.sql",
+		"resources/ddl/postgres/create-table-create-table-trips.sql",
 	)
 }
 
@@ -1036,7 +1036,7 @@ func resources_ddl_postgres_create_table_trips_sql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "resources/ddl/postgres/create-table-trips.sql", size: 318, mode: os.FileMode(420), modTime: time.Unix(1429130745, 0)}
+	info := bindata_file_info{name: "resources/ddl/postgres/create-table-create-table-trips.sql", size: 318, mode: os.FileMode(420), modTime: time.Unix(1429130745, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -1382,9 +1382,9 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
-	"resources/ddl/mysql/agencies.sql": resources_ddl_mysql_agencies_sql,
-	"resources/ddl/mysql/calendar_dates.sql": resources_ddl_mysql_calendar_dates_sql,
-	"resources/ddl/mysql/calendars.sql": resources_ddl_mysql_calendars_sql,
+	"resources/ddl/mysql/create-table-agencies.sql": resources_ddl_mysql_agencies_sql,
+	"resources/ddl/mysql/create-table-calendar_dates.sql": resources_ddl_mysql_calendar_dates_sql,
+	"resources/ddl/mysql/create-table-calendars.sql": resources_ddl_mysql_calendars_sql,
 	"resources/ddl/mysql/create-index.sql": resources_ddl_mysql_create_index_sql,
 	"resources/ddl/mysql/create-schema.sql": resources_ddl_mysql_create_schema_sql,
 	"resources/ddl/mysql/create-spatial-index.sql": resources_ddl_mysql_create_spatial_index_sql,
@@ -1404,33 +1404,33 @@ var _bindata = map[string]func() (*asset, error){
 	"resources/ddl/mysql/insert-station_stops.sql": resources_ddl_mysql_insert_station_stops_sql,
 	"resources/ddl/mysql/insert-stations.sql": resources_ddl_mysql_insert_stations_sql,
 	"resources/ddl/mysql/insert-stop_times_full.sql": resources_ddl_mysql_insert_stop_times_full_sql,
-	"resources/ddl/mysql/routes.sql": resources_ddl_mysql_routes_sql,
+	"resources/ddl/mysql/create-table-routes.sql": resources_ddl_mysql_routes_sql,
 	"resources/ddl/mysql/select-agency-zone.sql": resources_ddl_mysql_select_agency_zone_sql,
 	"resources/ddl/mysql/select_trip_stop_times.sql": resources_ddl_mysql_select_trip_stop_times_sql,
 	"resources/ddl/mysql/select_trips.sql": resources_ddl_mysql_select_trips_sql,
-	"resources/ddl/mysql/stop_times.sql": resources_ddl_mysql_stop_times_sql,
-	"resources/ddl/mysql/stops.sql": resources_ddl_mysql_stops_sql,
-	"resources/ddl/mysql/transfers.sql": resources_ddl_mysql_transfers_sql,
-	"resources/ddl/mysql/trips.sql": resources_ddl_mysql_trips_sql,
+	"resources/ddl/mysql/create-table-stop_times.sql": resources_ddl_mysql_stop_times_sql,
+	"resources/ddl/mysql/create-table-stops.sql": resources_ddl_mysql_stops_sql,
+	"resources/ddl/mysql/create-table-transfers.sql": resources_ddl_mysql_transfers_sql,
+	"resources/ddl/mysql/create-table-trips.sql": resources_ddl_mysql_trips_sql,
 	"resources/ddl/mysql/update-agency-zone.sql": resources_ddl_mysql_update_agency_zone_sql,
 	"resources/ddl/mysql/update-gtfs-agency-zone.sql": resources_ddl_mysql_update_gtfs_agency_zone_sql,
 	"resources/ddl/postgres/create-index.sql": resources_ddl_postgres_create_index_sql,
 	"resources/ddl/postgres/create-schema.sql": resources_ddl_postgres_create_schema_sql,
 	"resources/ddl/postgres/create-spatial-index.sql": resources_ddl_postgres_create_spatial_index_sql,
-	"resources/ddl/postgres/create-table-agencies.sql": resources_ddl_postgres_create_table_agencies_sql,
-	"resources/ddl/postgres/create-table-calendar_dates.sql": resources_ddl_postgres_create_table_calendar_dates_sql,
+	"resources/ddl/postgres/create-table-create-table-agencies.sql": resources_ddl_postgres_create_table_agencies_sql,
+	"resources/ddl/postgres/create-table-create-table-calendar_dates.sql": resources_ddl_postgres_create_table_calendar_dates_sql,
 	"resources/ddl/postgres/create-table-line_stops.sql": resources_ddl_postgres_create_table_line_stops_sql,
 	"resources/ddl/postgres/create-table-lines.sql": resources_ddl_postgres_create_table_lines_sql,
 	"resources/ddl/postgres/create-table-route_stops.sql": resources_ddl_postgres_create_table_route_stops_sql,
-	"resources/ddl/postgres/create-table-routes.sql": resources_ddl_postgres_create_table_routes_sql,
+	"resources/ddl/postgres/create-table-create-table-routes.sql": resources_ddl_postgres_create_table_routes_sql,
 	"resources/ddl/postgres/create-table-station_lines.sql": resources_ddl_postgres_create_table_station_lines_sql,
 	"resources/ddl/postgres/create-table-station_stops.sql": resources_ddl_postgres_create_table_station_stops_sql,
 	"resources/ddl/postgres/create-table-stations.sql": resources_ddl_postgres_create_table_stations_sql,
-	"resources/ddl/postgres/create-table-stop_times.sql": resources_ddl_postgres_create_table_stop_times_sql,
+	"resources/ddl/postgres/create-table-create-table-stop_times.sql": resources_ddl_postgres_create_table_stop_times_sql,
 	"resources/ddl/postgres/create-table-stop_times_full.sql": resources_ddl_postgres_create_table_stop_times_full_sql,
-	"resources/ddl/postgres/create-table-stops.sql": resources_ddl_postgres_create_table_stops_sql,
-	"resources/ddl/postgres/create-table-transfers.sql": resources_ddl_postgres_create_table_transfers_sql,
-	"resources/ddl/postgres/create-table-trips.sql": resources_ddl_postgres_create_table_trips_sql,
+	"resources/ddl/postgres/create-table-create-table-stops.sql": resources_ddl_postgres_create_table_stops_sql,
+	"resources/ddl/postgres/create-table-create-table-transfers.sql": resources_ddl_postgres_create_table_transfers_sql,
+	"resources/ddl/postgres/create-table-create-table-trips.sql": resources_ddl_postgres_create_table_trips_sql,
 	"resources/ddl/postgres/create-table_calendars.sql": resources_ddl_postgres_create_table_calendars_sql,
 	"resources/ddl/postgres/delete-agency-by-key.sql": resources_ddl_postgres_delete_agency_by_key_sql,
 	"resources/ddl/postgres/drop-table.sql": resources_ddl_postgres_drop_table_sql,
@@ -1491,11 +1491,11 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"resources": &_bintree_t{nil, map[string]*_bintree_t{
 		"ddl": &_bintree_t{nil, map[string]*_bintree_t{
 			"mysql": &_bintree_t{nil, map[string]*_bintree_t{
-				"agencies.sql": &_bintree_t{resources_ddl_mysql_agencies_sql, map[string]*_bintree_t{
+				"create-table-agencies.sql": &_bintree_t{resources_ddl_mysql_agencies_sql, map[string]*_bintree_t{
 				}},
-				"calendar_dates.sql": &_bintree_t{resources_ddl_mysql_calendar_dates_sql, map[string]*_bintree_t{
+				"create-table-calendar_dates.sql": &_bintree_t{resources_ddl_mysql_calendar_dates_sql, map[string]*_bintree_t{
 				}},
-				"calendars.sql": &_bintree_t{resources_ddl_mysql_calendars_sql, map[string]*_bintree_t{
+				"create-table-calendars.sql": &_bintree_t{resources_ddl_mysql_calendars_sql, map[string]*_bintree_t{
 				}},
 				"create-index.sql": &_bintree_t{resources_ddl_mysql_create_index_sql, map[string]*_bintree_t{
 				}},
@@ -1535,7 +1535,7 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 				}},
 				"insert-stop_times_full.sql": &_bintree_t{resources_ddl_mysql_insert_stop_times_full_sql, map[string]*_bintree_t{
 				}},
-				"routes.sql": &_bintree_t{resources_ddl_mysql_routes_sql, map[string]*_bintree_t{
+				"create-table-routes.sql": &_bintree_t{resources_ddl_mysql_routes_sql, map[string]*_bintree_t{
 				}},
 				"select-agency-zone.sql": &_bintree_t{resources_ddl_mysql_select_agency_zone_sql, map[string]*_bintree_t{
 				}},
@@ -1543,13 +1543,13 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 				}},
 				"select_trips.sql": &_bintree_t{resources_ddl_mysql_select_trips_sql, map[string]*_bintree_t{
 				}},
-				"stop_times.sql": &_bintree_t{resources_ddl_mysql_stop_times_sql, map[string]*_bintree_t{
+				"create-table-stop_times.sql": &_bintree_t{resources_ddl_mysql_stop_times_sql, map[string]*_bintree_t{
 				}},
-				"stops.sql": &_bintree_t{resources_ddl_mysql_stops_sql, map[string]*_bintree_t{
+				"create-table-stops.sql": &_bintree_t{resources_ddl_mysql_stops_sql, map[string]*_bintree_t{
 				}},
-				"transfers.sql": &_bintree_t{resources_ddl_mysql_transfers_sql, map[string]*_bintree_t{
+				"create-table-transfers.sql": &_bintree_t{resources_ddl_mysql_transfers_sql, map[string]*_bintree_t{
 				}},
-				"trips.sql": &_bintree_t{resources_ddl_mysql_trips_sql, map[string]*_bintree_t{
+				"create-table-trips.sql": &_bintree_t{resources_ddl_mysql_trips_sql, map[string]*_bintree_t{
 				}},
 				"update-agency-zone.sql": &_bintree_t{resources_ddl_mysql_update_agency_zone_sql, map[string]*_bintree_t{
 				}},
@@ -1563,9 +1563,9 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 				}},
 				"create-spatial-index.sql": &_bintree_t{resources_ddl_postgres_create_spatial_index_sql, map[string]*_bintree_t{
 				}},
-				"create-table-agencies.sql": &_bintree_t{resources_ddl_postgres_create_table_agencies_sql, map[string]*_bintree_t{
+				"create-table-create-table-agencies.sql": &_bintree_t{resources_ddl_postgres_create_table_agencies_sql, map[string]*_bintree_t{
 				}},
-				"create-table-calendar_dates.sql": &_bintree_t{resources_ddl_postgres_create_table_calendar_dates_sql, map[string]*_bintree_t{
+				"create-table-create-table-calendar_dates.sql": &_bintree_t{resources_ddl_postgres_create_table_calendar_dates_sql, map[string]*_bintree_t{
 				}},
 				"create-table-line_stops.sql": &_bintree_t{resources_ddl_postgres_create_table_line_stops_sql, map[string]*_bintree_t{
 				}},
@@ -1573,7 +1573,7 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 				}},
 				"create-table-route_stops.sql": &_bintree_t{resources_ddl_postgres_create_table_route_stops_sql, map[string]*_bintree_t{
 				}},
-				"create-table-routes.sql": &_bintree_t{resources_ddl_postgres_create_table_routes_sql, map[string]*_bintree_t{
+				"create-table-create-table-routes.sql": &_bintree_t{resources_ddl_postgres_create_table_routes_sql, map[string]*_bintree_t{
 				}},
 				"create-table-station_lines.sql": &_bintree_t{resources_ddl_postgres_create_table_station_lines_sql, map[string]*_bintree_t{
 				}},
@@ -1581,15 +1581,15 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 				}},
 				"create-table-stations.sql": &_bintree_t{resources_ddl_postgres_create_table_stations_sql, map[string]*_bintree_t{
 				}},
-				"create-table-stop_times.sql": &_bintree_t{resources_ddl_postgres_create_table_stop_times_sql, map[string]*_bintree_t{
+				"create-table-create-table-stop_times.sql": &_bintree_t{resources_ddl_postgres_create_table_stop_times_sql, map[string]*_bintree_t{
 				}},
 				"create-table-stop_times_full.sql": &_bintree_t{resources_ddl_postgres_create_table_stop_times_full_sql, map[string]*_bintree_t{
 				}},
-				"create-table-stops.sql": &_bintree_t{resources_ddl_postgres_create_table_stops_sql, map[string]*_bintree_t{
+				"create-table-create-table-stops.sql": &_bintree_t{resources_ddl_postgres_create_table_stops_sql, map[string]*_bintree_t{
 				}},
-				"create-table-transfers.sql": &_bintree_t{resources_ddl_postgres_create_table_transfers_sql, map[string]*_bintree_t{
+				"create-table-create-table-transfers.sql": &_bintree_t{resources_ddl_postgres_create_table_transfers_sql, map[string]*_bintree_t{
 				}},
-				"create-table-trips.sql": &_bintree_t{resources_ddl_postgres_create_table_trips_sql, map[string]*_bintree_t{
+				"create-table-create-table-trips.sql": &_bintree_t{resources_ddl_postgres_create_table_trips_sql, map[string]*_bintree_t{
 				}},
 				"create-table_calendars.sql": &_bintree_t{resources_ddl_postgres_create_table_calendars_sql, map[string]*_bintree_t{
 				}},
