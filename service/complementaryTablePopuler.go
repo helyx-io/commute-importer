@@ -27,24 +27,29 @@ func NewComplementaryTablePopuler(driver *database.Driver) *ComplementaryTablePo
 /// Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (ctp *ComplementaryTablePopuler) Populate(schema string) {
+func (ctp *ComplementaryTablePopuler) Populate(schema string, columnLengthsByFiles map[string]map[string]int) {
 
-    err := ctp.driver.CreateTable(schema, "lines", make(map[string]interface{}), true)
+    columnLengthsByFilesTmp := make(map[string]interface{})
+    for key, value := range columnLengthsByFiles {
+        columnLengthsByFilesTmp[key] = value
+    }
+
+    err := ctp.driver.CreateTable(schema, "lines", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'lines' table")
 
-    err = ctp.driver.CreateTable(schema, "line_stops", make(map[string]interface{}), true)
+    err = ctp.driver.CreateTable(schema, "line_stops", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'line_stops' table")
 
-    err = ctp.driver.CreateTable(schema, "stations", make(map[string]interface{}), true)
+    err = ctp.driver.CreateTable(schema, "stations", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'stations' table")
 
-    err = ctp.driver.CreateTable(schema, "station_stops", make(map[string]interface{}), true)
+    err = ctp.driver.CreateTable(schema, "station_stops", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'station_stops' table")
 
-    err = ctp.driver.CreateTable(schema, "station_lines", make(map[string]interface{}), true)
+    err = ctp.driver.CreateTable(schema, "station_lines", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'station_lines' table")
 
-    err = ctp.driver.CreateTable(schema, "route_stops", make(map[string]interface{}), true)
+    err = ctp.driver.CreateTable(schema, "route_stops", columnLengthsByFilesTmp, true)
     utils.FailOnError(err, "Could not create 'route_stops' table")
 
 

@@ -11,9 +11,11 @@ import (
     "log"
     "github.com/helyx-io/gtfs-importer/data"
     "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/hoisie/mustache"
     "regexp"
     "database/sql"
+    "text/template"
+    "bytes"
+    "reflect"
 )
 
 
@@ -92,7 +94,36 @@ func (d *Driver) CreateTable(schema, tableName string, params map[string]interfa
     dml, err := data.Asset(filePath)
     utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for create of table '%s.%s'", filePath, schema, tableName))
 
-    createStmt := mustache.Render(fmt.Sprintf(string(dml), schema), params)
+
+    log.Printf("query name: %s", fmt.Sprintf("%s_%s", schema, tableName))
+    log.Printf("query content: %s", fmt.Sprintf(string(dml), schema))
+    log.Printf("query params: %v", params)
+
+    funcMap := template.FuncMap {
+        "length": func(value interface{}) interface{} {
+
+            log.Printf("=== Value: %v", value)
+            log.Printf("=== Type Of: %v", reflect.TypeOf( value))
+
+            if value == nil {
+                return 1
+            } else if reflect.ValueOf(value).Kind() == reflect.Int && value.(int) == 0 {
+                return 1
+            } else {
+                return value
+            }
+        },
+    }
+
+    t, err := template.New(fmt.Sprintf("%s_%s", schema, tableName)).Funcs(funcMap).Parse(fmt.Sprintf(string(dml), schema))
+
+    if err != nil {
+        log.Printf("error: %v", err)
+    }
+
+    var doc bytes.Buffer
+    t.Execute(&doc, params)
+    createStmt :=  doc.String()
 
     log.Printf("Create statement: %s", createStmt)
     return d.DB.Exec(createStmt).Error

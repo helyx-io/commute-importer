@@ -71,19 +71,30 @@ func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) (map[s
 
     columLengthsMap := make(map[string]map[string]int)
 
-    files := []string{ "agency.txt", "calendar_dates.txt", "calendar.txt", "routes.txt", "stop_times.txt", "stops.txt", "transfers.txt", "trips.txt" }
-
-    for _, file := range files {
-        columLengths, err := cfr.getColumnsLength(schema, outFolderName, file)
-
-        log.Printf("columLengths: %v", columLengths)
-
-        if err != nil {
-            return nil, err
-        }
-        columLengthsMap[file] = columLengths
+    files := map[string]string {
+        "agency.txt": "agencies",
+        "calendar_dates.txt": "calendar_dates",
+        "calendar.txt": "calendars",
+        "routes.txt": "routes",
+        "stop_times.txt": "stop_times",
+        "stops.txt": "stops",
+        "transfers.txt": "transfers",
+        "trips.txt": "trips",
     }
 
+    for file, tableName := range files {
+        columLengths, err := cfr.getColumnsLength(schema, tableName, outFolderName, file)
+
+        log.Printf("[%s][%s] columLengths: %v", tableName, file, columLengths)
+
+        if err != nil {
+            log.Printf("[%s][%s] Error: %v", tableName, file, err)
+        } else {
+            columLengthsMap[tableName] = columLengths
+        }
+    }
+
+    log.Printf("columLengthsMap: %v", columLengthsMap)
     return columLengthsMap, nil
 }
 
@@ -241,7 +252,7 @@ func (cfr *CsvFileRewriter) getIndexes(schema, filename string, index int) (map[
     return indexes, nil
 }
 
-func (cfr *CsvFileRewriter) getColumnsLength(schema, outFolderName, filename string) (map[string]int, error) {
+func (cfr *CsvFileRewriter) getColumnsLength(schema, tableName, outFolderName, filename string) (map[string]int, error) {
 
     sw := stopwatch.Start(0)
 
@@ -290,22 +301,22 @@ func (cfr *CsvFileRewriter) getColumnsLength(schema, outFolderName, filename str
         log.Printf("[%s] FieldMaxLengths: %d", filename, lengthRecord)
         log.Printf("[%s] ElapsedTime: %v", filename, sw.ElapsedTime())
 
-        headers, err := cfr.readCsvFileHeaders(schema, outFolderName, filename)
+        fields, err := cfr.readCsvFileHeaders(schema, outFolderName, filename)
 
-        for _, header := range headers {
-            log.Printf("Header: %v", header)
+        for _, field := range fields {
+            log.Printf("Header: %v", field)
         }
 
-        log.Printf("filename: %s, headers: %v", filename, headers)
+        log.Printf("filename: %s, headers: %v", filename, fields)
 
         if err != nil {
             log.Printf("Error: %v", err)
             return nil, err
         } else {
             lengthByHeader := make(map[string]int)
-            log.Printf("headers: %v - lengthRecord: %v", headers, lengthRecord)
-            for i, header := range headers {
-                lengthByHeader[header] = lengthRecord[i]
+            log.Printf("headers: %v - lengthRecord: %v", fields, lengthRecord)
+            for i, field := range fields {
+                lengthByHeader[field] = lengthRecord[i]
             }
             return lengthByHeader, nil
         }

@@ -96,7 +96,7 @@ func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 	file, err := os.Open(src)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	defer file.Close()

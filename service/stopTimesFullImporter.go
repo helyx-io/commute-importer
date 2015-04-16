@@ -49,11 +49,17 @@ type CreateIndexResult struct {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string) {
+func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string, columnLengthsByFiles map[string]map[string]int) {
     //	config.DB.LogMode(true)
 
+    columnLengthsByFilesTmp := make(map[string]interface{})
+    for key, value := range columnLengthsByFiles {
+        columnLengthsByFilesTmp[key] = value
+    }
+
+
     tableName := "stop_times_full"
-    stfi.driver.CreateTable(schema, tableName, make(map[string]interface{}), true)
+    stfi.driver.CreateTable(schema, tableName, columnLengthsByFilesTmp, true)
 
     filePath := fmt.Sprintf("resources/ddl/%s/insert-%s.sql", stfi.driver.ConnectInfos.Dialect, tableName)
 
