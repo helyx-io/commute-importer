@@ -11,6 +11,7 @@ import (
     "log"
     "github.com/helyx-io/gtfs-importer/data"
     "github.com/helyx-io/gtfs-importer/utils"
+    "github.com/hoisie/mustache"
     "regexp"
     "database/sql"
 )
@@ -79,18 +80,20 @@ func (d *Driver) DropTable(schema, tableName string) error {
     return d.DB.Exec(dropStmt).Error
 }
 
-func (d *Driver) CreateTable(schema, tableName string, dropIfExists bool) error {
+func (d *Driver) CreateTable(schema, tableName string, params map[string]interface{}, dropIfExists bool) error {
 
     if dropIfExists {
         d.DropTable(schema, tableName)
     }
 
     filePath := fmt.Sprintf("resources/ddl/%s/create-table-%s.sql", d.ConnectInfos.Dialect, tableName)
-    log.Printf("Creating table with name: '%s.%s' with query from file path: '%s'", schema, tableName, filePath)
+    log.Printf("Creating table with name: '%s.%s' with query from file path: '%s' - Params: %v", schema, tableName, filePath, params)
 
     dml, err := data.Asset(filePath)
     utils.FailOnError(err, fmt.Sprintf("Could get dml resource at path '%s' for create of table '%s.%s'", filePath, schema, tableName))
-    createStmt := fmt.Sprintf(string(dml), schema)
+
+    createStmt := mustache.Render(fmt.Sprintf(string(dml), schema), params)
+
     log.Printf("Create statement: %s", createStmt)
     return d.DB.Exec(createStmt).Error
 }

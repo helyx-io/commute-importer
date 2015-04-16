@@ -11,7 +11,11 @@ type GTFSFile struct {
 func (gf GTFSFile) LinesIterator(maxLength int) <- chan []byte {
 	channel := make(chan []byte)
 	go func() {
-		utils.ReadCsvFile(gf.Filename, maxLength, channel)
+		err := utils.ReadCsvFile(gf.Filename, maxLength, channel)
+        if err != nil {
+            panic (err.Error())
+        }
+
 		defer close(channel)
 	}()
 	return channel

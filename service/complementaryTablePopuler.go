@@ -29,22 +29,22 @@ func NewComplementaryTablePopuler(driver *database.Driver) *ComplementaryTablePo
 
 func (ctp *ComplementaryTablePopuler) Populate(schema string) {
 
-    err := ctp.driver.CreateTable(schema, "lines", true)
+    err := ctp.driver.CreateTable(schema, "lines", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'lines' table")
 
-    err = ctp.driver.CreateTable(schema, "line_stops", true)
+    err = ctp.driver.CreateTable(schema, "line_stops", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'line_stops' table")
 
-    err = ctp.driver.CreateTable(schema, "stations", true)
+    err = ctp.driver.CreateTable(schema, "stations", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'stations' table")
 
-    err = ctp.driver.CreateTable(schema, "station_stops", true)
+    err = ctp.driver.CreateTable(schema, "station_stops", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'station_stops' table")
 
-    err = ctp.driver.CreateTable(schema, "station_lines", true)
+    err = ctp.driver.CreateTable(schema, "station_lines", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'station_lines' table")
 
-    err = ctp.driver.CreateTable(schema, "route_stops", true)
+    err = ctp.driver.CreateTable(schema, "route_stops", make(map[string]interface{}), true)
     utils.FailOnError(err, "Could not create 'route_stops' table")
 
 

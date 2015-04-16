@@ -12,7 +12,6 @@ import (
 	"github.com/helyx-io/gtfs-importer/database"
 	"github.com/helyx-io/gtfs-importer/models"
 	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/data"
 )
 
 
@@ -41,19 +40,10 @@ func (r SQLAgencyRepository) CreateImportTask(taskName string, jobIndex int, fil
     return SQLAgenciesImportTask{mysqlImportTask}
 }
 
-func (s SQLAgencyRepository) CreateTableByAgencyKey(agencyKey string) error {
+func (s SQLAgencyRepository) CreateTableByAgencyKey(agencyKey string, params map[string]interface{}) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-	table := fmt.Sprintf("%s.agencies", schema)
-
-	log.Printf("Creating table: '%s'", table)
-
-	ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/agencies.sql", s.driver.ConnectInfos.Dialect))
-	stmt := fmt.Sprintf(string(ddl), schema);
-
-    log.Printf("Query: %s", stmt)
-
-	return s.driver.ExecQuery(stmt)
+    return s.driver.CreateTable(schema, "agencies", params, true)
 }
 
 func (s SQLAgencyRepository) AddIndexesByAgencyKey(agencyKey string) error {

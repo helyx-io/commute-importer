@@ -12,6 +12,8 @@ import (
     "encoding/csv"
     "github.com/helyx-io/gtfs-importer/utils"
     "github.com/helyx-io/gtfs-importer/models"
+    "errors"
+    "github.com/fatih/stopwatch"
 )
 
 
@@ -32,13 +34,13 @@ func NewCsvFileRewriter(tmpDir string) *CsvFileRewriter {
 /// Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) error {
+func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) (map[string]map[string]int, error) {
 
-    agencyIndexes, err := cfr.getIndexes(schema, "agency.txt", 0)
-    servcfreIndexes, err := cfr.getIndexes(schema, "trips.txt", 1)
-    tripIndexes, err := cfr.getIndexes(schema, "trips.txt", 2)
-    stopIndexes, err := cfr.getIndexes(schema, "stops.txt", 0)
-    routeIndexes, err := cfr.getIndexes(schema, "routes.txt", 0)
+    agencyIndexes, _ := cfr.getIndexes(schema, "agency.txt", 0)
+    servcfreIndexes, _ := cfr.getIndexes(schema, "trips.txt", 1)
+    tripIndexes, _ := cfr.getIndexes(schema, "trips.txt", 2)
+    stopIndexes, _ := cfr.getIndexes(schema, "stops.txt", 0)
+    routeIndexes, _ := cfr.getIndexes(schema, "routes.txt", 0)
 
     cfr.writeIndexes(schema, "routes.indexes.txt", outFolderName, routeIndexes);
     cfr.writeIndexes(schema, "trip.indexes.txt", outFolderName, tripIndexes);
@@ -51,28 +53,38 @@ func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) error 
         panic("Unable to create directory for tagfile!")
     }
 
-    indexes := map[int](map[string]string){ 0: stopIndexes }
-    cfr.rewriteCsvFile(schema, "stops.txt", outFolderName, indexes)
 
-    indexes = map[int](map[string]string){ 0: tripIndexes, 3: stopIndexes }
-    cfr.rewriteCsvFile(schema, "stop_times.txt", outFolderName, indexes)
+    indexesByFiles := make(map[string]map[int]map[string]string)
+    indexesByFiles["stops.txt"] = map[int]map[string]string{ 0: stopIndexes }
+    indexesByFiles["stop_times.txt"] = map[int]map[string]string{ 0: tripIndexes, 3: stopIndexes }
+    indexesByFiles["routes.txt"] = map[int]map[string]string{ 0: routeIndexes, 1: agencyIndexes }
+    indexesByFiles["agency.txt"] = map[int]map[string]string{ 0: stopIndexes }
+    indexesByFiles["trips.txt"] = map[int]map[string]string{ 0: routeIndexes, 1: servcfreIndexes, 2: tripIndexes }
+    indexesByFiles["calendar.txt"] = map[int]map[string]string{ 0: servcfreIndexes }
+    indexesByFiles["calendar_dates.txt"] = map[int]map[string]string{ 0: servcfreIndexes }
+    indexesByFiles["transfers.txt"] = map[int]map[string]string{}
 
-    indexes = map[int](map[string]string){ 0: routeIndexes, 1: agencyIndexes }
-    cfr.rewriteCsvFile(schema, "routes.txt", outFolderName, indexes)
+    for filename, indexesByFile := range indexesByFiles {
+        cfr.rewriteCsvFile(schema, filename, outFolderName, indexesByFile)
+    }
 
-    indexes = map[int](map[string]string){ 0: agencyIndexes }
-    cfr.rewriteCsvFile(schema, "agency.txt", outFolderName, indexes)
 
-    indexes = map[int](map[string]string){ 0: routeIndexes, 1: servcfreIndexes, 2: tripIndexes }
-    cfr.rewriteCsvFile(schema, "trips.txt", outFolderName, indexes)
+    columLengthsMap := make(map[string]map[string]int)
 
-    indexes = map[int](map[string]string){ 0: servcfreIndexes }
-    cfr.rewriteCsvFile(schema, "calendar.txt", outFolderName, indexes)
+    files := []string{ "agency.txt", "calendar_dates.txt", "calendar.txt", "routes.txt", "stop_times.txt", "stops.txt", "transfers.txt", "trips.txt" }
 
-    indexes = map[int](map[string]string){ 0: servcfreIndexes }
-    cfr.rewriteCsvFile(schema, "calendar_dates.txt", outFolderName, indexes)
+    for _, file := range files {
+        columLengths, err := cfr.getColumnsLength(schema, outFolderName, file)
 
-    return err
+        log.Printf("columLengths: %v", columLengths)
+
+        if err != nil {
+            return nil, err
+        }
+        columLengthsMap[file] = columLengths
+    }
+
+    return columLengthsMap, nil
 }
 
 
@@ -227,4 +239,88 @@ func (cfr *CsvFileRewriter) getIndexes(schema, filename string, index int) (map[
     }
 
     return indexes, nil
+}
+
+func (cfr *CsvFileRewriter) getColumnsLength(schema, outFolderName, filename string) (map[string]int, error) {
+
+    sw := stopwatch.Start(0)
+
+    filePath := path.Join(cfr.tmpDir, schema, outFolderName, filename)
+
+    if _, err := os.Stat(filePath); os.IsNotExist(err) {
+        log.Printf("File does not exists: %v", filePath)
+        return nil, err
+    }
+
+    log.Printf("Processing file: %v", filePath)
+
+    gtfsFile := models.GTFSFile{filePath}
+
+    resultChan := make(chan []int)
+
+    go func() {
+        for lines := range gtfsFile.LinesIterator(1024 * 1024) {
+
+            record, err := models.ParseCsvAsIntArrays(lines)
+            if err == nil {
+                resultChan <- record
+            }
+        }
+
+        close(resultChan)
+    }()
+
+    records := make([][]int, 0)
+    for record := range resultChan {
+        records = append(records, record)
+    }
+
+    log.Printf("Records: %v", records)
+
+    if len(records) > 0 {
+        lengthRecord := make([]int, len(records[0]))
+        for _, record := range records {
+            for i, field := range record {
+                if field > lengthRecord[i] {
+                    lengthRecord[i] = field
+                }
+            }
+        }
+
+        log.Printf("[%s] FieldMaxLengths: %d", filename, lengthRecord)
+        log.Printf("[%s] ElapsedTime: %v", filename, sw.ElapsedTime())
+
+        headers, err := cfr.readCsvFileHeaders(schema, outFolderName, filename)
+
+        for _, header := range headers {
+            log.Printf("Header: %v", header)
+        }
+
+        log.Printf("filename: %s, headers: %v", filename, headers)
+
+        if err != nil {
+            log.Printf("Error: %v", err)
+            return nil, err
+        } else {
+            lengthByHeader := make(map[string]int)
+            log.Printf("headers: %v - lengthRecord: %v", headers, lengthRecord)
+            for i, header := range headers {
+                lengthByHeader[header] = lengthRecord[i]
+            }
+            return lengthByHeader, nil
+        }
+
+    } else {
+        return nil, errors.New("No lines to count field lengths")
+    }
+}
+
+func (cfr *CsvFileRewriter) readCsvFileHeaders(schema, outFolderName, filename string) ([]string, error) {
+    filePath := path.Join(cfr.tmpDir, schema, outFolderName, filename)
+
+    log.Printf("Reading csv file headers for file: %v", filePath)
+
+    gtfsFile := models.GTFSFile{filePath}
+
+    return utils.ReadCsvFileHeader(gtfsFile.Filename, ",")
 }

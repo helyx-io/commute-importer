@@ -4,7 +4,7 @@ CREATE TABLE %s.stop_times (
   departure_time interval DEFAULT NULL,
   stop_id integer NOT NULL,
   stop_sequence integer DEFAULT NULL,
-  stop_head_sign char(8) DEFAULT NULL,
+  stop_head_sign char({{stop_head_sign}}) DEFAULT NULL,
   pickup_type integer DEFAULT NULL,
   drop_off_type integer DEFAULT NULL
 );

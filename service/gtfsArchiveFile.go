@@ -42,7 +42,7 @@ func (gaf *GTFSArchiveFile) Size() int64 {
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSCreatedModelRepository, maxLength int) error {
+func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey string, folderFilename string, gtfsModelRepository database.GTFSCreatedModelRepository, columnLengths map[string]interface{}, maxLength int) error {
 
 	sw := stopwatch.Start(0)
 
@@ -57,7 +57,7 @@ func (gaf *GTFSArchiveFile) ImportGTFSArchiveFileWithTableCreation(agencyKey str
 	log.Println(fmt.Sprintf(" - Removed entries from repository related to file with name: '%v'", gaf.Name()))
 
 
-	err = gtfsModelRepository.CreateTableByAgencyKey(agencyKey)
+	err = gtfsModelRepository.CreateTableByAgencyKey(agencyKey, columnLengths)
 	utils.FailOnError(err, fmt.Sprintf("Could not create table for file with name: '%v'", gaf.Name()))
 
 	err = gaf.importGTFSArchiveFile(agencyKey, folderFilename, gtfsModelRepository, maxLength, sw)

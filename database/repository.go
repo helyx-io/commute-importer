@@ -38,7 +38,7 @@ type GTFSModelRepository interface {
 
 type GTFSCreatedModelRepository interface {
     GTFSModelRepository
-    CreateTableByAgencyKey(agencyKey string) error
+    CreateTableByAgencyKey(agencyKey string, params map[string]interface{}) error
     AddIndexesByAgencyKey(agencyKey string) error
 }
 

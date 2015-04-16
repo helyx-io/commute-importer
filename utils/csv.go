@@ -17,12 +17,12 @@ import (
 /// Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-func ReadCsvFile(src string, maxLength int, channel chan []byte) {
+func ReadCsvFile(src string, maxLength int, channel chan []byte) error {
 
 	file, err := os.Open(src)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	defer file.Close()
@@ -41,7 +41,7 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 		}
 
 		if err != nil {
-			panic(err)
+            return err
 		}
 
 		if len(l) == 0 {
@@ -74,6 +74,8 @@ func ReadCsvFile(src string, maxLength int, channel chan []byte) {
 		channel <- fixUTF8BomIfNecessary(b)
 	}
 
+    return nil
+
 }
 
 func fixUTF8BomIfNecessary(data []byte) []byte {
@@ -89,6 +91,8 @@ func fixUTF8BomIfNecessary(data []byte) []byte {
 
 func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 
+    log.Printf("Reading CSV header file: %v", src)
+
 	file, err := os.Open(src)
 
 	if err != nil {
@@ -100,10 +104,23 @@ func ReadCsvFileHeader(src string, separator string) ([]string, error) {
 	headers, err := bufio.NewReader(file).ReadBytes('\n')
 
 	if err != nil {
-		return nil, err
+ 		return nil, err
 	}
 
+    log.Printf("1 - Reading CSV header file: %v - Fixing bom", src)
+
     headersFixed := fixUTF8BomIfNecessary(headers)
-	headerStr := string(headersFixed[0:len(headersFixed) - 1])
-	return strings.Split(headerStr, ","), nil
+	headerStr := strings.TrimSpace(string(headersFixed))
+
+    log.Printf("2 - Reading CSV header file - Splitting: %s", headerStr)
+    log.Printf("3 - Reading CSV header file: %s - Splitting: %s", src, headerStr)
+
+    fields := strings.Split(headerStr, ",")
+
+    for _, field := range fields {
+        log.Printf("4 - HeaderStr: %s - Field: %s", headerStr, field)
+    }
+
+
+	return fields, nil
 }

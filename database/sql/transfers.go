@@ -12,7 +12,6 @@ import (
 	"github.com/helyx-io/gtfs-importer/database"
 	"github.com/helyx-io/gtfs-importer/models"
 	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/data"
 	"github.com/helyx-io/gtfs-importer/utils"
 )
 
@@ -43,19 +42,10 @@ func (r SQLTransferRepository) CreateImportTask(taskName string, jobIndex int, f
 	return SQLTransfersImportTask{mysqlImportTask}
 }
 
-func (s SQLTransferRepository) CreateTableByAgencyKey(agencyKey string) error {
+func (s SQLTransferRepository) CreateTableByAgencyKey(agencyKey string, params map[string]interface{}) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    table := fmt.Sprintf("%s.transfers", schema)
-
-	log.Println(fmt.Sprintf("Creating table: '%s'", table))
-
-    ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/transfers.sql", s.driver.ConnectInfos.Dialect))
-	stmt := fmt.Sprintf(string(ddl), schema);
-
-    log.Printf("Query: %s", stmt)
-
-	return s.driver.ExecQuery(stmt)
+    return s.driver.CreateTable(schema, "transfers", params, true)
 }
 
 func (s SQLTransferRepository) AddIndexesByAgencyKey(agencyKey string) error {
@@ -129,12 +119,12 @@ func (m SQLTransfersImportTask) ImportModels(headers []string, as []interface{})
 
 	count := 0
     for _, entry := range as {
-        i := count * 7
+        i := count * 4
 		t := entry.(models.TransferImportRow)
 
         var args string
         if m.driver.ConnectInfos.Dialect == "postgres" {
-            args = fmt.Sprintf("($%d, $%d, $%d, $%d, $%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4)
+            args = fmt.Sprintf("($%d, $%d, $%d, $%d)", i + 1, i + 2, i + 3, i + 4)
         } else {
             args = "(?, ?, ?, ?)"
         }

@@ -111,12 +111,12 @@ func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
         panic("Unable to create directory for tagfile!")
     }
 
-    service.NewCsvFileRewriter(ic.tmpDir).RewriteCsvFiles(keyParam, "out")
+    columnLengthsByFiles, err := service.NewCsvFileRewriter(ic.tmpDir).RewriteCsvFiles(keyParam, "out")
 
 	fis := utils.ReadDirectoryFileInfos(outFolderFilename)
 	sort.Sort(utils.FileInfosBySize(fis))
 
-	err := ic.gtfs.CreateSchema(keyParam)
+	err = ic.gtfs.CreateSchema(keyParam)
 	utils.FailOnError(err, fmt.Sprintf("Could not create schema for key: '%s'", keyParam))
 
 	for _, fi := range fis {
@@ -130,7 +130,18 @@ func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
 			gaf := service.NewGTFSArchiveFile(fi)
 
-			err := gaf.ImportGTFSArchiveFileWithTableCreation(keyParam, outFolderFilename, gtfsModelRepository, 512 * 1000)
+            log.Printf("columnLengthsByFiles:  %v - gaf.Name(): %v", columnLengthsByFiles, gaf.Name())
+
+            columnLengthsByFile := columnLengthsByFiles[gaf.Name()]
+
+            columnLengthsByFileTmp := make(map[string]interface{})
+            for key, value := range columnLengthsByFile {
+                columnLengthsByFileTmp[key] = value
+            }
+
+            log.Printf("ImportGTFSArchiveFileWithTableCreation:  %v", columnLengthsByFileTmp)
+
+            err := gaf.ImportGTFSArchiveFileWithTableCreation(keyParam, outFolderFilename, gtfsModelRepository, columnLengthsByFileTmp, 512 * 1000)
 			utils.FailOnError(err, fmt.Sprintf("[%s] Could not import gtfs archive with table creation for key: '%s'", keyParam, fi.Name()))
 
 			if fi.Name() == "agency.txt" {

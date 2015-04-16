@@ -12,7 +12,6 @@ import (
 	"github.com/helyx-io/gtfs-importer/database"
 	"github.com/helyx-io/gtfs-importer/models"
 	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/data"
 	"github.com/helyx-io/gtfs-importer/utils"
 )
 
@@ -42,19 +41,10 @@ func (r SQLCalendarDateRepository) CreateImportTask(taskName string, jobIndex in
 	return SQLCalendarDatesImportTask{mysqlImportTask}
 }
 
-func (s SQLCalendarDateRepository) CreateTableByAgencyKey(agencyKey string) error {
+func (s SQLCalendarDateRepository) CreateTableByAgencyKey(agencyKey string, params map[string]interface{}) error {
 
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
-    table := fmt.Sprintf("%s.calendar_dates", schema)
-
-	log.Println(fmt.Sprintf("Creating table: '%s'", table))
-
-	ddl, _ := data.Asset(fmt.Sprintf("resources/ddl/%s/calendar_dates.sql", s.driver.ConnectInfos.Dialect))
-	stmt := fmt.Sprintf(string(ddl), schema);
-
-    log.Printf("Query: %s", stmt)
-
-	return s.driver.ExecQuery(stmt)
+    return s.driver.CreateTable(schema, "calendar_dates", params, true)
 }
 
 func (s SQLCalendarDateRepository) AddIndexesByAgencyKey(agencyKey string) error {

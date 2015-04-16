@@ -53,7 +53,7 @@ func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string) {
     //	config.DB.LogMode(true)
 
     tableName := "stop_times_full"
-    stfi.driver.CreateTable(schema, tableName, true)
+    stfi.driver.CreateTable(schema, tableName, make(map[string]interface{}), true)
 
     filePath := fmt.Sprintf("resources/ddl/%s/insert-%s.sql", stfi.driver.ConnectInfos.Dialect, tableName)
 
@@ -99,7 +99,8 @@ func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string) {
 
     go func() {
         for _, index := range indexes {
-            stfi.createIndex(schema, tableName, index, createIndexDoneChan)
+            err := stfi.driver.CreateIndex(schema, tableName, index)
+            createIndexDoneChan <- CreateIndexResult{index, err}
         }
     }()
 
@@ -129,12 +130,4 @@ func (stfi *StopTimesFullImporter) insertForLine(schema string, tableName string
     //		log.Printf("Insert statement: %s", insertStmt)
     err := stfi.driver.ExecQuery(insertStmt)
     doneChan <- InsertLineResult{line, err}
-}
-
-func (stfi *StopTimesFullImporter) createIndex(schema string, tableName string, indexName string, doneChan chan CreateIndexResult) {
-    log.Printf("Creating index with name: '%s_idx' on field '%s' for table with name: '%s.%s'", indexName, indexName, schema, tableName)
-
-    err := stfi.driver.CreateIndex(schema, tableName, indexName)
-
-    doneChan <- CreateIndexResult{indexName, err}
 }
