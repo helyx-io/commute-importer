@@ -17,17 +17,21 @@ import (
 /// Helper Functions
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 func ReadCsvFile(src string, maxLength int, channel chan []byte) error {
 
-	file, err := os.Open(src)
+    file, err := os.Open(src)
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return err
+    }
 
-	defer file.Close()
+    defer file.Close()
 
-	r := bufio.NewReader(file)
+    return ReadCsv(bufio.NewReader(file), maxLength, channel)
+}
+
+func ReadCsv(r *bufio.Reader, maxLength int, channel chan []byte) error {
 
 	b := []byte{}
 	chunk := 0

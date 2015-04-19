@@ -7,7 +7,7 @@ import (
 	"bytes"
     "errors"
     "encoding/csv"
-    "github.com/helyx-io/gtfs-importer/csvLengthReader"
+    "github.com/helyx-io/gtfs-importer/csv/length"
 )
 
 type Records [][]string
@@ -16,7 +16,7 @@ type Records [][]string
 func ParseCsvAsIntArrays(b []byte) ([]int, error) {
 
     r := bytes.NewReader(b)
-    reader := csvLengthReader.NewReader(r)
+    reader := length.NewReader(r)
     records := make([][]int, 0)
 
     for {

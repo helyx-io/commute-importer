@@ -9,6 +9,7 @@ import (
 	"log"
 	"strings"
 	"strconv"
+    "encoding/hex"
 	"github.com/helyx-io/gtfs-importer/database"
 	"github.com/helyx-io/gtfs-importer/models"
 	"github.com/helyx-io/gtfs-importer/tasks"
@@ -94,6 +95,16 @@ func(m SQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records) 
 	return st
 }
 
+func colorToInt32(color string, defaultColor string) int32 {
+
+    if color == "" || len(color) != 6 {
+        color = defaultColor
+    }
+
+    b, _ := hex.DecodeString(color)
+    return int32(uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16)
+}
+
 func (m SQLRoutesImportTask) ImportModels(headers []string, as []interface{}) error {
 
 	dbSql, err := m.OpenSqlConnection()
@@ -146,8 +157,8 @@ func (m SQLRoutesImportTask) ImportModels(headers []string, as []interface{}) er
 			r.RouteDesc,
 			r.RouteType,
 			r.RouteUrl,
-			r.RouteColor,
-			r.RouteTextColor,
+            colorToInt32(r.RouteColor, "FFFFFF"),
+            colorToInt32(r.RouteTextColor, "000000"),
 		)
 
 		count += 1

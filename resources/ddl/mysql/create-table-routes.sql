@@ -6,7 +6,7 @@ CREATE TABLE `%s`.`routes` (
   `route_desc` varchar(64) DEFAULT NULL,
   `route_type` int(11) DEFAULT NULL,
   `route_url` varchar(45) DEFAULT NULL,
-  `route_color` char(6) DEFAULT NULL,
-  `route_text_color` char(6) DEFAULT NULL,
+  `route_color` int(11) DEFAULT NULL,
+  `route_text_color` int(11) DEFAULT NULL,
   PRIMARY KEY (`route_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

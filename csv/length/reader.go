@@ -47,7 +47,7 @@
 //
 //	{`Multi-line
 //	field`, `comma is ,`}
-package csvLengthReader
+package length
 
 import (
     "bufio"

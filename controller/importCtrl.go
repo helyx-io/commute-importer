@@ -59,7 +59,7 @@ func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
     agencyKey := keyParam
     schema := fmt.Sprintf("gtfs_%s", agencyKey)
 
-	log.Printf("Importing agencies for Key: '%s' ...", agencyKey)
+	log.Printf("Importing agencies for Key: '%s' / schema: '%s' ...", agencyKey, schema)
 
 	w.Header().Set("Content-Type", "text/html")
 
@@ -79,6 +79,8 @@ func (ic *ImportController) Import(w http.ResponseWriter, r *http.Request) {
 
     columnLengthsByFiles, err := service.NewCsvFileRewriter(ic.tmpDir).RewriteCsvFiles(agencyKey, "out")
     utils.FailOnError(err, "Could not rewrite csv files with success")
+
+    log.Printf("Column lengths by files: %v", columnLengthsByFiles)
 
     service.NewCsvFileImporter(ic.driver, ic.gtfs).ImportCsvFiles(agencyKey, outFolderFilename, columnLengthsByFiles)
     service.NewComplementaryTablePopuler(ic.driver).Populate(schema, columnLengthsByFiles)

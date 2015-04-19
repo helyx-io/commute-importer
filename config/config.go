@@ -240,7 +240,8 @@ func initDataSources() map[string]string {
      * Site: http://data.ratp.fr/fr/les-donnees/fiche-de-jeu-de-donnees/dataset/offre-transport-de-la-ratp-format-gtfs.html?tx_icsoddatastore_pi1%5BreturnID%5D=38
      * Import: OK
      **/
-    dataResources["RATP"] = "http://dataratp.download.opendatasoft.com/RATP_GTFS_FULL.zip"
+//    dataResources["RATP"] = "http://dataratp.download.opendatasoft.com/RATP_GTFS_FULL.zip"
+    dataResources["RATP"] = "http://localhost/data/RATP_GTFS_FULL_2015-2.zip"
 
     /**
      * Région: Ile-de-France
