@@ -8,6 +8,7 @@ import (
     "log"
     "fmt"
     "regexp"
+    "strings"
     "github.com/helyx-io/gtfs-importer/data"
     "github.com/helyx-io/gtfs-importer/database"
     "github.com/helyx-io/gtfs-importer/utils"
@@ -71,7 +72,7 @@ func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string, columnLeng
 
     var lines Lines
 
-    fullTableName := fmt.Sprintf("%s.%s", schema, "lines")
+    fullTableName := strings.ToLower(fmt.Sprintf("%s.%s", schema, "lines"))
     err = stfi.driver.DB.Table(fullTableName).Find(&lines).Error
     utils.FailOnError(err, fmt.Sprintf("Could get lines from table '%s'", fullTableName))
 
