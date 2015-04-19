@@ -69,7 +69,7 @@ func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) (map[s
     cfr.rewriteCsvFile(schema, path.Join(outTmpFolderFilename, "stops.txt"), path.Join(outFolderFilename, "stops.txt"), map[int]map[string]string{ 0: stopIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "stop_times.txt"), path.Join(outFolderFilename, "stop_times.txt"), map[int]map[string]string{ 0: tripIndexes, 3: stopIndexes })
     cfr.rewriteCsvFile(schema, path.Join(outTmpFolderFilename, "routes.txt"), path.Join(outFolderFilename, "routes.txt"), map[int]map[string]string{ 0: routeIndexes, 1: agencyIndexes })
-    cfr.rewriteCsvFile(schema, path.Join(folderFilename, "agency.txt"), path.Join(outFolderFilename, "agency.txt"), map[int]map[string]string{ 0: stopIndexes })
+    cfr.rewriteCsvFile(schema, path.Join(folderFilename, "agency.txt"), path.Join(outFolderFilename, "agency.txt"), map[int]map[string]string{})
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "trips.txt"), path.Join(outFolderFilename, "trips.txt"), map[int]map[string]string{ 0: routeIndexes, 1: serviceIndexes, 2: tripIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "calendar.txt"), path.Join(outFolderFilename, "calendar.txt"), map[int]map[string]string{ 0: serviceIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "calendar_dates.txt"), path.Join(outFolderFilename, "calendar_dates.txt"), map[int]map[string]string{ 0: serviceIndexes })
