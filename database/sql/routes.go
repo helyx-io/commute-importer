@@ -83,7 +83,7 @@ func(m SQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records) 
 		routeTextColor := strings.ToUpper(record[8])
 
 		if routeColor == routeTextColor {
-			if routeTextColor = "FFFFFF" {
+			if routeTextColor == "FFFFFF" {
 				routeTextColor = "000000"
 			} else {
 				routeTextColor = "FFFFFF"
