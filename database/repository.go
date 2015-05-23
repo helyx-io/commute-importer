@@ -5,7 +5,7 @@ package database
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-    "github.com/helyx-io/gtfs-importer/tasks"
+    "github.com/helyx-io/commute-importer/tasks"
 )
 
 

@@ -10,10 +10,10 @@ import (
 	"strings"
 	"strconv"
     "encoding/hex"
-	"github.com/helyx-io/gtfs-importer/database"
-	"github.com/helyx-io/gtfs-importer/models"
-	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/commute-importer/database"
+	"github.com/helyx-io/commute-importer/models"
+	"github.com/helyx-io/commute-importer/tasks"
+	"github.com/helyx-io/commute-importer/utils"
 )
 
 
@@ -79,6 +79,17 @@ func(m SQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records) 
         agencyId, _ := strconv.Atoi(record[1])
 		routeType, _ := strconv.Atoi(record[5])
 
+		routeColor := strings.ToUpper(record[7])
+		routeTextColor := strings.ToUpper(record[8])
+
+		if routeColor == routeTextColor {
+			if routeTextColor = "FFFFFF" {
+				routeTextColor = "000000"
+			} else {
+				routeTextColor = "FFFFFF"
+			}
+		}
+
 		st[i] = models.RouteImportRow{
             routeId,
             agencyId,
@@ -87,8 +98,8 @@ func(m SQLRoutesImportTask) ConvertModels(headers []string, rs *models.Records) 
 			record[4],
 			routeType,
 			record[6],
-            strings.ToUpper(record[7]),
-            strings.ToUpper(record[8]),
+            routeColor,
+			routeTextColor,
 		}
 	}
 

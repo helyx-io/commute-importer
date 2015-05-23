@@ -9,11 +9,11 @@ import (
     "log"
     "encoding/json"
     "gopkg.in/redis.v2"
-    "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/data"
+    "github.com/helyx-io/commute-importer/utils"
+    "github.com/helyx-io/commute-importer/data"
     "github.com/fatih/stopwatch"
     "sync"
-    "github.com/helyx-io/gtfs-importer/database"
+    "github.com/helyx-io/commute-importer/database"
 )
 
 

@@ -10,12 +10,12 @@ import (
     "log"
     "path"
     "encoding/csv"
-    "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/models"
+    "github.com/helyx-io/commute-importer/utils"
+    "github.com/helyx-io/commute-importer/models"
     "errors"
     "github.com/fatih/stopwatch"
     xxhash "bitbucket.org/StephaneBunel/xxhash-go"
-    "github.com/helyx-io/gtfs-importer/data"
+    "github.com/helyx-io/commute-importer/data"
     "strings"
 )
 
@@ -69,7 +69,7 @@ func (cfr *CsvFileRewriter) RewriteCsvFiles(schema, outFolderName string) (map[s
     cfr.rewriteCsvFile(schema, path.Join(outTmpFolderFilename, "stops.txt"), path.Join(outFolderFilename, "stops.txt"), map[int]map[string]string{ 0: stopIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "stop_times.txt"), path.Join(outFolderFilename, "stop_times.txt"), map[int]map[string]string{ 0: tripIndexes, 3: stopIndexes })
     cfr.rewriteCsvFile(schema, path.Join(outTmpFolderFilename, "routes.txt"), path.Join(outFolderFilename, "routes.txt"), map[int]map[string]string{ 0: routeIndexes, 1: agencyIndexes })
-    cfr.rewriteCsvFile(schema, path.Join(folderFilename, "agency.txt"), path.Join(outFolderFilename, "agency.txt"), map[int]map[string]string{})
+    cfr.rewriteCsvFile(schema, path.Join(folderFilename, "agency.txt"), path.Join(outFolderFilename, "agency.txt"), map[int]map[string]string{ 0: agencyIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "trips.txt"), path.Join(outFolderFilename, "trips.txt"), map[int]map[string]string{ 0: routeIndexes, 1: serviceIndexes, 2: tripIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "calendar.txt"), path.Join(outFolderFilename, "calendar.txt"), map[int]map[string]string{ 0: serviceIndexes })
     cfr.rewriteCsvFile(schema, path.Join(folderFilename, "calendar_dates.txt"), path.Join(outFolderFilename, "calendar_dates.txt"), map[int]map[string]string{ 0: serviceIndexes })
@@ -268,7 +268,7 @@ func (cfr *CsvFileRewriter) loadColorsByRoute(agencyKey string) (map[string]stri
 
     asset, err := data.Asset(fmt.Sprintf("resources/gtfs/%s/route-colors.csv", agencyKey))
     if err != nil {
-        log.Printf("[loadColorsByRoute] err: %v", asset, err)
+        log.Printf("[loadColorsByRoute] asset: %v - err: %v", asset, err)
         return nil, err
     }
 
@@ -329,6 +329,10 @@ func (cfr *CsvFileRewriter) fixRouteColors(agencyKey, filePath, outFilePath stri
                     }
 
                     record[8] = "FFFFFF"
+
+                    if record[7] == record[8] {
+                        record[8] = "000000"
+                    }
                 }
             }
 

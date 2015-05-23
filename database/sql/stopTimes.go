@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"github.com/helyx-io/gtfs-importer/models"
-	"github.com/helyx-io/gtfs-importer/database"
-	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/commute-importer/models"
+	"github.com/helyx-io/commute-importer/database"
+	"github.com/helyx-io/commute-importer/tasks"
+	"github.com/helyx-io/commute-importer/utils"
 )
 
 
@@ -137,8 +137,10 @@ func (m SQLStopTimesImportTask) ImportModels(headers []string, sts []interface{}
             args = "(?, ?, ?, ?, ?, ?, ?, ?)"
         }
 
-        valueStrings = append(valueStrings, args)
-		valueArgs = append(
+		// Tmp fix for invalid line
+		if st.DepartureTime != "" && st.ArrivalTime != "" {
+			valueStrings = append(valueStrings, args)
+			valueArgs = append(
 			valueArgs,
 			st.TripId,
 			st.ArrivalTime,
@@ -148,19 +150,21 @@ func (m SQLStopTimesImportTask) ImportModels(headers []string, sts []interface{}
 			st.StopHeadSign,
 			st.PickupType,
 			st.DropOffType,
-		)
+			)
 
-		count += 1
+			count += 1
 
-		if count >= 1024 {
-			stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
+			if count >= 1024 {
+				stmt := fmt.Sprintf(query, strings.Join(valueStrings, ","))
 
-			_, err = dbSql.Exec(stmt, valueArgs...)
-			utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
+				_, err = dbSql.Exec(stmt, valueArgs...)
+				utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
 
-			valueStrings = make([]string, 0, len(sts))
-			valueArgs = make([]interface{}, 0, len(sts) * 9)
-			count = 0
+				valueStrings = make([]string, 0, len(sts))
+				valueArgs = make([]interface{}, 0, len(sts) * 8)
+				count = 0
+			}
+
 		}
 	}
 

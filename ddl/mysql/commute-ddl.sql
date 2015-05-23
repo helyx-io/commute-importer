@@ -1,18 +1,18 @@
 -- SQL dump 10.13  Distrib 5.6.15, for osx10.7 (x86_64)
 --
--- Host: localhost    Database: gtfs
+-- Host: localhost    Database: commute
 -- ------------------------------------------------------
 -- Server version	5.6.15
 
-DROP SCHEMA IF EXISTS `gtfs`;
-CREATE SCHEMA `gtfs` DEFAULT CHARACTER SET utf8mb4;
+DROP SCHEMA IF EXISTS `commute`;
+CREATE SCHEMA `commute` DEFAULT CHARACTER SET utf8mb4;
 
--- CREATE USER 'gtfs'@'localhost' IDENTIFIED BY 'gtfs';
--- GRANT ALL PRIVILEGES ON *.* TO 'gtfs'@'localhost';
--- CREATE USER 'gtfs'@'172.17.1.%' IDENTIFIED BY 'gtfs';
--- GRANT ALL PRIVILEGES ON *.* TO 'gtfs'@'172.17.1.%';
--- CREATE USER 'gtfs'@'%' IDENTIFIED BY 'gtfs';
--- GRANT ALL PRIVILEGES ON *.* TO 'gtfs'@'%';
+-- CREATE USER 'commute'@'localhost' IDENTIFIED BY 'commute';
+-- GRANT ALL PRIVILEGES ON *.* TO 'commute'@'localhost';
+-- CREATE USER 'commute'@'172.17.1.%' IDENTIFIED BY 'commute';
+-- GRANT ALL PRIVILEGES ON *.* TO 'commute'@'172.17.1.%';
+-- CREATE USER 'commute'@'%' IDENTIFIED BY 'commute';
+-- GRANT ALL PRIVILEGES ON *.* TO 'commute'@'%';
 -- flush privileges;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -26,7 +26,7 @@ CREATE SCHEMA `gtfs` DEFAULT CHARACTER SET utf8mb4;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-use gtfs;
+use commute;
 
 --
 -- Table structure for table `access_tokens`
@@ -116,6 +116,28 @@ CREATE TABLE `pem_clients` (
 -- Table structure for table `users`
 --
 
+-- DROP TABLE IF EXISTS `users`;
+-- /*!40101 SET @saved_cs_client     = @@character_set_client */;
+-- /*!40101 SET character_set_client = utf8 */;
+-- CREATE TABLE `users` (
+--  `id` int(11) NOT NULL AUTO_INCREMENT,
+--  `firstname` varchar(255) DEFAULT NULL,
+--  `lastname` varchar(255) DEFAULT NULL,
+--  `gender` varchar(255) DEFAULT NULL,
+--  `email` varchar(255) DEFAULT NULL,
+--  `google_id` varchar(255) DEFAULT NULL,
+--  `avatar_url` varchar(255) DEFAULT NULL,
+--  `role` varchar(255) DEFAULT NULL,
+--  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--  PRIMARY KEY (`id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `users`
+--
+
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
@@ -125,13 +147,51 @@ CREATE TABLE `users` (
   `lastname` varchar(255) DEFAULT NULL,
   `gender` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
   `google_id` varchar(255) DEFAULT NULL,
   `avatar_url` varchar(255) DEFAULT NULL,
   `role` varchar(255) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `token` varchar(128) DEFAULT NULL,
+  `reset_token` varchar(128) DEFAULT NULL,
+  `reset_demand_expiration_date` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `activities`
+--
+
+DROP TABLE IF EXISTS `activities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `activities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `verb` varchar(16) DEFAULT NULL,
+  `published` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `actor_object_type` varchar(64) DEFAULT NULL,
+  `actor_id` varchar(128) DEFAULT NULL,
+  `actor_display_name` varchar(128) DEFAULT NULL,
+  `actor_url` varchar(256) DEFAULT NULL,
+  `actor_image_url` varchar(256) DEFAULT NULL,
+  `actor_image_media_type` varchar(32) DEFAULT NULL,
+  `actor_image_width` int(11) DEFAULT NULL,
+  `actor_image_height` int(11) DEFAULT NULL,
+  `object_type` varchar(64) DEFAULT NULL,
+  `object_id` varchar(128) DEFAULT NULL,
+  `object_url` varchar(256) DEFAULT NULL,
+  `object_display_name` varchar(128) DEFAULT NULL,
+  `target_object_type` varchar(64) DEFAULT NULL,
+  `target_id` varchar(128) DEFAULT NULL,
+  `target_display_name` varchar(128) DEFAULT NULL,
+  `target_url` varchar(256) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

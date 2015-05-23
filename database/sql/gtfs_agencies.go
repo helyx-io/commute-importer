@@ -9,9 +9,9 @@ import (
 	"log"
     "strconv"
 	"strings"
-	"github.com/helyx-io/gtfs-importer/database"
-	"github.com/helyx-io/gtfs-importer/models"
-	"github.com/helyx-io/gtfs-importer/tasks"
+	"github.com/helyx-io/commute-importer/database"
+	"github.com/helyx-io/commute-importer/models"
+	"github.com/helyx-io/commute-importer/tasks"
 )
 
 
@@ -86,7 +86,7 @@ func (m SQLGtfsAgenciesImportTask) ImportModels(headers []string, as []interface
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(as))
-	valueArgs := make([]interface{}, 0, len(as) * 5)
+	valueArgs := make([]interface{}, 0, len(as) * 6)
 
 	for index, entry := range as {
         i := index * 6
@@ -111,7 +111,7 @@ func (m SQLGtfsAgenciesImportTask) ImportModels(headers []string, as []interface
 		)
 	}
 
-	table := "gtfs.agencies"
+	table := "commute.agencies"
 
 	log.Printf("[%s][%d] Inserting into table: '%s'", m.AgencyKey, m.JobIndex, table)
 

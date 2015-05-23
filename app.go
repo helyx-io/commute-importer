@@ -14,13 +14,13 @@ import (
     "github.com/gorilla/mux"
     "github.com/justinas/alice"
 
-    "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/config"
-	"github.com/helyx-io/gtfs-importer/session"
-    "github.com/helyx-io/gtfs-importer/database"
-    "github.com/helyx-io/gtfs-importer/database/sql"
-    "github.com/helyx-io/gtfs-importer/handlers"
-    "github.com/helyx-io/gtfs-importer/controller"
+    "github.com/helyx-io/commute-importer/utils"
+    "github.com/helyx-io/commute-importer/config"
+	"github.com/helyx-io/commute-importer/session"
+    "github.com/helyx-io/commute-importer/database"
+    "github.com/helyx-io/commute-importer/database/sql"
+    "github.com/helyx-io/commute-importer/handlers"
+    "github.com/helyx-io/commute-importer/controller"
     "gopkg.in/redis.v2"
 )
 

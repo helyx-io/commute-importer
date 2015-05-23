@@ -1,1 +1,1 @@
-DELETE FROM gtfs.agencies WHERE agency_key=$1;
+DELETE FROM commute.agencies WHERE agency_key=$1;

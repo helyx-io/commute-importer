@@ -3,7 +3,7 @@ package tasks
 import (
 	"log"
 	"fmt"
-	"github.com/helyx-io/gtfs-importer/models"
+	"github.com/helyx-io/commute-importer/models"
 )
 
 type Task interface {

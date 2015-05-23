@@ -1,24 +1,24 @@
-gtfs-importer
+commute-importer
 =============
 
 This project aims to be an playground to explore General Transit Feed Specification Reference by enabling import GTFS data sets into a SQL database and exposing an API to query data.
 
-[![Build Status](https://travis-ci.org/helyx-io/gtfs-importer.svg?branch=master)](https://travis-ci.org/helyx-io/gtfs-importer)
-[![Coverage Status](https://coveralls.io/repos/helyx-io/gtfs-importer/badge.png)](https://coveralls.io/r/helyx-io/gtfs-importer)
+[![Build Status](https://travis-ci.org/helyx-io/commute-importer.svg?branch=master)](https://travis-ci.org/helyx-io/commute-importer)
+[![Coverage Status](https://coveralls.io/repos/helyx-io/commute-importer/badge.png)](https://coveralls.io/r/helyx-io/commute-importer)
 
 
 
 Dump Database
 -------------
 
-    mysqldump --no-data -hlocalhost -ugtfs -pgtfs gtfs > ddl/gtfs-ddl.sql  
+    mysqldump --no-data -hlocalhost -ucommute -pcommute commute > ddl/commute-ddl.sql  
     
     
 
 Import Database
 ---------------
 
-    mysql -ugtfs -pgtfs gtfs < gtfs-ddl.sql
+    mysql -ucommute -pcommute commute < commute-ddl.sql
     
  
 

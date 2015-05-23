@@ -5,12 +5,12 @@ package database
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-    "github.com/helyx-io/gtfs-importer/config"
+    "github.com/helyx-io/commute-importer/config"
     "github.com/jinzhu/gorm"
     "fmt"
     "log"
-    "github.com/helyx-io/gtfs-importer/data"
-    "github.com/helyx-io/gtfs-importer/utils"
+    "github.com/helyx-io/commute-importer/data"
+    "github.com/helyx-io/commute-importer/utils"
     "regexp"
     "database/sql"
     "text/template"

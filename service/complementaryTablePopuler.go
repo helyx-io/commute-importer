@@ -5,8 +5,8 @@ package service
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-    "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/database"
+    "github.com/helyx-io/commute-importer/utils"
+    "github.com/helyx-io/commute-importer/database"
 )
 
 

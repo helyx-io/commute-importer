@@ -9,9 +9,9 @@ import (
     "fmt"
     "regexp"
     "strings"
-    "github.com/helyx-io/gtfs-importer/data"
-    "github.com/helyx-io/gtfs-importer/database"
-    "github.com/helyx-io/gtfs-importer/utils"
+    "github.com/helyx-io/commute-importer/data"
+    "github.com/helyx-io/commute-importer/database"
+    "github.com/helyx-io/commute-importer/utils"
 )
 
 
@@ -87,10 +87,11 @@ func (stfi *StopTimesFullImporter) ImportStopTimesFull(schema string, columnLeng
 
     doneCount := 0
     for insertLineResult := range insertLineDoneChan {
+        doneCount += 1
         if insertLineResult.Error != nil {
             log.Printf("Received event on done chan with error: '%s'", insertLineResult.Error)
         } else {
-            doneCount += 1
+            log.Printf("Line count: %v - done count: %v", len(lines), doneCount)
             if len(lines) == doneCount {
                 log.Printf("Closing done chan.")
                 close(insertLineDoneChan)

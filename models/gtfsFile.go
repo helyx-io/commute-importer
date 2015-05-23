@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/commute-importer/utils"
 )
 
 type GTFSFile struct {

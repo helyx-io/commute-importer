@@ -8,10 +8,10 @@ import (
 	"fmt"
 	"log"
 	"strings"
-	"github.com/helyx-io/gtfs-importer/database"
-	"github.com/helyx-io/gtfs-importer/models"
-	"github.com/helyx-io/gtfs-importer/tasks"
-	"github.com/helyx-io/gtfs-importer/utils"
+	"github.com/helyx-io/commute-importer/database"
+	"github.com/helyx-io/commute-importer/models"
+	"github.com/helyx-io/commute-importer/tasks"
+	"github.com/helyx-io/commute-importer/utils"
 )
 
 
@@ -105,7 +105,7 @@ func (m SQLStopsImportTask) ImportModels(headers []string, ss []interface{}) err
 	defer dbSql.Close()
 
 	valueStrings := make([]string, 0, len(ss))
-	valueArgs := make([]interface{}, 0, len(ss) * 10)
+	valueArgs := make([]interface{}, 0, len(ss) * 11)
 
 	table := fmt.Sprintf("gtfs_%s.stops", m.AgencyKey)
 
@@ -163,7 +163,7 @@ func (m SQLStopsImportTask) ImportModels(headers []string, ss []interface{}) err
 			utils.FailOnError(err, fmt.Sprintf("Could not insert into table with name: '%s'", table))
 
 			valueStrings = make([]string, 0, len(ss))
-			valueArgs = make([]interface{}, 0, len(ss) * 9)
+			valueArgs = make([]interface{}, 0, len(ss) * 11)
 			count = 0
 		}
 	}

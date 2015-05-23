@@ -5,7 +5,7 @@ package database
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 import (
-    "github.com/helyx-io/gtfs-importer/config"
+    "github.com/helyx-io/commute-importer/config"
     "github.com/jinzhu/gorm"
 )
 

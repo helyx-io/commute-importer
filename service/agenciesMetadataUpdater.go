@@ -7,9 +7,9 @@ package service
 import (
     "log"
     "fmt"
-    "github.com/helyx-io/gtfs-importer/data"
-    "github.com/helyx-io/gtfs-importer/utils"
-    "github.com/helyx-io/gtfs-importer/database"
+    "github.com/helyx-io/commute-importer/data"
+    "github.com/helyx-io/commute-importer/utils"
+    "github.com/helyx-io/commute-importer/database"
 )
 
 

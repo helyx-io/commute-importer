@@ -9,9 +9,9 @@ import (
 	"log"
     "strconv"
 	"strings"
-	"github.com/helyx-io/gtfs-importer/database"
-	"github.com/helyx-io/gtfs-importer/models"
-	"github.com/helyx-io/gtfs-importer/tasks"
+	"github.com/helyx-io/commute-importer/database"
+	"github.com/helyx-io/commute-importer/models"
+	"github.com/helyx-io/commute-importer/tasks"
 )
 
 

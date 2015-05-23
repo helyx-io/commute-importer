@@ -7,7 +7,7 @@ import (
 	"bytes"
     "errors"
     "encoding/csv"
-    "github.com/helyx-io/gtfs-importer/csv/length"
+    "github.com/helyx-io/commute-importer/csv/length"
 )
 
 type Records [][]string

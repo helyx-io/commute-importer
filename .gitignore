@@ -30,5 +30,5 @@ src/github.com/gorilla
 src/labix.org
 access.log
 app
-gtfs-importer
+commute-importer
 
