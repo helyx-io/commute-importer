@@ -1361,6 +1361,26 @@ func resources_gtfs_ratp_route_colors_csv() (*asset, error) {
 	return a, nil
 }
 
+var _resources_gtfs_transilien_route_colors_csv = []byte("\x1f\x8b\x08\x00\x00\x09\x6e\x88\x00\xff\x4c\xca\x4b\x0a\xc2\x40\x0c\xc6\xf1\x7d\x4f\x11\xba\x8e\xa8\xf5\x04\x5a\x1f\x9b\x0a\x52\xc1\x6d\x09\x6d\x98\x16\xa6\x13\xc9\x4c\x17\x73\xa4\x9e\xa3\x17\xf3\xc1\x08\xae\xf2\xcb\x9f\x8f\x0c\xbb\x36\x36\x43\x87\x2a\x53\xe0\xc6\xf7\xa2\xa1\x71\x34\x72\x0a\x56\x9c\xf9\xff\x3b\xf6\x6d\x62\x88\xcf\x5f\x9d\xd4\x26\xb5\x62\x45\xb3\xfa\x54\xe3\x1e\xf3\x2b\xa9\x63\xb0\x04\x0f\xb2\x76\x99\x19\xca\x9e\xbd\x8f\x08\x07\x19\xde\x17\xee\x61\x55\x2d\xb3\x61\x85\xf5\xc7\x17\xd6\x91\x06\x07\xec\xa0\xa2\xc8\x08\xb7\xef\x0c\xa1\x64\x35\x31\x47\x2c\x10\x8f\xdb\xdd\xa6\x38\x67\xaf\x00\x00\x00\xff\xff\x49\x87\xa2\x39\xb8\x00\x00\x00")
+
+func resources_gtfs_transilien_route_colors_csv_bytes() ([]byte, error) {
+	return bindata_read(
+		_resources_gtfs_transilien_route_colors_csv,
+		"resources/gtfs/TRANSILIEN/route-colors.csv",
+	)
+}
+
+func resources_gtfs_transilien_route_colors_csv() (*asset, error) {
+	bytes, err := resources_gtfs_transilien_route_colors_csv_bytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindata_file_info{name: "resources/gtfs/TRANSILIEN/route-colors.csv", size: 184, mode: os.FileMode(420), modTime: time.Unix(1432383596, 0)}
+	a := &asset{bytes: bytes, info:  info}
+	return a, nil
+}
+
 // Asset loads and returns the asset for the given name.
 // It returns an error if the asset could not be found or
 // could not be loaded.
@@ -1467,6 +1487,7 @@ var _bindata = map[string]func() (*asset, error){
 	"resources/ddl/postgres/update-agency-zone.sql": resources_ddl_postgres_update_agency_zone_sql,
 	"resources/ddl/postgres/update-gtfs-agency-zone.sql": resources_ddl_postgres_update_gtfs_agency_zone_sql,
 	"resources/gtfs/RATP/route-colors.csv": resources_gtfs_ratp_route_colors_csv,
+	"resources/gtfs/TRANSILIEN/route-colors.csv": resources_gtfs_transilien_route_colors_csv,
 }
 
 // AssetDir returns the file names below a certain
@@ -1647,6 +1668,10 @@ var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 		"gtfs": &_bintree_t{nil, map[string]*_bintree_t{
 			"RATP": &_bintree_t{nil, map[string]*_bintree_t{
 				"route-colors.csv": &_bintree_t{resources_gtfs_ratp_route_colors_csv, map[string]*_bintree_t{
+				}},
+			}},
+			"TRANSILIEN": &_bintree_t{nil, map[string]*_bintree_t{
+				"route-colors.csv": &_bintree_t{resources_gtfs_transilien_route_colors_csv, map[string]*_bintree_t{
 				}},
 			}},
 		}},
